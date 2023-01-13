@@ -1,0 +1,10 @@
+# Configuration for a Ring Universus
+# Defined in TOML as per https://toml.io/en/v1.0.0
+
+[initializers]
+START_PAUSED = true
+
+
+[town_initializers]
+EXPLORER_FEE_RATIO = 1000
+EXPLORER_SLOT = 10
