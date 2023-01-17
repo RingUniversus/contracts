@@ -1,4 +1,4 @@
-# Configuration for a Ring Universus
+# Configuration for Ring Universus
 # Defined in TOML as per https://toml.io/en/v1.0.0
 
 [initializers]
@@ -6,5 +6,9 @@ START_PAUSED = true
 
 
 [town_initializers]
-EXPLORER_FEE_RATIO = 1000
+EXPLORER_FEE_RATIO = 1000             # 10.00%
+SYSTEM_EXPLORE_FEE_RATIO = 1000       # 10.00%
 EXPLORER_SLOT = 10
+MIN_EXPLORE_TIME = 1800         # 0.5 * 3600, 30 mins
+MAX_EXPLORE_TIME = 604800       # 7 * 24 * 3600, 7 days
+MAX_EXPLORE_REWARDS = 4000      # max 4000 token rewards

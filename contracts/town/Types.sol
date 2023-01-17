@@ -13,3 +13,7 @@ struct Town {
     uint256 explorerSlot;
     uint256 createdAt;
 }
+
+struct Attribute {
+    uint256 explorerCounter;
+}

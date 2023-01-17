@@ -19,9 +19,8 @@ import {
   decodeTownInitializers,
 } from "@ringuniversus/settings";
 import "./tasks/compile";
-import "./tasks/deploy";
 import "./tasks/deployTown";
-import "./tasks/upgrades";
+import "./tasks/settingIndex";
 import "./tasks/utils";
 
 require("dotenv").config();

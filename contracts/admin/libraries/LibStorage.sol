@@ -1,8 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0
 pragma solidity ^0.8.0;
 
-import "hardhat/console.sol";
-
+// Storage imports
 import {LibDiamond} from "../../vendor/libraries/LibDiamond.sol";
 
 // Game config
@@ -12,7 +11,7 @@ struct GameConstants {
 
 library LibStorage {
     bytes32 private constant GAME_CONSTANTS_POSITION =
-        keccak256("ringuniversus.constants.game");
+        keccak256("ringuniversus.admin.constants.game");
 
     function gameConstants() internal pure returns (GameConstants storage gc) {
         bytes32 position = GAME_CONSTANTS_POSITION;
@@ -34,12 +33,8 @@ contract WithStorage {
 /**
  * Shared modifiers.
  */
-contract Modifiers is WithStorage {
+contract Modifiers {
     modifier onlyOwner() {
-        console.log("*****************");
-        console.log(msg.sender);
-        console.log(LibDiamond.contractOwner());
-        console.log("*****************");
         LibDiamond.enforceIsContractOwner();
         _;
     }

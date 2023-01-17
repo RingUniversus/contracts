@@ -115,9 +115,6 @@ async function copyAbi(
       }
     );
 
-    // workaround for: https://github.com/graphprotocol/graph-cli/issues/588
-    // just remove calls we cant process, note makes them unusable from within
-    // graph but largely dont need these
     const filteredDiamondAbi = abi.filter(abiFilter);
     await fs.writeFile(
       path.join(abisDir, `${nameForAbi(app)}_stripped.json`),

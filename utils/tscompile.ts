@@ -9,7 +9,7 @@ interface CompiledOuput {
 
 // This provides a utility for turning a string of TypeScript into strings of JS and DTS
 // https://github.com/microsoft/TypeScript/wiki/Using-the-Compiler-API#getting-the-dts-from-a-javascript-file
-export function tscompile(input: string): CompiledOuput {
+export function tscompile(input: string, appName: string): CompiledOuput {
   const options = {
     ...ts.getDefaultCompilerOptions(),
     declaration: true,
@@ -17,7 +17,7 @@ export function tscompile(input: string): CompiledOuput {
     sourceMap: true,
     inlineSources: true,
   };
-  const inputFileName = "index.ts";
+  const inputFileName = `${appName}.ts`;
   const sourceFile = ts.createSourceFile(
     inputFileName,
     input,
@@ -47,9 +47,9 @@ export function tscompile(input: string): CompiledOuput {
   program.emit();
 
   return {
-    jsContents: createdFiles["index.js"],
-    jsmapContents: createdFiles["index.js.map"],
-    dtsContents: createdFiles["index.d.ts"],
-    dtsmapContents: createdFiles["index.d.ts.map"],
+    jsContents: createdFiles[`${appName}.js`],
+    jsmapContents: createdFiles[`${appName}.js.map`],
+    dtsContents: createdFiles[`${appName}.d.ts`],
+    dtsmapContents: createdFiles[`${appName}.d.ts.map`],
   };
 }

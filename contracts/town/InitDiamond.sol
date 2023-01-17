@@ -19,9 +19,12 @@ import {ERC721MetadataStorage} from "@solidstate/contracts/token/ERC721/metadata
 // of your diamond. Add parameters to the init funciton if you need to.
 
 struct InitArgs {
-    // 1000 means 10.00%
     uint256 EXPLORER_FEE_RATIO;
+    uint256 SYSTEM_EXPLORE_FEE_RATIO;
     uint256 EXPLORER_SLOT;
+    uint256 MIN_EXPLORE_TIME;
+    uint256 MAX_EXPLORE_TIME;
+    uint256 MAX_EXPLORE_REWARDS;
 }
 
 contract InitDiamond is WithStorage {
@@ -56,6 +59,13 @@ contract InitDiamond is WithStorage {
         // layout.baseURI = baseURI;
 
         gameConstants().EXPLORER_FEE_RATIO = initArgs.EXPLORER_FEE_RATIO;
+        gameConstants().SYSTEM_EXPLORE_FEE_RATIO = initArgs
+            .SYSTEM_EXPLORE_FEE_RATIO;
         gameConstants().EXPLORER_SLOT = initArgs.EXPLORER_SLOT;
+        gameConstants().MIN_EXPLORE_TIME = initArgs.MIN_EXPLORE_TIME;
+        gameConstants().MAX_EXPLORE_TIME = initArgs.MAX_EXPLORE_TIME;
+        gameConstants().MAX_EXPLORE_REWARDS =
+            initArgs.MAX_EXPLORE_REWARDS *
+            1e18;
     }
 }

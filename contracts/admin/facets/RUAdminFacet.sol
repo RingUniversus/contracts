@@ -5,12 +5,12 @@ pragma solidity ^0.8.0;
 import {IRUTownFacet} from "../../town/interfaces/IRUTownFacet.sol";
 
 // Storage imports
-import {Modifiers} from "../libraries/LibStorage.sol";
+import {Modifiers, WithStorage} from "../libraries/LibStorage.sol";
 
 // Type imports
 import {Point} from "../../shared/Types.sol";
 
-contract RUCoreFacet is Modifiers {
+contract RUCoreFacet is Modifiers, WithStorage {
     function createTown(Point memory _point)
         public
         onlyOwner

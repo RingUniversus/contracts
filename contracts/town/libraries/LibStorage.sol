@@ -6,13 +6,21 @@ import "hardhat/console.sol";
 import {LibDiamond} from "../../vendor/libraries/LibDiamond.sol";
 
 // Type imports
-import {Town} from "../Types.sol";
+import {Town, Attribute} from "../Types.sol";
 
 struct GameStorage {
     // Contract housekeeping
     address diamondAddress;
-    // NFT
+    // Player contract
+    address playerAddress;
+    // Town metadata
     mapping(uint256 => Town) towns;
+    // Town extra Attribute
+    // town nft id => attribute
+    mapping(uint256 => Attribute) townAttributes;
+    // Town Explorer mapping
+    // town nft id => Explorer slot index id => explorer address
+    mapping(uint256 => mapping(uint256 => address)) townExplorers;
     // Current NFT Token ID
     uint256 townTokenId;
 }
@@ -21,7 +29,11 @@ struct GameStorage {
 struct GameConstants {
     // 1000 means 10.00%
     uint256 EXPLORER_FEE_RATIO;
+    uint256 SYSTEM_EXPLORE_FEE_RATIO;
     uint256 EXPLORER_SLOT;
+    uint256 MIN_EXPLORE_TIME;
+    uint256 MAX_EXPLORE_TIME;
+    uint256 MAX_EXPLORE_REWARDS;
 }
 
 /**
@@ -70,11 +82,11 @@ struct GameConstants {
 library LibStorage {
     // Storage are structs where the data gets updated throughout the lifespan of the game
     bytes32 private constant GAME_STORAGE_POSITION =
-        keccak256("ringuniversus.storage.game");
+        keccak256("ringuniversus.town.storage.game");
     // Constants are structs where the data gets configured on game initialization
     // and configured by Admin or Owner
     bytes32 private constant GAME_CONSTANTS_POSITION =
-        keccak256("ringuniversus.constants.game");
+        keccak256("ringuniversus.town.constants.game");
 
     function gameStorage() internal pure returns (GameStorage storage gs) {
         bytes32 position = GAME_STORAGE_POSITION;
@@ -116,11 +128,16 @@ contract WithStorage {
  */
 contract Modifiers is WithStorage {
     modifier onlyOwner() {
-        console.log("*****************");
-        console.log(msg.sender);
-        console.log(LibDiamond.contractOwner());
-        console.log("*****************");
         LibDiamond.enforceIsContractOwner();
+        _;
+    }
+
+    modifier onlyOwnerOrPlayer() {
+        require(
+            msg.sender == gs().playerAddress ||
+                msg.sender == LibDiamond.contractOwner(),
+            "Only the Owner or Player Contract addresses can fiddle with town."
+        );
         _;
     }
 }
