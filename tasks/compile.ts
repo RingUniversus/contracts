@@ -40,6 +40,7 @@ async function copyAbi(
     // shared: [],
     vendor: [],
   };
+
   for (const contractName of contracts) {
     if (!["Facet"].some((m) => contractName.match(m))) {
       // console.log(

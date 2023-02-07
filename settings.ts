@@ -6,7 +6,6 @@ import {
 import toml from "@iarna/toml";
 import chalk from "chalk";
 import { cosmiconfigSync } from "cosmiconfig";
-import * as decoders from "decoders";
 // HRE stuff
 import "hardhat/types/runtime";
 import * as path from "path";
@@ -31,12 +30,12 @@ declare module "hardhat/types/runtime" {
 }
 
 // Util for parsing & validating schemas with pretty printing
-export function parse<S>(
-  guard: decoders.Guard<S>,
-  data: unknown
-): ReturnType<decoders.Guard<S>> {
+export function parse(
+  verify: Function,
+  externalData: unknown
+): ReturnType<any> {
   try {
-    return guard(data);
+    return verify(externalData);
   } catch (err) {
     if (err instanceof Error) {
       printValidationErrors(err);

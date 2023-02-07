@@ -161,6 +161,7 @@ export async function deployAndCut(
   // Deploy and cut
   const changes = new DiamondChanges();
 
+  // TODO: Deploy libraries
   // const libraries = await deployLibraries({}, hre);
   const libraries = {};
 

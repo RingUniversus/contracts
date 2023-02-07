@@ -4,12 +4,12 @@
 // organize-imports-ignore
 import "@nomiclabs/hardhat-ethers";
 import "@nomiclabs/hardhat-waffle";
-// Must be registered after hardhat-diamond-abi
-import "@solidstate/hardhat-4byte-uploader";
+import dotenv from "dotenv";
+// import "@solidstate/hardhat-4byte-uploader";
 import "@typechain/hardhat";
 import "hardhat-contract-sizer";
-import { extendEnvironment, HardhatUserConfig } from "hardhat/config";
-import { lazyObject } from "hardhat/plugins";
+import { extendEnvironment, HardhatUserConfig } from "hardhat/config.js";
+import { lazyObject } from "hardhat/plugins.js";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import * as path from "path";
 import * as settings from "./settings";
@@ -19,12 +19,11 @@ import {
   decodeTownInitializers,
 } from "@ringuniversus/settings";
 import "./tasks/compile";
-import "./tasks/deployTown";
+import "./tasks/town";
 import "./tasks/settingIndex";
 import "./tasks/utils";
 
-require("dotenv").config();
-console.log(settings.resolvePackageDir("@typechain/hardhat"));
+dotenv.config();
 
 const { DEPLOYER_MNEMONIC, ADMIN_PUBLIC_ADDRESS } = process.env;
 

@@ -17,11 +17,11 @@ import {Town, Attribute} from "../Types.sol";
 contract RUTownFacet is Modifiers, SolidStateERC721 {
     using UintUtils for uint256;
 
-    function getTown(uint256 _tokenId) public view returns (Town memory) {
+    function metadata(uint256 _tokenId) public view returns (Town memory) {
         return gs().towns[_tokenId];
     }
 
-    function getTownAttribute(uint256 _tokenId)
+    function attribute(uint256 _tokenId)
         public
         view
         returns (Attribute memory)
@@ -29,28 +29,28 @@ contract RUTownFacet is Modifiers, SolidStateERC721 {
         return gs().townAttributes[_tokenId];
     }
 
-    function getTownAtIndex(uint256 _idx) public view returns (Town memory) {
+    function metadataAtIndex(uint256 _idx) public view returns (Town memory) {
         return gs().towns[tokenByIndex(_idx)];
     }
 
-    function getTownExplorerList(uint256 _tokenId)
+    function explorerList(uint256 _tokenId)
         public
         view
         returns (address[] memory)
     {
-        uint256 townExplorerSlot = getTown(_tokenId).explorerSlot;
-        address[] memory explorerList = new address[](townExplorerSlot);
-        for (uint256 index = 0; index < townExplorerSlot; index++) {
-            explorerList[index] = gs().townExplorers[_tokenId][index];
+        uint256 _townExplorerSlot = metadata(_tokenId).explorerSlot;
+        address[] memory _explorerList = new address[](_townExplorerSlot);
+        for (uint256 index = 0; index < _townExplorerSlot; index++) {
+            _explorerList[index] = gs().townExplorers[_tokenId][index];
         }
-        return explorerList;
+        return _explorerList;
     }
 
-    function changeAttributes(uint256 _tokenId, int256 _step) public {
-        gs().townAttributes[_tokenId].explorerCounter =
-            gs().townAttributes[_tokenId].explorerCounter +
-            uint256(_step);
-    }
+    // function changeAttributes(uint256 _tokenId, int256 _step) public {
+    //     gs().townAttributes[_tokenId].explorerCounter =
+    //         gs().townAttributes[_tokenId].explorerCounter +
+    //         uint256(_step);
+    // }
 
     /**
      * Create new Town
@@ -131,8 +131,8 @@ contract RUTownFacet is Modifiers, SolidStateERC721 {
         public
         onlyOwnerOrPlayer
     {
-        uint256 townExplorerCount = getTownAttribute(_tokenId).explorerCounter;
-        uint256 townExplorerSlot = getTown(_tokenId).explorerSlot;
+        uint256 townExplorerCount = attribute(_tokenId).explorerCounter;
+        uint256 townExplorerSlot = metadata(_tokenId).explorerSlot;
         require(townExplorerCount < townExplorerSlot, "No explorer slot left.");
 
         for (uint256 index = 0; index < townExplorerSlot; index++) {
@@ -155,8 +155,8 @@ contract RUTownFacet is Modifiers, SolidStateERC721 {
         public
         onlyOwnerOrPlayer
     {
-        uint256 townExplorerCount = getTownAttribute(_tokenId).explorerCounter;
-        uint256 townExplorerSlot = getTown(_tokenId).explorerSlot;
+        uint256 townExplorerCount = attribute(_tokenId).explorerCounter;
+        uint256 townExplorerSlot = metadata(_tokenId).explorerSlot;
         if (townExplorerCount == 0) {
             return;
         }
