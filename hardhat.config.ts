@@ -17,9 +17,11 @@ import {
   decodeContracts,
   decodeInitializers,
   decodeTownInitializers,
+  decodeRingInitializers,
 } from "@ringuniversus/settings";
 import "./tasks/compile";
 import "./tasks/town";
+import "./tasks/ring";
 import "./tasks/settingIndex";
 import "./tasks/utils";
 
@@ -60,6 +62,14 @@ extendEnvironment((env: HardhatRuntimeEnvironment) => {
       "town_initializers"
     );
     return settings.parse(decodeTownInitializers, initializers);
+  });
+
+  env.ringInitializers = lazyObject(() => {
+    const { initializers = {} } = settings.load(
+      env.network.name,
+      "ring_initializers"
+    );
+    return settings.parse(decodeRingInitializers, initializers);
   });
 });
 

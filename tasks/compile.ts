@@ -35,10 +35,11 @@ async function copyAbi(
   await fs.mkdir(abisDir, { recursive: true });
 
   let mergedAbisByApps: Record<string, any[]> = {
-    admin: [],
-    town: [],
-    // shared: [],
     vendor: [],
+    // shared: [],
+    town: [],
+    ring: [],
+    admin: [],
   };
 
   for (const contractName of contracts) {

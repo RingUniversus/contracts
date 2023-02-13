@@ -47,6 +47,7 @@ async function settingIndex(args: {}, hre: HardhatRuntimeEnvironment) {
    */
 
   export * as town from "./town";
+  export * as ring from "./ring";
   `;
 
   const { jsContents, jsmapContents, dtsContents, dtsmapContents } = tscompile(

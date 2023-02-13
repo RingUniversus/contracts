@@ -2,6 +2,7 @@ import {
   Contracts,
   Initializers,
   TownInitializers,
+  RingInitializers,
 } from "@ringuniversus/settings";
 import toml from "@iarna/toml";
 import chalk from "chalk";
@@ -26,6 +27,7 @@ declare module "hardhat/types/runtime" {
     // Contract Initializers
     initializers: Initializers;
     townInitializers: TownInitializers;
+    ringInitializers: RingInitializers;
   }
 }
 

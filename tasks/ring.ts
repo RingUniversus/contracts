@@ -14,18 +14,18 @@ import {
   deployOwnershipFacet,
 } from "./utils";
 
-task("deployTown", "deploy town's contracts").setAction(deploy);
-task(
-  "upgradeTown",
-  "upgrade town contracts and replace in the diamond"
-).setAction(upgrade);
+task("deployRing", "deploy ring's contracts").setAction(deploy);
+// task(
+//   "upgradeRing",
+//   "upgrade ring contracts and replace in the diamond"
+// ).setAction(upgrade);
 
 async function deploy(args: {}, hre: HardhatRuntimeEnvironment) {
   const isDev =
     hre.network.name === "localhost" || hre.network.name === "hardhat";
 
   // Ensure we have required keys in our initializers
-  settings.required(hre.townInitializers, []);
+  settings.required(hre.ringInitializers, []);
 
   // need to force a compile for tasks
   await hre.run("compile");
@@ -50,7 +50,7 @@ async function deploy(args: {}, hre: HardhatRuntimeEnvironment) {
   const [diamond, diamondInit, initReceipt] = await deployAndCut(
     {
       ownerAddress: deployer.address,
-      initializers: hre.townInitializers,
+      initializers: hre.ringInitializers,
     },
     hre
   );
@@ -66,7 +66,7 @@ async function deploy(args: {}, hre: HardhatRuntimeEnvironment) {
   // give all contract administration over to an admin adress if was provided
   if (hre.ADMIN_PUBLIC_ADDRESS) {
     const ownership = await hre.ethers.getContractAt(
-      "RingUniversusTown",
+      "RingUniversusRing",
       diamond.address
     );
     const tx = await ownership.transferOwnership(hre.ADMIN_PUBLIC_ADDRESS);
@@ -89,53 +89,53 @@ async function saveDeploy(
 
   // Save the addresses of the deployed contracts to the `@ringuniversus/contracts` package
   const tsContents = dedent`
-  /**
-   * This package contains deployed contract addresses, ABIs, and Typechain types
-   * for the Ring Universus Town.
-   */
-
-  /**
-   * The name of the network where these contracts are deployed.
-   */
-  export const NETWORK = '${hre.network.name}';
-  /**
-   * The id of the network where these contracts are deployed.
-   */
-  export const NETWORK_ID = ${hre.network.config.chainId};
-  /**
-   * The block in which the RingUniversus contract was initialized.
-   */
-  export const START_BLOCK = ${isDev ? 0 : args.coreBlockNumber};
-  /**
-   * The address for the RingUniversusTown contract.
-   */
-  export const CONTRACT_ADDRESS = '${args.diamondAddress}';
-  `;
+    /**
+     * This package contains deployed contract addresses, ABIs, and Typechain types
+     * for the Ring Universus Ring.
+     */
+  
+    /**
+     * The name of the network where these contracts are deployed.
+     */
+    export const NETWORK = '${hre.network.name}';
+    /**
+     * The id of the network where these contracts are deployed.
+     */
+    export const NETWORK_ID = ${hre.network.config.chainId};
+    /**
+     * The block in which the RingUniversus contract was initialized.
+     */
+    export const START_BLOCK = ${isDev ? 0 : args.coreBlockNumber};
+    /**
+     * The address for the RingUniversusRing contract.
+     */
+    export const CONTRACT_ADDRESS = '${args.diamondAddress}';
+    `;
 
   const { jsContents, jsmapContents, dtsContents, dtsmapContents } = tscompile(
     tsContents,
-    "town"
+    "ring"
   );
 
   const contractsFileTS = path.join(
     hre.packageDirs["@ringuniversus/contracts"],
-    "town.ts"
+    "ring.ts"
   );
   const contractsFileJS = path.join(
     hre.packageDirs["@ringuniversus/contracts"],
-    "town.js"
+    "ring.js"
   );
   const contractsFileJSMap = path.join(
     hre.packageDirs["@ringuniversus/contracts"],
-    "town.js.map"
+    "ring.js.map"
   );
   const contractsFileDTS = path.join(
     hre.packageDirs["@ringuniversus/contracts"],
-    "town.d.ts"
+    "ring.d.ts"
   );
   const contractsFileDTSMap = path.join(
     hre.packageDirs["@ringuniversus/contracts"],
-    "town.d.ts.map"
+    "ring.d.ts.map"
   );
 
   fs.writeFileSync(contractsFileTS, tsContents);
@@ -151,7 +151,7 @@ export async function deployAndCut(
     initializers,
   }: {
     ownerAddress: string;
-    initializers: HardhatRuntimeEnvironment["townInitializers"];
+    initializers: HardhatRuntimeEnvironment["ringInitializers"];
   },
   hre: HardhatRuntimeEnvironment
 ) {
@@ -162,8 +162,7 @@ export async function deployAndCut(
   const changes = new DiamondChanges();
 
   // TODO: Deploy libraries
-  // const libraries = await deployLibraries({}, hre);
-  const libraries = {};
+  const libraries = await deployLibraries({}, hre);
 
   // Diamond Spec facets
   // Note: These won't be updated during an upgrade without manual intervention
@@ -190,31 +189,24 @@ export async function deployAndCut(
 
   const diamondInit = await deployDiamondInit(
     {
-      targetContract: "contracts/town/InitDiamond.sol:InitDiamond",
+      targetContract: "contracts/ring/InitDiamond.sol:InitDiamond",
     },
     libraries,
     hre
   );
 
   // Ring Universus facets
-  const townFacet = await deployTownFacet({}, libraries, hre);
+  const ringFacet = await deployRingFacet({}, libraries, hre);
 
   // The `cuts` to perform for Ring Universus facets
-  const ringUniversusTownFacetCuts = [
-    ...changes.getFacetCuts("RUTownFacet", townFacet),
+  const ringUniversusRingFacetCuts = [
+    ...changes.getFacetCuts("RURingFacet", ringFacet),
   ];
 
-  if (isDev) {
-    // const debugFacet = await deployDebugFacet({}, libraries, hre);
-    // ringUniversusFacetCuts.push(
-    //   ...changes.getFacetCuts("RUTownDebugFacet", debugFacet)
-    // );
-  }
-
-  const toCut = [...diamondSpecFacetCuts, ...ringUniversusTownFacetCuts];
+  const toCut = [...diamondSpecFacetCuts, ...ringUniversusRingFacetCuts];
 
   const diamondCut = await hre.ethers.getContractAt(
-    "RingUniversusTown",
+    "RingUniversusRing",
     diamond.address
   );
 
@@ -230,84 +222,43 @@ export async function deployAndCut(
   );
   const initReceipt = await initTx.wait();
   if (!initReceipt.status) {
-    throw Error(`Town's Diamond cut failed: ${initTx.hash}`);
+    throw Error(`Ring's Diamond cut failed: ${initTx.hash}`);
   }
-  console.log("Completed town's diamond cut");
+  console.log("Completed ring's diamond cut");
   return [diamond, diamondInit, initReceipt] as const;
 }
 
-async function upgrade({}, hre: HardhatRuntimeEnvironment) {
-  await hre.run("utils:assertChainId", { appName: "town" });
-
-  const isDev =
-    hre.network.name === "localhost" || hre.network.name === "hardhat";
-
-  // need to force a compile for tasks
-  await hre.run("compile");
-
-  console.log("Town Diamond address:", hre.contracts.town.CONTRACT_ADDRESS);
-  const diamond = await hre.ethers.getContractAt(
-    "RingUniversusTown",
-    hre.contracts.town.CONTRACT_ADDRESS
-  );
-
-  const previousFacets = await diamond.facets();
-
-  const changes = new DiamondChanges(previousFacets);
-
-  const libraries = {};
-
-  // Ring Universus facets
-  const townFacet = await deployTownFacet({}, libraries, hre);
-
-  // The `cuts` to perform for Ring Universus facets
-  const ringUniversusTownFacetCuts = [
-    ...changes.getFacetCuts("RUTownFacet", townFacet),
-  ];
-
-  // The `cuts` to remove any old, unused functions
-  const removeCuts = changes.getRemoveCuts(ringUniversusTownFacetCuts);
-
-  const shouldUpgrade = await changes.verify();
-  if (!shouldUpgrade) {
-    console.log("Upgrade aborted");
-    return;
-  }
-
-  const toCut = [...ringUniversusTownFacetCuts, ...removeCuts];
-
-  // As mentioned in the `deploy` task, EIP-2535 specifies that the `diamondCut`
-  // function takes two optional arguments: address _init and bytes calldata _calldata
-  // However, in a standard upgrade, no state modifications are done, so the 0x0 address
-  // and empty calldata are specified for those `diamondCut` parameters.
-  // If the Diamond storage needs to be changed on an upgrade, a contract would need to be
-  // deployed and these variables would need to be adjusted similar to the `deploy` task.
-  const initAddress = hre.ethers.constants.AddressZero;
-  const initFunctionCall = "0x";
-
-  const upgradeTx = await diamond.diamondCut(
-    toCut,
-    initAddress,
-    initFunctionCall
-  );
-  const upgradeReceipt = await upgradeTx.wait();
-  if (!upgradeReceipt.status) {
-    throw Error(`Diamond cut failed: ${upgradeTx.hash}`);
-  }
-  console.log("Completed diamond cut");
-  console.log("Upgraded successfully. Godspeed cadet.");
-}
-
-export async function deployTownFacet(
+export async function deployRingFacet(
   {},
-  {}: Libraries,
+  { LibRing }: Libraries,
   hre: HardhatRuntimeEnvironment
 ) {
-  const factory = await hre.ethers.getContractFactory("RUTownFacet", {
-    libraries: {},
+  const factory = await hre.ethers.getContractFactory("RURingFacet", {
+    libraries: { LibRing },
   });
   const contract = await factory.deploy();
   await contract.deployTransaction.wait();
-  console.log(`RUTownFacet deployed to: ${contract.address}`);
+  console.log(`RURingFacet deployed to: ${contract.address}`);
   return contract;
+}
+
+export async function deployLibraries({}, hre: HardhatRuntimeEnvironment) {
+  // TODO: Deploy shared libraries first
+  const LibUtilFactory = await hre.ethers.getContractFactory(
+    "contracts/shared/libraries/LibUtil.sol:LibUtil"
+  );
+  const LibUtil = await LibUtilFactory.deploy();
+  await LibUtil.deployTransaction.wait();
+
+  const LibRingFactory = await hre.ethers.getContractFactory("LibRing", {
+    libraries: {
+      LibUtil: LibUtil.address,
+    },
+  });
+  const LibRing = await LibRingFactory.deploy();
+  await LibRing.deployTransaction.wait();
+
+  return {
+    LibRing: LibRing.address,
+  };
 }
