@@ -21,11 +21,9 @@ contract RUTownFacet is Modifiers, SolidStateERC721 {
         return gs().towns[_tokenId];
     }
 
-    function attribute(uint256 _tokenId)
-        public
-        view
-        returns (Attribute memory)
-    {
+    function attribute(
+        uint256 _tokenId
+    ) public view returns (Attribute memory) {
         return gs().townAttributes[_tokenId];
     }
 
@@ -33,11 +31,9 @@ contract RUTownFacet is Modifiers, SolidStateERC721 {
         return gs().towns[tokenByIndex(_idx)];
     }
 
-    function explorerList(uint256 _tokenId)
-        public
-        view
-        returns (address[] memory)
-    {
+    function explorerList(
+        uint256 _tokenId
+    ) public view returns (address[] memory) {
         uint256 _townExplorerSlot = metadata(_tokenId).explorerSlot;
         address[] memory _explorerList = new address[](_townExplorerSlot);
         for (uint256 index = 0; index < _townExplorerSlot; index++) {
@@ -55,11 +51,10 @@ contract RUTownFacet is Modifiers, SolidStateERC721 {
     /**
      * Create new Town
      */
-    function create(address _owner, Point memory _location)
-        public
-        onlyOwner
-        returns (uint256)
-    {
+    function create(
+        address _owner,
+        Point memory _location
+    ) public onlyOwner returns (uint256) {
         uint256 tokenId = gs().townTokenId++;
 
         _mint(_owner, tokenId);
@@ -90,15 +85,7 @@ contract RUTownFacet is Modifiers, SolidStateERC721 {
         uint256 _tokenId,
         uint256 _spendTime,
         uint256 _attackPower
-    )
-        public
-        view
-        returns (
-            uint256,
-            uint256,
-            uint256
-        )
-    {
+    ) public view returns (uint256, uint256, uint256) {
         if (_spendTime <= gameConstants().MIN_EXPLORE_TIME) {
             return (
                 0,
@@ -127,10 +114,10 @@ contract RUTownFacet is Modifiers, SolidStateERC721 {
     /**
      * Add a player as town's explorer
      */
-    function addExplorer(uint256 _tokenId, address _player)
-        public
-        onlyOwnerOrPlayer
-    {
+    function addExplorer(
+        uint256 _tokenId,
+        address _player
+    ) public onlyOwnerOrPlayer {
         uint256 townExplorerCount = attribute(_tokenId).explorerCounter;
         uint256 townExplorerSlot = metadata(_tokenId).explorerSlot;
         require(townExplorerCount < townExplorerSlot, "No explorer slot left.");
@@ -151,10 +138,10 @@ contract RUTownFacet is Modifiers, SolidStateERC721 {
     /**
      * Remove a explorer from town
      */
-    function removeExplorer(uint256 _tokenId, address _player)
-        public
-        onlyOwnerOrPlayer
-    {
+    function removeExplorer(
+        uint256 _tokenId,
+        address _player
+    ) public onlyOwnerOrPlayer {
         uint256 townExplorerCount = attribute(_tokenId).explorerCounter;
         uint256 townExplorerSlot = metadata(_tokenId).explorerSlot;
         if (townExplorerCount == 0) {

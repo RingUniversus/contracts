@@ -24,11 +24,10 @@ contract RURingFacet is Modifiers {
     /**
      * Mint new Ring
      */
-    function mint(uint256 _ringId, address _explorer)
-        public
-        onlyOwner
-        returns (uint256)
-    {
+    function mint(
+        uint256 _ringId,
+        address _explorer
+    ) public onlyOwner returns (uint256) {
         LibRing.mintByExplorer(_ringId, _explorer);
         return _ringId;
     }
@@ -37,10 +36,10 @@ contract RURingFacet is Modifiers {
     /// @dev Update Minting ratio after town increase
     /// @param _ringId ring token ID
     /// @param _step town count
-    function increaseTownCount(uint256 _ringId, uint256 _step)
-        public
-        onlyOwner
-    {
+    function increaseTownCount(
+        uint256 _ringId,
+        uint256 _step
+    ) public onlyOwner {
         require(_step > 0, "Step must greater than 1.");
         gs().rings[_ringId].townCount += _step;
         if (gs().rings[_ringId].townCount >= gs().rings[_ringId].townLimit) {

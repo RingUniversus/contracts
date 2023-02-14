@@ -3,6 +3,7 @@ import {
   Initializers,
   TownInitializers,
   RingInitializers,
+  CoinInitializers,
 } from "@ringuniversus/settings";
 import toml from "@iarna/toml";
 import chalk from "chalk";
@@ -28,6 +29,7 @@ declare module "hardhat/types/runtime" {
     initializers: Initializers;
     townInitializers: TownInitializers;
     ringInitializers: RingInitializers;
+    coinInitializers: CoinInitializers;
   }
 }
 

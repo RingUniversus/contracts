@@ -59,6 +59,7 @@ async function deploy(args: {}, hre: HardhatRuntimeEnvironment) {
     {
       coreBlockNumber: initReceipt.blockNumber,
       diamondAddress: diamond.address,
+      initAddress: diamondInit.address,
     },
     hre
   );
@@ -81,6 +82,7 @@ async function saveDeploy(
   args: {
     coreBlockNumber: number;
     diamondAddress: string;
+    initAddress: string;
   },
   hre: HardhatRuntimeEnvironment
 ) {
@@ -110,6 +112,10 @@ async function saveDeploy(
    * The address for the RingUniversusTown contract.
    */
   export const CONTRACT_ADDRESS = '${args.diamondAddress}';
+  /**
+   * The address for the initalizer contract. Useful for lobbies.
+   */
+  export const INIT_ADDRESS = '${args.initAddress}';
   `;
 
   const { jsContents, jsmapContents, dtsContents, dtsmapContents } = tscompile(

@@ -2,6 +2,7 @@ import * as fs from "fs";
 import { task } from "hardhat/config";
 import { HardhatRuntimeEnvironment, Libraries } from "hardhat/types";
 import path from "path";
+import { exit } from "process";
 import dedent from "ts-dedent";
 import * as settings from "../settings";
 import { DiamondChanges } from "../utils/diamond";
@@ -14,10 +15,10 @@ import {
   deployOwnershipFacet,
 } from "./utils";
 
-task("deployRing", "deploy ring's contracts").setAction(deploy);
+task("deployCoin", "deploy coin's contracts").setAction(deploy);
 task(
-  "upgradeRing",
-  "upgrade ring contracts and replace in the diamond"
+  "upgradeCoin",
+  "upgrade coin contracts and replace in the diamond"
 ).setAction(upgrade);
 
 async function deploy(args: {}, hre: HardhatRuntimeEnvironment) {
@@ -25,7 +26,7 @@ async function deploy(args: {}, hre: HardhatRuntimeEnvironment) {
     hre.network.name === "localhost" || hre.network.name === "hardhat";
 
   // Ensure we have required keys in our initializers
-  settings.required(hre.ringInitializers, []);
+  settings.required(hre.coinInitializers, []);
 
   // need to force a compile for tasks
   await hre.run("compile");
@@ -50,7 +51,7 @@ async function deploy(args: {}, hre: HardhatRuntimeEnvironment) {
   const [diamond, diamondInit, initReceipt] = await deployAndCut(
     {
       ownerAddress: deployer.address,
-      initializers: hre.ringInitializers,
+      initializers: hre.coinInitializers,
     },
     hre
   );
@@ -67,7 +68,7 @@ async function deploy(args: {}, hre: HardhatRuntimeEnvironment) {
   // give all contract administration over to an admin adress if was provided
   if (hre.ADMIN_PUBLIC_ADDRESS) {
     const ownership = await hre.ethers.getContractAt(
-      "RingUniversusRing",
+      "RingUniversusCoin",
       diamond.address
     );
     const tx = await ownership.transferOwnership(hre.ADMIN_PUBLIC_ADDRESS);
@@ -91,57 +92,57 @@ async function saveDeploy(
 
   // Save the addresses of the deployed contracts to the `@ringuniversus/contracts` package
   const tsContents = dedent`
-    /**
-     * This package contains deployed contract addresses, ABIs, and Typechain types
-     * for the Ring Universus Ring.
-     */
-  
-    /**
-     * The name of the network where these contracts are deployed.
-     */
-    export const NETWORK = '${hre.network.name}';
-    /**
-     * The id of the network where these contracts are deployed.
-     */
-    export const NETWORK_ID = ${hre.network.config.chainId};
-    /**
-     * The block in which the RingUniversus contract was initialized.
-     */
-    export const START_BLOCK = ${isDev ? 0 : args.coreBlockNumber};
-    /**
-     * The address for the RingUniversusRing contract.
-     */
-    export const CONTRACT_ADDRESS = '${args.diamondAddress}';
-    /**
-     * The address for the initalizer contract. Useful for lobbies.
-     */
-    export const INIT_ADDRESS = '${args.initAddress}';  
-    `;
+  /**
+   * This package contains deployed contract addresses, ABIs, and Typechain types
+   * for the Ring Universus Coin.
+   */
+
+  /**
+   * The name of the network where these contracts are deployed.
+   */
+  export const NETWORK = '${hre.network.name}';
+  /**
+   * The id of the network where these contracts are deployed.
+   */
+  export const NETWORK_ID = ${hre.network.config.chainId};
+  /**
+   * The block in which the RingUniversus contract was initialized.
+   */
+  export const START_BLOCK = ${isDev ? 0 : args.coreBlockNumber};
+  /**
+   * The address for the RingUniversusCoin contract.
+   */
+  export const CONTRACT_ADDRESS = '${args.diamondAddress}';
+  /**
+   * The address for the initalizer contract. Useful for lobbies.
+   */
+  export const INIT_ADDRESS = '${args.initAddress}';
+  `;
 
   const { jsContents, jsmapContents, dtsContents, dtsmapContents } = tscompile(
     tsContents,
-    "ring"
+    "coin"
   );
 
   const contractsFileTS = path.join(
     hre.packageDirs["@ringuniversus/contracts"],
-    "ring.ts"
+    "coin.ts"
   );
   const contractsFileJS = path.join(
     hre.packageDirs["@ringuniversus/contracts"],
-    "ring.js"
+    "coin.js"
   );
   const contractsFileJSMap = path.join(
     hre.packageDirs["@ringuniversus/contracts"],
-    "ring.js.map"
+    "coin.js.map"
   );
   const contractsFileDTS = path.join(
     hre.packageDirs["@ringuniversus/contracts"],
-    "ring.d.ts"
+    "coin.d.ts"
   );
   const contractsFileDTSMap = path.join(
     hre.packageDirs["@ringuniversus/contracts"],
-    "ring.d.ts.map"
+    "coin.d.ts.map"
   );
 
   fs.writeFileSync(contractsFileTS, tsContents);
@@ -157,7 +158,7 @@ export async function deployAndCut(
     initializers,
   }: {
     ownerAddress: string;
-    initializers: HardhatRuntimeEnvironment["ringInitializers"];
+    initializers: HardhatRuntimeEnvironment["coinInitializers"];
   },
   hre: HardhatRuntimeEnvironment
 ) {
@@ -167,8 +168,9 @@ export async function deployAndCut(
   // Deploy and cut
   const changes = new DiamondChanges();
 
-  // Deploy libraries
-  const libraries = await deployLibraries({}, hre);
+  // TODO: Deploy libraries
+  // const libraries = await deployLibraries({}, hre);
+  const libraries = {};
 
   // Diamond Spec facets
   // Note: These won't be updated during an upgrade without manual intervention
@@ -195,24 +197,31 @@ export async function deployAndCut(
 
   const diamondInit = await deployDiamondInit(
     {
-      targetContract: "contracts/ring/InitDiamond.sol:InitDiamond",
+      targetContract: "contracts/coin/InitDiamond.sol:InitDiamond",
     },
     libraries,
     hre
   );
 
   // Ring Universus facets
-  const ringFacet = await deployRingFacet({}, libraries, hre);
+  const coinFacet = await deployCoinFacet({}, libraries, hre);
 
   // The `cuts` to perform for Ring Universus facets
-  const ringUniversusRingFacetCuts = [
-    ...changes.getFacetCuts("RURingFacet", ringFacet),
+  const ringUniversusCoinFacetCuts = [
+    ...changes.getFacetCuts("RUCoinFacet", coinFacet),
   ];
 
-  const toCut = [...diamondSpecFacetCuts, ...ringUniversusRingFacetCuts];
+  if (isDev) {
+    // const debugFacet = await deployDebugFacet({}, libraries, hre);
+    // ringUniversusFacetCuts.push(
+    //   ...changes.getFacetCuts("RUCoinDebugFacet", debugFacet)
+    // );
+  }
+
+  const toCut = [...diamondSpecFacetCuts, ...ringUniversusCoinFacetCuts];
 
   const diamondCut = await hre.ethers.getContractAt(
-    "RingUniversusRing",
+    "RingUniversusCoin",
     diamond.address
   );
 
@@ -228,14 +237,14 @@ export async function deployAndCut(
   );
   const initReceipt = await initTx.wait();
   if (!initReceipt.status) {
-    throw Error(`Ring's Diamond cut failed: ${initTx.hash}`);
+    throw Error(`Coin's Diamond cut failed: ${initTx.hash}`);
   }
-  console.log("Completed ring's diamond cut");
+  console.log("Completed coin's diamond cut");
   return [diamond, diamondInit, initReceipt] as const;
 }
 
 async function upgrade({}, hre: HardhatRuntimeEnvironment) {
-  await hre.run("utils:assertChainId", { appName: "ring" });
+  await hre.run("utils:assertChainId", { appName: "coin" });
 
   const isDev =
     hre.network.name === "localhost" || hre.network.name === "hardhat";
@@ -243,29 +252,28 @@ async function upgrade({}, hre: HardhatRuntimeEnvironment) {
   // need to force a compile for tasks
   await hre.run("compile");
 
-  console.log("Ring Diamond address:", hre.contracts.ring.CONTRACT_ADDRESS);
+  console.log("Coin Diamond address:", hre.contracts.coin.CONTRACT_ADDRESS);
   const diamond = await hre.ethers.getContractAt(
-    "RingUniversusRing",
-    hre.contracts.ring.CONTRACT_ADDRESS
+    "RingUniversusCoin",
+    hre.contracts.coin.CONTRACT_ADDRESS
   );
 
   const previousFacets = await diamond.facets();
 
   const changes = new DiamondChanges(previousFacets);
 
-  // Deploy libraries
-  const libraries = await deployLibraries({}, hre);
+  const libraries = {};
 
   // Ring Universus facets
-  const ringFacet = await deployRingFacet({}, libraries, hre);
+  const coinFacet = await deployCoinFacet({}, libraries, hre);
 
   // The `cuts` to perform for Ring Universus facets
-  const ringUniversusRingFacetCuts = [
-    ...changes.getFacetCuts("RURingFacet", ringFacet),
+  const ringUniversusCoinFacetCuts = [
+    ...changes.getFacetCuts("RUCoinFacet", coinFacet),
   ];
 
   // The `cuts` to remove any old, unused functions
-  const removeCuts = changes.getRemoveCuts(ringUniversusRingFacetCuts);
+  const removeCuts = changes.getRemoveCuts(ringUniversusCoinFacetCuts);
 
   const shouldUpgrade = await changes.verify();
   if (!shouldUpgrade) {
@@ -273,7 +281,7 @@ async function upgrade({}, hre: HardhatRuntimeEnvironment) {
     return;
   }
 
-  const toCut = [...ringUniversusRingFacetCuts, ...removeCuts];
+  const toCut = [...ringUniversusCoinFacetCuts, ...removeCuts];
 
   // As mentioned in the `deploy` task, EIP-2535 specifies that the `diamondCut`
   // function takes two optional arguments: address _init and bytes calldata _calldata
@@ -297,37 +305,16 @@ async function upgrade({}, hre: HardhatRuntimeEnvironment) {
   console.log("Upgraded successfully. Godspeed cadet.");
 }
 
-export async function deployRingFacet(
+export async function deployCoinFacet(
   {},
-  { LibRing }: Libraries,
+  {}: Libraries,
   hre: HardhatRuntimeEnvironment
 ) {
-  const factory = await hre.ethers.getContractFactory("RURingFacet", {
-    libraries: { LibRing },
+  const factory = await hre.ethers.getContractFactory("RUCoinFacet", {
+    libraries: {},
   });
   const contract = await factory.deploy();
   await contract.deployTransaction.wait();
-  console.log(`RURingFacet deployed to: ${contract.address}`);
+  console.log(`RUCoinFacet deployed to: ${contract.address}`);
   return contract;
-}
-
-export async function deployLibraries({}, hre: HardhatRuntimeEnvironment) {
-  // TODO: Deploy shared libraries first
-  const LibUtilFactory = await hre.ethers.getContractFactory(
-    "contracts/shared/libraries/LibUtil.sol:LibUtil"
-  );
-  const LibUtil = await LibUtilFactory.deploy();
-  await LibUtil.deployTransaction.wait();
-
-  const LibRingFactory = await hre.ethers.getContractFactory("LibRing", {
-    libraries: {
-      LibUtil: LibUtil.address,
-    },
-  });
-  const LibRing = await LibRingFactory.deploy();
-  await LibRing.deployTransaction.wait();
-
-  return {
-    LibRing: LibRing.address,
-  };
 }

@@ -98,7 +98,10 @@ library LibRing {
     /**
      * Mint new ring with default args by explorer.
      */
-    function mintByExplorer(uint256 _ringId, address _explorer) public returns (uint256) {
+    function mintByExplorer(
+        uint256 _ringId,
+        address _explorer
+    ) public returns (uint256) {
         (Ring memory _ring, bool exists) = metadata(_ringId);
         // Use assert because it's system logic error and should not happen
         assert(exists == false);

@@ -18,11 +18,13 @@ import {
   decodeInitializers,
   decodeTownInitializers,
   decodeRingInitializers,
+  decodeCoinInitializers,
 } from "@ringuniversus/settings";
 import "./tasks/compile";
+import "./tasks/settingIndex";
 import "./tasks/town";
 import "./tasks/ring";
-import "./tasks/settingIndex";
+import "./tasks/coin";
 import "./tasks/utils";
 
 dotenv.config();
@@ -70,6 +72,14 @@ extendEnvironment((env: HardhatRuntimeEnvironment) => {
       "ring_initializers"
     );
     return settings.parse(decodeRingInitializers, initializers);
+  });
+
+  env.coinInitializers = lazyObject(() => {
+    const { initializers = {} } = settings.load(
+      env.network.name,
+      "coin_initializers"
+    );
+    return settings.parse(decodeCoinInitializers, initializers);
   });
 });
 
@@ -156,7 +166,7 @@ const config: HardhatUserConfig = {
   },
   typechain: {
     outDir: path.join(packageDirs["@ringuniversus/contracts"], "typechain"),
-    target: "ethers-v5",
+    // target: "ethers-v5",
   },
 };
 

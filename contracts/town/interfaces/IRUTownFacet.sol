@@ -5,7 +5,8 @@ pragma solidity ^0.8.0;
 import {Point} from "../../shared/Types.sol";
 
 interface IRUTownFacet {
-    function create(address _owner, Point memory _location)
-        external
-        returns (uint256);
+    function create(
+        address _owner,
+        Point memory _location
+    ) external returns (uint256);
 }

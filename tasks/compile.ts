@@ -39,6 +39,7 @@ async function copyAbi(
     // shared: [],
     town: [],
     ring: [],
+    coin: [],
     admin: [],
   };
 

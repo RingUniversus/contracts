@@ -66,7 +66,7 @@
     "hardhat:dev": "hardhat --network localhost",
     "hardhat:prod": "hardhat --network xdai",
     "hardhat:mainnet": "hardhat --network mainnet",
-    "compile": "hardhat compile",
+    "compile": "del-cli artifacts && hardhat compile",
     "subgraph:template:dev": "yarn hardhat:dev subgraph:codegen",
     "subgraph:template:prod": "yarn hardhat:prod subgraph:codegen",
     "subgraph:deploy:dev": "yarn hardhat:dev subgraph:deploy --name df",

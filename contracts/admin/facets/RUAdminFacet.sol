@@ -11,11 +11,9 @@ import {Modifiers, WithStorage} from "../libraries/LibStorage.sol";
 import {Point} from "../../shared/Types.sol";
 
 contract RUCoreFacet is Modifiers, WithStorage {
-    function createTown(Point memory _point)
-        public
-        onlyOwner
-        returns (uint256)
-    {
+    function createTown(
+        Point memory _point
+    ) public onlyOwner returns (uint256) {
         return
             IRUTownFacet(gameConstants().UNIVERSUS_DIAMOND_ADDRESS).create(
                 msg.sender,

@@ -9,25 +9,16 @@ import {IERC173} from "../vendor/interfaces/IERC173.sol";
 import {IERC165} from "../vendor/interfaces/IERC165.sol";
 // Custom import blow
 import {WithStorage} from "./libraries/LibStorage.sol";
-import {IERC721} from "@solidstate/contracts/interfaces/IERC721.sol";
-import {IERC721Metadata} from "@solidstate/contracts/token/ERC721/metadata/IERC721Metadata.sol";
-import {IERC721Enumerable} from "@solidstate/contracts/token/ERC721/enumerable/IERC721Enumerable.sol";
-import {ERC721MetadataStorage} from "@solidstate/contracts/token/ERC721/metadata/ERC721MetadataStorage.sol";
-
-import {Ring} from "./Types.sol";
-import {LibRing} from "./libraries/LibRing.sol";
+import {IERC20} from "@solidstate/contracts/interfaces/IERC20.sol";
+import {IERC20Metadata} from "@solidstate/contracts/token/ERC20/metadata/IERC20Metadata.sol";
+import {ERC20MetadataStorage} from "@solidstate/contracts/token/ERC20/metadata/ERC20MetadataStorage.sol";
 
 // It is expected that this contract is customized if you want to deploy your diamond
 // with data from a deployment script. Use the init function to initialize state variables
 // of your diamond. Add parameters to the init funciton if you need to.
 
 struct InitArgs {
-    uint256 DISTANCE;
-    uint256 TOWN_MINTING_RATIO;
-    uint256 TOWN_OVER_MINTING_RATIO;
-    uint256 TOWN_RATIO_BONUS;
-    uint256 BOUNTY_MINTING_RATIO;
-    uint256 BOUNTY_RATIO_BONUS;
+    uint256 PLACE_HOLDER;
 }
 
 contract InitDiamond is WithStorage {
@@ -48,36 +39,16 @@ contract InitDiamond is WithStorage {
         // in order to set state variables in the diamond during deployment or an upgrade
         // More info here: https://eips.ethereum.org/EIPS/eip-2535#diamond-interface
 
-        ds.supportedInterfaces[type(IERC721).interfaceId] = true;
-        ds.supportedInterfaces[type(IERC721Metadata).interfaceId] = true;
-        ds.supportedInterfaces[type(IERC721Enumerable).interfaceId] = true;
+        ds.supportedInterfaces[type(IERC20).interfaceId] = true;
+        ds.supportedInterfaces[type(IERC20Metadata).interfaceId] = true;
 
         gs().diamondAddress = address(this);
 
-        gameConstants().DISTANCE = initArgs.DISTANCE;
-        // Town
-        gameConstants().TOWN_MINTING_RATIO = initArgs.TOWN_MINTING_RATIO;
-        gameConstants().TOWN_OVER_MINTING_RATIO = initArgs
-            .TOWN_OVER_MINTING_RATIO;
-        gameConstants().TOWN_RATIO_BONUS = initArgs.TOWN_RATIO_BONUS;
-        // Bounty
-        gameConstants().BOUNTY_MINTING_RATIO = initArgs.BOUNTY_MINTING_RATIO;
-        gameConstants().BOUNTY_RATIO_BONUS = initArgs.BOUNTY_RATIO_BONUS;
-
-        initDefaults();
-    }
-
-    function initDefaults() public {
-        // First ring mint by defaults by deployer
-        LibRing.mint(
-            Ring({
-                townLimit: 10,
-                townCount: 0,
-                townMintingRatio: gameConstants().TOWN_MINTING_RATIO,
-                bountyMintingRatio: gameConstants().BOUNTY_MINTING_RATIO,
-                explorer: msg.sender,
-                exploredAt: block.timestamp
-            })
-        );
+        // Coin config
+        ERC20MetadataStorage.Layout storage layout = ERC20MetadataStorage
+            .layout();
+        layout.name = "Universus Coin";
+        layout.symbol = "UNiC";
+        layout.decimals = 18; // 1e18
     }
 }

@@ -17,11 +17,10 @@ library LibUtil {
         return a * a;
     }
 
-    function caculateDistance(uint256 distanceX, uint256 distanceY)
-        public
-        pure
-        returns (uint256)
-    {
+    function caculateDistance(
+        uint256 distanceX,
+        uint256 distanceY
+    ) public pure returns (uint256) {
         return sqrt(sqr(distanceX) + sqr(distanceY));
     }
 }
