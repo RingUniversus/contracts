@@ -9,9 +9,10 @@ import {IERC173} from "../vendor/interfaces/IERC173.sol";
 import {IERC165} from "../vendor/interfaces/IERC165.sol";
 // Custom import blow
 import {WithStorage} from "./libraries/LibStorage.sol";
-import {IERC20} from "@solidstate/contracts/interfaces/IERC20.sol";
-import {IERC20Metadata} from "@solidstate/contracts/token/ERC20/metadata/IERC20Metadata.sol";
-import {ERC20MetadataStorage} from "@solidstate/contracts/token/ERC20/metadata/ERC20MetadataStorage.sol";
+import {IERC721} from "@solidstate/contracts/interfaces/IERC721.sol";
+import {IERC721Metadata} from "@solidstate/contracts/token/ERC721/metadata/IERC721Metadata.sol";
+import {IERC721Enumerable} from "@solidstate/contracts/token/ERC721/enumerable/IERC721Enumerable.sol";
+import {ERC721MetadataStorage} from "@solidstate/contracts/token/ERC721/metadata/ERC721MetadataStorage.sol";
 
 // It is expected that this contract is customized if you want to deploy your diamond
 // with data from a deployment script. Use the init function to initialize state variables
@@ -39,16 +40,19 @@ contract InitDiamond is WithStorage {
         // in order to set state variables in the diamond during deployment or an upgrade
         // More info here: https://eips.ethereum.org/EIPS/eip-2535#diamond-interface
 
-        ds.supportedInterfaces[type(IERC20).interfaceId] = true;
-        ds.supportedInterfaces[type(IERC20Metadata).interfaceId] = true;
+        ds.supportedInterfaces[type(IERC721).interfaceId] = true;
+        ds.supportedInterfaces[type(IERC721Metadata).interfaceId] = true;
+        ds.supportedInterfaces[type(IERC721Enumerable).interfaceId] = true;
 
         gs().diamondAddress = address(this);
 
-        // Coin config
-        ERC20MetadataStorage.Layout storage layout = ERC20MetadataStorage
+        // Equipment config
+        ERC721MetadataStorage.Layout storage layout = ERC721MetadataStorage
             .layout();
-        layout.name = "Universus Coin";
-        layout.symbol = "UNiC";
-        layout.decimals = 18; // 1e18
+        layout.name = "Universus Equipment";
+        layout.symbol = "UNiE";
+        // layout.baseURI = baseURI;
+
+        // gameConstants().EXPLORER_FEE_RATIO = initArgs.EXPLORER_FEE_RATIO;
     }
 }

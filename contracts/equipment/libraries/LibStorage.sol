@@ -5,11 +5,17 @@ import "hardhat/console.sol";
 
 import {LibDiamond} from "../../vendor/libraries/LibDiamond.sol";
 
+// Type imports
+import {Metadata} from "../Types.sol";
+
 struct GameStorage {
     // Contract housekeeping
     address diamondAddress;
     // Player contract
     address playerAddress;
+    mapping(uint256 => Metadata) equipments;
+    // Current Token ID
+    uint256 tokenId;
 }
 
 // Game config
@@ -63,11 +69,11 @@ struct GameConstants {
 library LibStorage {
     // Storage are structs where the data gets updated throughout the lifespan of the game
     bytes32 private constant GAME_STORAGE_POSITION =
-        keccak256("ringuniversus.coin.storage.game");
+        keccak256("ringuniversus.equipment.storage.game");
     // Constants are structs where the data gets configured on game initialization
     // and configured by Admin or Owner
     bytes32 private constant GAME_CONSTANTS_POSITION =
-        keccak256("ringuniversus.coin.constants.game");
+        keccak256("ringuniversus.equipment.constants.game");
 
     function gameStorage() internal pure returns (GameStorage storage gs) {
         bytes32 position = GAME_STORAGE_POSITION;
@@ -117,7 +123,7 @@ contract Modifiers is WithStorage {
         require(
             msg.sender == gs().playerAddress ||
                 msg.sender == LibDiamond.contractOwner(),
-            "Only the Owner or Player Contract addresses can fiddle with coin."
+            "Only the Owner or Player Contract addresses can fiddle with equipment."
         );
         _;
     }

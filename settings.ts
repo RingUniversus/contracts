@@ -4,6 +4,7 @@ import {
   TownInitializers,
   RingInitializers,
   CoinInitializers,
+  EquipmentInitializers,
 } from "@ringuniversus/settings";
 import toml from "@iarna/toml";
 import chalk from "chalk";
@@ -30,6 +31,7 @@ declare module "hardhat/types/runtime" {
     townInitializers: TownInitializers;
     ringInitializers: RingInitializers;
     coinInitializers: CoinInitializers;
+    equipmentInitializers: EquipmentInitializers;
   }
 }
 

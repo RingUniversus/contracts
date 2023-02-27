@@ -40,6 +40,7 @@ async function copyAbi(
     town: [],
     ring: [],
     coin: [],
+    equipment: [],
     admin: [],
   };
 

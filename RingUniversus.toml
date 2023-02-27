@@ -21,4 +21,7 @@ BOUNTY_MINTING_RATIO = 1000    # 10.00%
 BOUNTY_RATIO_BONUS = 100       # 1.00x
 
 [coin_initializers]
-PLACE_HOLDER = 0
+PLACEHOLDER = 0
+
+[equipment_initializers]
+PLACEHOLDER = 0
