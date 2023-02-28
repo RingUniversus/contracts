@@ -14,20 +14,12 @@ import {IERC721Metadata} from "@solidstate/contracts/token/ERC721/metadata/IERC7
 import {IERC721Enumerable} from "@solidstate/contracts/token/ERC721/enumerable/IERC721Enumerable.sol";
 import {ERC721MetadataStorage} from "@solidstate/contracts/token/ERC721/metadata/ERC721MetadataStorage.sol";
 
-import {Ring} from "./../shared/Types.sol";
-import {LibRing} from "./libraries/LibRing.sol";
-
 // It is expected that this contract is customized if you want to deploy your diamond
 // with data from a deployment script. Use the init function to initialize state variables
 // of your diamond. Add parameters to the init funciton if you need to.
 
 struct InitArgs {
-    uint256 DISTANCE;
-    uint256 TOWN_MINTING_RATIO;
-    uint256 TOWN_OVER_MINTING_RATIO;
-    uint256 TOWN_RATIO_BONUS;
-    uint256 BOUNTY_MINTING_RATIO;
-    uint256 BOUNTY_RATIO_BONUS;
+    uint256 PLACEHOLDER;
 }
 
 contract InitDiamond is WithStorage {
@@ -54,30 +46,7 @@ contract InitDiamond is WithStorage {
 
         gs().diamondAddress = address(this);
 
-        gameConstants().DISTANCE = initArgs.DISTANCE;
-        // Town
-        gameConstants().TOWN_MINTING_RATIO = initArgs.TOWN_MINTING_RATIO;
-        gameConstants().TOWN_OVER_MINTING_RATIO = initArgs
-            .TOWN_OVER_MINTING_RATIO;
-        gameConstants().TOWN_RATIO_BONUS = initArgs.TOWN_RATIO_BONUS;
-        // Bounty
-        gameConstants().BOUNTY_MINTING_RATIO = initArgs.BOUNTY_MINTING_RATIO;
-        gameConstants().BOUNTY_RATIO_BONUS = initArgs.BOUNTY_RATIO_BONUS;
-
-        initDefaults();
-    }
-
-    function initDefaults() public {
-        // First ring mint by defaults by deployer
-        LibRing.mint(
-            Ring({
-                townLimit: 10,
-                townCount: 0,
-                townMintingRatio: gameConstants().TOWN_MINTING_RATIO,
-                bountyMintingRatio: gameConstants().BOUNTY_MINTING_RATIO,
-                explorer: msg.sender,
-                exploredAt: block.timestamp
-            })
-        );
+        // Player config
+        // gameConstants().EXPLORER_FEE_RATIO = initArgs.EXPLORER_FEE_RATIO;
     }
 }

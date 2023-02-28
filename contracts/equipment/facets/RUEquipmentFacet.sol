@@ -13,89 +13,88 @@ import {Modifiers, WithStorage} from "../libraries/LibStorage.sol";
 
 // Type imports
 import {Point} from "../../shared/Types.sol";
-import {Metadata, Types, Rarity} from "../Types.sol";
+import {EMetadata, ETypes, ERarity} from "../../shared/Types.sol";
 
 contract RUEquipmentFacet is Modifiers, SolidStateERC721 {
     using UintUtils for uint256;
 
-    function metadata(uint256 _tokenId) public view returns (Metadata memory) {
+    function metadata(
+        uint256 _tokenId
+    ) external view returns (EMetadata memory) {
         return gs().equipments[_tokenId];
     }
 
-    function metadataAtIndex(uint256 _idx)
-        public
-        view
-        returns (Metadata memory)
-    {
+    function metadataAtIndex(
+        uint256 _idx
+    ) public view returns (EMetadata memory) {
         return gs().equipments[tokenByIndex(_idx)];
     }
 
     // Mint new E with give random words
     // 3 random words needed
-    function mint(address _player, uint256[] calldata _randomWords)
-        external
-        onlyOwnerOrPlayer
-        returns (uint256)
-    {
+    function mint(
+        address _player,
+        uint256[] calldata _randomWords
+    ) external onlyOwnerOrPlayer returns (uint256) {
         require(_randomWords.length == 3, "Random words length error.");
         uint256 _tokenId = gs().tokenId++;
         _safeMint(_player, _tokenId);
 
         // set Equipment metadata
         bool[] memory _effection = new bool[](2);
-        Metadata memory _metadata = Metadata({
-            eType: Types.Necklace,
+        EMetadata memory _metadata = EMetadata({
+            eType: ETypes.Necklace,
             effection: _effection,
-            rarity: Rarity.Common,
+            rarity: ERarity.Common,
             mintedBy: _player,
             equipedAt: 0
         });
         // Type
         uint256 eType256 = _randomWords[0] % 1001;
         if (eType256 < 100) {
-            _metadata.eType = Types.Necklace;
+            _metadata.eType = ETypes.Necklace;
         } else if (eType256 < 200) {
-            _metadata.eType = Types.Helmet;
+            _metadata.eType = ETypes.Helmet;
         } else if (eType256 < 300) {
-            _metadata.eType = Types.Wings;
+            _metadata.eType = ETypes.Wings;
         } else if (eType256 < 400) {
-            _metadata.eType = Types.Shield;
+            _metadata.eType = ETypes.Shield;
         } else if (eType256 < 500) {
-            _metadata.eType = Types.Chest;
+            _metadata.eType = ETypes.Chest;
         } else if (eType256 < 600) {
-            _metadata.eType = Types.Weapon;
+            _metadata.eType = ETypes.Weapon;
         } else if (eType256 < 700) {
-            _metadata.eType = Types.Ring;
+            _metadata.eType = ETypes.Ring;
         } else if (eType256 < 800) {
-            _metadata.eType = Types.Pants;
+            _metadata.eType = ETypes.Pants;
         } else if (eType256 < 900) {
-            _metadata.eType = Types.Gloves;
+            _metadata.eType = ETypes.Gloves;
         } else if (eType256 < 1000) {
-            _metadata.eType = Types.Boots;
+            _metadata.eType = ETypes.Boots;
         } else {
-            _metadata.eType = Types.Pet;
+            _metadata.eType = ETypes.Pet;
         }
 
         // Rarity
         uint256 rarity256 = _randomWords[1] % 1001;
         if (rarity256 < 500) {
             // about 50%
-            _metadata.rarity = Rarity.Common;
+            _metadata.rarity = ERarity.Common;
         } else if (rarity256 < 800) {
             // about 30%
-            _metadata.rarity = Rarity.Uncommon;
+            _metadata.rarity = ERarity.Uncommon;
         } else if (rarity256 < 940) {
             // about 14%
-            _metadata.rarity = Rarity.Rare;
+            _metadata.rarity = ERarity.Rare;
         } else if (rarity256 < 990) {
             // about 5%
-            _metadata.rarity = Rarity.Epic;
+            _metadata.rarity = ERarity.Epic;
         } else if (rarity256 < 1000) {
             // about 1%
-            _metadata.rarity = Rarity.Masterwork;
+            _metadata.rarity = ERarity.Masterwork;
         } else {
             // about .1%
-            _metadata.rarity = Rarity.Legendary;
+            _metadata.rarity = ERarity.Legendary;
         }
 
         // Effection

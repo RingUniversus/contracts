@@ -6,7 +6,9 @@
 2. Town
 3. Coin
 4. E (Equipment)
-5. ... (Coming Soon)
+5. Bounty
+6. Player Logic (Core)
+... (More Coming Soon)
 
 ## Avoid using ESM / BreakChange package
 

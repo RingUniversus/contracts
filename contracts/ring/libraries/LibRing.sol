@@ -3,11 +3,13 @@ pragma solidity ^0.8.0;
 
 // Storage imports
 import {LibStorage, GameStorage, GameConstants} from "./LibStorage.sol";
+
 // Library imports
 import {LibUtil} from "../../shared/libraries/LibUtil.sol";
 import {SafeCast} from "../../shared/libraries/LibSafeCast.sol";
+
 // Type imports
-import {Ring} from "../Types.sol";
+import {Ring} from "../../shared/Types.sol";
 
 library LibRing {
     using SafeCast for int256;

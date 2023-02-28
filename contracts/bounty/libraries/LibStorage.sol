@@ -6,32 +6,21 @@ import "hardhat/console.sol";
 import {LibDiamond} from "../../vendor/libraries/LibDiamond.sol";
 
 // Type imports
-import {Ring} from "../../shared/Types.sol";
+import {BTYMetadata, BTYInfo} from "../../shared/Types.sol";
 
 struct GameStorage {
     // Contract housekeeping
     address diamondAddress;
-    // Player contract
     address playerAddress;
-    // Ring token ID
     uint256 tokenId;
-    mapping(uint256 => Ring) rings;
+    mapping(uint256 => BTYMetadata) metadata;
+    // ring's bounty info
+    mapping(uint256 => BTYInfo[]) ringBountyInfo;
 }
 
 // Game config
 struct GameConstants {
-    // Distance for each circle
-    // 100000 means 10.0000
-    uint256 DISTANCE;
-    // Mint town ratio
-    // 1000 means 10.00%
-    uint256 TOWN_MINTING_RATIO;
-    uint256 TOWN_OVER_MINTING_RATIO;
-    uint256 TOWN_RATIO_BONUS;
-    // Mint bounty ratio
-    // 19900 means 1.99%
-    uint256 BOUNTY_MINTING_RATIO;
-    uint256 BOUNTY_RATIO_BONUS;
+    uint256 VALID_DELAY;
 }
 
 /**
@@ -80,11 +69,11 @@ struct GameConstants {
 library LibStorage {
     // Storage are structs where the data gets updated throughout the lifespan of the game
     bytes32 private constant GAME_STORAGE_POSITION =
-        keccak256("ringuniversus.ring.storage.game");
+        keccak256("ringuniversus.bountry.storage.game");
     // Constants are structs where the data gets configured on game initialization
     // and configured by Admin or Owner
     bytes32 private constant GAME_CONSTANTS_POSITION =
-        keccak256("ringuniversus.ring.constants.game");
+        keccak256("ringuniversus.bountry.constants.game");
 
     function gameStorage() internal pure returns (GameStorage storage gs) {
         bytes32 position = GAME_STORAGE_POSITION;
@@ -134,7 +123,7 @@ contract Modifiers is WithStorage {
         require(
             msg.sender == gs().playerAddress ||
                 msg.sender == LibDiamond.contractOwner(),
-            "Only the Owner or Player Contract addresses can fiddle with ring."
+            "Only the Owner or Player Contract addresses can fiddle with bounty."
         );
         _;
     }

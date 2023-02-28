@@ -6,32 +6,41 @@ import "hardhat/console.sol";
 import {LibDiamond} from "../../vendor/libraries/LibDiamond.sol";
 
 // Type imports
-import {Ring} from "../../shared/Types.sol";
+import {Info, EquipmentSlot, Moving} from "../Types.sol";
 
 struct GameStorage {
     // Contract housekeeping
     address diamondAddress;
-    // Player contract
-    address playerAddress;
-    // Ring token ID
-    uint256 tokenId;
-    mapping(uint256 => Ring) rings;
+    address feeAddress;
+    // Store player's current info
+    mapping(address => Info) info;
+    // Store player's equipments
+    // player's address => item slot => E Token ID
+    mapping(address => mapping(EquipmentSlot => uint256)) equipmentSlots;
+    // Player's current(is moving) / last(not moving) moving info
+    mapping(address => Moving) currentMoveInfo;
+    // store players' random words request id
+    mapping(uint256 => address) vrfIdPlayer;
 }
 
 // Game config
 struct GameConstants {
-    // Distance for each circle
-    // 100000 means 10.0000
-    uint256 DISTANCE;
-    // Mint town ratio
-    // 1000 means 10.00%
-    uint256 TOWN_MINTING_RATIO;
-    uint256 TOWN_OVER_MINTING_RATIO;
-    uint256 TOWN_RATIO_BONUS;
-    // Mint bounty ratio
-    // 19900 means 1.99%
-    uint256 BOUNTY_MINTING_RATIO;
-    uint256 BOUNTY_RATIO_BONUS;
+    // Address
+    address EQUIPMENT_ADDRESS;
+    address COIN_ADDRESS;
+    address RING_ADDRESS;
+    address TOWN_ADDRESS;
+    address BOUNTY_ADDRESS;
+    address VRF_ADDRESS;
+    // Args
+    uint256 BASE_MOVE_SPEED;
+    uint256 BASE_ATTACK_POWER;
+    uint256 MIN_TRIP_TIME;
+    uint256 TOWN_MINT_FEE;
+    uint256 MAX_MINT_TOW_PER_MOVE;
+    uint256 TOWN_MINT_CHANCE_PER_MOVE;
+    uint256 BOUNTY_MINT_CHANCE_PER_MOVE;
+    uint256 SEGMENTATION_DISTANCE_PER_MOVE;
 }
 
 /**
@@ -80,11 +89,11 @@ struct GameConstants {
 library LibStorage {
     // Storage are structs where the data gets updated throughout the lifespan of the game
     bytes32 private constant GAME_STORAGE_POSITION =
-        keccak256("ringuniversus.ring.storage.game");
+        keccak256("ringuniversus.player.storage.game");
     // Constants are structs where the data gets configured on game initialization
     // and configured by Admin or Owner
     bytes32 private constant GAME_CONSTANTS_POSITION =
-        keccak256("ringuniversus.ring.constants.game");
+        keccak256("ringuniversus.player.constants.game");
 
     function gameStorage() internal pure returns (GameStorage storage gs) {
         bytes32 position = GAME_STORAGE_POSITION;
@@ -130,12 +139,8 @@ contract Modifiers is WithStorage {
         _;
     }
 
-    modifier onlyOwnerOrPlayer() {
-        require(
-            msg.sender == gs().playerAddress ||
-                msg.sender == LibDiamond.contractOwner(),
-            "Only the Owner or Player Contract addresses can fiddle with ring."
-        );
+    modifier onlyInitializedPlayer() {
+        require(true, "Only Initialized Player can fiddle with player.");
         _;
     }
 }

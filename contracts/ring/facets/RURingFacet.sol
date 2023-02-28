@@ -8,7 +8,7 @@ import {LibRing} from "../libraries/LibRing.sol";
 import {Modifiers} from "../libraries/LibStorage.sol";
 
 // Type imports
-import {Ring} from "../Types.sol";
+import {Ring} from "../../shared/Types.sol";
 
 contract RURingFacet is Modifiers {
     function metadata(uint256 _ringId) public view returns (Ring memory) {
@@ -19,6 +19,13 @@ contract RURingFacet is Modifiers {
     function metadataAtIndex(uint256 _idx) public view returns (Ring memory) {
         (Ring memory _ring, ) = LibRing.metadata(_idx + 1);
         return _ring;
+    }
+
+    function number(
+        int256 _distanceX,
+        int256 _distanceY
+    ) external view returns (uint256) {
+        return LibRing.number(_distanceX, _distanceY);
     }
 
     /**
@@ -32,6 +39,18 @@ contract RURingFacet is Modifiers {
         return _ringId;
     }
 
+    function safeMint(
+        uint256 _tokenId,
+        address _explorer
+    ) external onlyOwner returns (Ring memory, bool) {
+        // if minted
+        if (LibRing.isMinted(_tokenId) == true) {
+            return (gs().rings[_tokenId], false);
+        }
+
+        return (gs().rings[LibRing.mintByExplorer(_tokenId, _explorer)], true);
+    }
+
     /// @notice increase Ring's Town Count for given ring ID
     /// @dev Update Minting ratio after town increase
     /// @param _ringId ring token ID
@@ -39,7 +58,7 @@ contract RURingFacet is Modifiers {
     function increaseTownCount(
         uint256 _ringId,
         uint256 _step
-    ) public onlyOwner {
+    ) external onlyOwner {
         require(_step > 0, "Step must greater than 1.");
         gs().rings[_ringId].townCount += _step;
         if (gs().rings[_ringId].townCount >= gs().rings[_ringId].townLimit) {

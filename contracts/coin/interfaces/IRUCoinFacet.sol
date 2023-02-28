@@ -1,4 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0
 pragma solidity ^0.8.0;
 
-interface IRUCoinFacet {}
+// Interfaces imports
+import {ISolidStateERC20} from "@solidstate/contracts/token/ERC20/ISolidStateERC20.sol";
+
+interface IRUCoinFacet is ISolidStateERC20 {}

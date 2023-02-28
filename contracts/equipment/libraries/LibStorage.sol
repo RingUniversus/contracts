@@ -6,14 +6,14 @@ import "hardhat/console.sol";
 import {LibDiamond} from "../../vendor/libraries/LibDiamond.sol";
 
 // Type imports
-import {Metadata} from "../Types.sol";
+import {EMetadata} from "../../shared/Types.sol";
 
 struct GameStorage {
     // Contract housekeeping
     address diamondAddress;
     // Player contract
     address playerAddress;
-    mapping(uint256 => Metadata) equipments;
+    mapping(uint256 => EMetadata) equipments;
     // Current Token ID
     uint256 tokenId;
 }
