@@ -12,6 +12,13 @@ struct GameStorage {
     // Contract housekeeping
     address diamondAddress;
     address feeAddress;
+    // Contract Address
+    address equipmentAddress;
+    address coinAddress;
+    address ringAddress;
+    address townAddress;
+    address bountyAddress;
+    address vrfAddress;
     // Store player's current info
     mapping(address => Info) info;
     // Store player's equipments
@@ -25,13 +32,6 @@ struct GameStorage {
 
 // Game config
 struct GameConstants {
-    // Address
-    address EQUIPMENT_ADDRESS;
-    address COIN_ADDRESS;
-    address RING_ADDRESS;
-    address TOWN_ADDRESS;
-    address BOUNTY_ADDRESS;
-    address VRF_ADDRESS;
     // Args
     uint256 BASE_MOVE_SPEED;
     uint256 BASE_ATTACK_POWER;

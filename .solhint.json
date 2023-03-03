@@ -4,6 +4,7 @@
   "rules": {
     "compiler-version": ["error", "^0.8.0"],
     "avoid-suicide": "error",
-    "avoid-sha3": "warn"
+    "avoid-sha3": "warn",
+    "not-rely-on-time": "disable"
   }
 }

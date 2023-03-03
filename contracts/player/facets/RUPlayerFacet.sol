@@ -197,10 +197,7 @@ contract RUPlayerFacet is Modifiers {
         uint256[] memory randomWords
     ) external {
         // Role check
-        require(
-            msg.sender == gameConstants().VRF_ADDRESS,
-            "VRF contracts only."
-        );
+        require(msg.sender == gs().vrfAddress, "VRF contracts only.");
         address player = gs().vrfIdPlayer[requestId];
         // Update current move random words info
         gs().currentMoveInfo[player].randomWords = RandomWordsInfo(

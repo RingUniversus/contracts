@@ -1,6 +1,6 @@
 # Ring Universus Smart Contracts
 
-# Components
+## Components
 
 1. Ring
 2. Town
@@ -8,7 +8,7 @@
 4. E (Equipment)
 5. Bounty
 6. Player Logic (Core)
-... (More Coming Soon)
+7. ... (More Coming Soon)
 
 ## Avoid using ESM / BreakChange package
 
