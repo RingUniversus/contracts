@@ -42,6 +42,7 @@ const signaturesToIgnore = [
   // The SolidState contracts adds a `supportsInterface` function,
   // but we already provide that function through DiamondLoupeFacet
   ["RUTownFacet$", "supportsInterface(bytes4)"],
+  ["RUBountyFacet$", "supportsInterface(bytes4)"],
   ["RUEquipmentFacet$", "supportsInterface(bytes4)"],
 ] as const;
 

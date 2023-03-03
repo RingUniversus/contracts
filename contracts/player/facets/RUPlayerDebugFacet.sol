@@ -11,7 +11,7 @@ import {WithStorage} from "../libraries/LibStorage.sol";
 import {Status} from "../Types.sol";
 
 // Functions used in tests/development for easily modifying game state
-contract RUDebugFacet is WithStorage {
+contract RUPlayerDebugFacet is WithStorage {
     modifier onlyAdmin() {
         LibDiamond.enforceIsContractOwner();
         _;

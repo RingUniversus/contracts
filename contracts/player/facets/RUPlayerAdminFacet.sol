@@ -8,6 +8,6 @@ import {WithStorage} from "../libraries/LibStorage.sol";
 
 // Type imports
 
-contract DFAdminFacet is WithStorage {
+contract RUPlayerAdminFacet is WithStorage {
 
 }

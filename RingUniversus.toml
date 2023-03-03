@@ -25,3 +25,6 @@ PLACEHOLDER = 0
 
 [equipment_initializers]
 PLACEHOLDER = 0
+
+[bounty_initializers]
+VALID_DELAY = 259200 # 3 days

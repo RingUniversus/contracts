@@ -49,6 +49,7 @@ async function settingIndex(args: {}, hre: HardhatRuntimeEnvironment) {
   export * as town from "./town";
   export * as ring from "./ring";
   export * as coin from "./coin";
+  export * as bounty from "./bounty";
   export * as equipment from "./equipment";
   `;
 
