@@ -6,6 +6,7 @@ import {
   CoinInitializers,
   BountyInitializers,
   EquipmentInitializers,
+  PlayerInitializers,
 } from "@ringuniversus/settings";
 import toml from "@iarna/toml";
 import chalk from "chalk";
@@ -34,6 +35,7 @@ declare module "hardhat/types/runtime" {
     coinInitializers: CoinInitializers;
     bountyInitializers: BountyInitializers;
     equipmentInitializers: EquipmentInitializers;
+    playerInitializers: PlayerInitializers;
   }
 }
 

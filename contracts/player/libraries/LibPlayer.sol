@@ -253,9 +253,15 @@ library LibPlayer {
         return _realtimeSpend;
     }
 
-    function currentLocation(
-        address _player
-    ) public view returns (Point memory, uint256, uint256) {
+    function currentLocation(address _player)
+        public
+        view
+        returns (
+            Point memory,
+            uint256,
+            uint256
+        )
+    {
         // calcuate current distance ratio based on player speed
         uint256 speed = gs().currentMoveInfo[_player].speed;
         uint256 realtimeSpend = movingTime(_player);
@@ -279,7 +285,15 @@ library LibPlayer {
         address _player,
         Point memory start,
         Point memory end
-    ) public view returns (uint256, uint256, uint256) {
+    )
+        public
+        view
+        returns (
+            uint256,
+            uint256,
+            uint256
+        )
+    {
         uint256 speed = gs().info[_player].moveSpeed;
         int256 distance = LibUtil.caculateDistance(
             end.x - start.x,
@@ -296,21 +310,23 @@ library LibPlayer {
         uint256 _maxTownToMint,
         uint256 _segmentationDistance
     ) public pure returns (uint256[] memory) {
-        uint256[] memory mintBaseChance = new uint256[](_maxTownToMint);
-        uint256 totalChange = _maxTownToMint;
+        uint256[] memory _mintRatioArray = new uint256[](_maxTownToMint);
+        uint256 _actualTownToMint = _maxTownToMint;
         if (_totalDistance / _segmentationDistance < _maxTownToMint) {
-            totalChange = _maxTownToMint / _segmentationDistance;
+            _actualTownToMint = _maxTownToMint / _segmentationDistance;
         }
-        for (uint256 i = 0; i < totalChange; i++) {
-            mintBaseChance[i] = 10000;
+        for (uint256 i = 0; i < _actualTownToMint; i++) {
+            _mintRatioArray[i] = 10000;
         }
-        if (totalChange < _maxTownToMint) {
-            mintBaseChance[totalChange] =
-                ((_totalDistance - totalChange * _segmentationDistance) *
+        // If actual mint town count less than max
+        // increase mint ratio based on distance
+        if (_actualTownToMint < _maxTownToMint) {
+            _mintRatioArray[_actualTownToMint] =
+                ((_totalDistance - _actualTownToMint * _segmentationDistance) *
                     10000) /
                 _segmentationDistance;
         }
-        return mintBaseChance;
+        return _mintRatioArray;
     }
 
     function formatRandomWordsWithPrecision(

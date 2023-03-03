@@ -51,6 +51,7 @@ async function settingIndex(args: {}, hre: HardhatRuntimeEnvironment) {
   export * as coin from "./coin";
   export * as bounty from "./bounty";
   export * as equipment from "./equipment";
+  export * as player from "./player";
   `;
 
   const { jsContents, jsmapContents, dtsContents, dtsmapContents } = tscompile(

@@ -61,8 +61,8 @@ struct Moving {
     uint256 endTime; // moving actual end time
     // move configure
     uint256 maxTownToMint;
-    uint256 townMintChance;
-    uint256 bountyMintChance;
+    uint256 townMintRatio;
+    uint256 bountyMintRatio;
     uint256 segmentationDistance;
     // random words section
     RandomWordsInfo randomWords;

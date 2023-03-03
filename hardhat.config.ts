@@ -21,6 +21,7 @@ import {
   decodeCoinInitializers,
   decodeBountyInitializers,
   decodeEquipmentInitializers,
+  decodePlayerInitializers,
 } from "@ringuniversus/settings";
 import "./tasks/compile";
 import "./tasks/settingIndex";
@@ -29,6 +30,7 @@ import "./tasks/ring";
 import "./tasks/coin";
 import "./tasks/bounty";
 import "./tasks/equipment";
+import "./tasks/player";
 import "./tasks/utils";
 
 dotenv.config();
@@ -86,6 +88,14 @@ extendEnvironment((env: HardhatRuntimeEnvironment) => {
     return settings.parse(decodeCoinInitializers, initializers);
   });
 
+  env.bountyInitializers = lazyObject(() => {
+    const { initializers = {} } = settings.load(
+      env.network.name,
+      "bounty_initializers"
+    );
+    return settings.parse(decodeBountyInitializers, initializers);
+  });
+
   env.equipmentInitializers = lazyObject(() => {
     const { initializers = {} } = settings.load(
       env.network.name,
@@ -94,12 +104,12 @@ extendEnvironment((env: HardhatRuntimeEnvironment) => {
     return settings.parse(decodeEquipmentInitializers, initializers);
   });
 
-  env.bountyInitializers = lazyObject(() => {
+  env.playerInitializers = lazyObject(() => {
     const { initializers = {} } = settings.load(
       env.network.name,
-      "bounty_initializers"
+      "player_initializers"
     );
-    return settings.parse(decodeBountyInitializers, initializers);
+    return settings.parse(decodePlayerInitializers, initializers);
   });
 });
 

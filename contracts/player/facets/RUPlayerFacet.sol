@@ -96,9 +96,10 @@ contract RUPlayerFacet is Modifiers {
         LibPlayer.equipmentContract().unequip(_eId);
     }
 
-    function initPlayer(
-        string calldata _nickname
-    ) external returns (Info memory) {
+    function initPlayer(string calldata _nickname)
+        external
+        returns (Info memory)
+    {
         address _player = msg.sender;
         require(gs().info[_player].createdAt == 0, "Already inited.");
 
@@ -125,9 +126,14 @@ contract RUPlayerFacet is Modifiers {
         delete gs().currentMoveInfo[_player];
     }
 
-    function move(
-        Point calldata _target
-    ) external returns (uint256, uint256, uint256) {
+    function move(Point calldata _target)
+        external
+        returns (
+            uint256,
+            uint256,
+            uint256
+        )
+    {
         address player = msg.sender;
         require(
             gs().info[player].status == Status.Idle ||
@@ -159,8 +165,8 @@ contract RUPlayerFacet is Modifiers {
             startTime: block.timestamp,
             endTime: 0,
             maxTownToMint: gameConstants().MAX_MINT_TOW_PER_MOVE,
-            townMintChance: gameConstants().TOWN_MINT_CHANCE_PER_MOVE,
-            bountyMintChance: gameConstants().BOUNTY_MINT_CHANCE_PER_MOVE,
+            townMintRatio: gameConstants().TOWN_MINT_RATIO_PER_MOVE,
+            bountyMintRatio: gameConstants().BOUNTY_MINT_RATIO_PER_MOVE,
             segmentationDistance: gameConstants()
                 .SEGMENTATION_DISTANCE_PER_MOVE,
             randomWords: RandomWordsInfo(new uint256[](0), 0, 0)
@@ -192,10 +198,9 @@ contract RUPlayerFacet is Modifiers {
         // gs().vrfIdPlayer[requestId] = _player;
     }
 
-    function fulfillRandomWords(
-        uint256 requestId,
-        uint256[] memory randomWords
-    ) external {
+    function fulfillRandomWords(uint256 requestId, uint256[] memory randomWords)
+        external
+    {
         // Role check
         require(msg.sender == gs().vrfAddress, "VRF contracts only.");
         address player = gs().vrfIdPlayer[requestId];
@@ -209,10 +214,10 @@ contract RUPlayerFacet is Modifiers {
         gs().vrfIdPlayer[requestId] = address(0);
     }
 
-    function _mintRing(
-        Point memory _location,
-        address _player
-    ) internal returns (Ring memory, uint256) {
+    function _mintRing(Point memory _location, address _player)
+        internal
+        returns (Ring memory, uint256)
+    {
         uint256 _ringId = LibPlayer.ringContract().number(
             _location.x,
             _location.y
@@ -226,10 +231,10 @@ contract RUPlayerFacet is Modifiers {
         return (_ring, _ringId);
     }
 
-    function _mintTown(
-        address _player,
-        Point memory p
-    ) internal returns (uint256) {
+    function _mintTown(address _player, Point memory p)
+        internal
+        returns (uint256)
+    {
         uint256 townId = LibPlayer.townContract().create(
             _player,
             Point(p.x, p.y)
@@ -237,9 +242,10 @@ contract RUPlayerFacet is Modifiers {
         return townId;
     }
 
-    function _discoveryNewTown(
-        NewTownArgs memory _calldata
-    ) internal returns (uint256[] memory) {
+    function _discoveryNewTown(NewTownArgs memory _calldata)
+        internal
+        returns (uint256[] memory)
+    {
         uint256[] memory mintBaseChance = LibPlayer.calculateChance(
             _calldata.totalDistance,
             _calldata.maxTownToMint,
@@ -275,9 +281,10 @@ contract RUPlayerFacet is Modifiers {
         return towns;
     }
 
-    function _discoveryNewBounty(
-        NewBountyArgs memory _calldata
-    ) internal returns (bool, uint256) {
+    function _discoveryNewBounty(NewBountyArgs memory _calldata)
+        internal
+        returns (bool, uint256)
+    {
         Point memory _bountyLocation = LibPlayer.targetPoint(
             _calldata.start,
             _calldata.end,
@@ -307,9 +314,10 @@ contract RUPlayerFacet is Modifiers {
 
     /// @notice Claim rewards after get random words form RF
     /// @dev Change moving state after call function which require moving state
-    function claim(
-        address _player
-    ) external returns (uint256[] memory, uint256) {
+    function claim(address _player)
+        external
+        returns (uint256[] memory, uint256)
+    {
         require(
             gs().info[_player].status == Status.Moving,
             "Player is not moving."
@@ -347,7 +355,7 @@ contract RUPlayerFacet is Modifiers {
                 player: _player,
                 totalDistance: _distance.toUint256(),
                 maxTownToMint: _moveInfo.maxTownToMint,
-                townMintRatio: _moveInfo.townMintChance,
+                townMintRatio: _moveInfo.townMintRatio,
                 segmentationDistance: _moveInfo.segmentationDistance,
                 chance: LibPlayer.formatRandomWords(randomWords, 0, 3, 10000),
                 location: LibPlayer.formatRandomWords(randomWords, 3, 3, 10000),
@@ -373,7 +381,7 @@ contract RUPlayerFacet is Modifiers {
                 player: _player,
                 chance: bountyInfo[0],
                 location: bountyInfo[1],
-                bountyMintRatio: _moveInfo.bountyMintChance,
+                bountyMintRatio: _moveInfo.bountyMintRatio,
                 start: start,
                 end: end
             })

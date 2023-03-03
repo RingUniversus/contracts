@@ -19,7 +19,14 @@ import {ERC721MetadataStorage} from "@solidstate/contracts/token/ERC721/metadata
 // of your diamond. Add parameters to the init funciton if you need to.
 
 struct InitArgs {
-    uint256 PLACEHOLDER;
+    uint256 BASE_MOVE_SPEED;
+    uint256 BASE_ATTACK_POWER;
+    uint256 MIN_TRIP_TIME;
+    uint256 TOWN_MINT_FEE;
+    uint256 MAX_MINT_TOW_PER_MOVE;
+    uint256 TOWN_MINT_RATIO_PER_MOVE;
+    uint256 BOUNTY_MINT_RATIO_PER_MOVE;
+    uint256 SEGMENTATION_DISTANCE_PER_MOVE;
 }
 
 contract InitDiamond is WithStorage {
@@ -47,6 +54,16 @@ contract InitDiamond is WithStorage {
         gs().diamondAddress = address(this);
 
         // Player config
-        // gameConstants().EXPLORER_FEE_RATIO = initArgs.EXPLORER_FEE_RATIO;
+        gameConstants().BASE_MOVE_SPEED = initArgs.BASE_MOVE_SPEED;
+        gameConstants().BASE_ATTACK_POWER = initArgs.BASE_ATTACK_POWER;
+        gameConstants().MIN_TRIP_TIME = initArgs.MIN_TRIP_TIME;
+        gameConstants().TOWN_MINT_FEE = initArgs.TOWN_MINT_FEE * 1e18;
+        gameConstants().MAX_MINT_TOW_PER_MOVE = initArgs.MAX_MINT_TOW_PER_MOVE;
+        gameConstants().TOWN_MINT_RATIO_PER_MOVE = initArgs
+            .TOWN_MINT_RATIO_PER_MOVE;
+        gameConstants().BOUNTY_MINT_RATIO_PER_MOVE = initArgs
+            .BOUNTY_MINT_RATIO_PER_MOVE;
+        gameConstants().SEGMENTATION_DISTANCE_PER_MOVE = initArgs
+            .SEGMENTATION_DISTANCE_PER_MOVE;
     }
 }
