@@ -253,15 +253,9 @@ library LibPlayer {
         return _realtimeSpend;
     }
 
-    function currentLocation(address _player)
-        public
-        view
-        returns (
-            Point memory,
-            uint256,
-            uint256
-        )
-    {
+    function currentLocation(
+        address _player
+    ) public view returns (Point memory, uint256, uint256) {
         // calcuate current distance ratio based on player speed
         uint256 speed = gs().currentMoveInfo[_player].speed;
         uint256 realtimeSpend = movingTime(_player);
@@ -285,15 +279,7 @@ library LibPlayer {
         address _player,
         Point memory start,
         Point memory end
-    )
-        public
-        view
-        returns (
-            uint256,
-            uint256,
-            uint256
-        )
-    {
+    ) public view returns (uint256, uint256, uint256) {
         uint256 speed = gs().info[_player].moveSpeed;
         int256 distance = LibUtil.caculateDistance(
             end.x - start.x,
