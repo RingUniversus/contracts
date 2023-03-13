@@ -1,12 +1,11 @@
 // This file uses a `organize-imports-ignore` comment because we
 // need to control the ordering that Hardhat tasks are registered
 
-// organize-imports-ignore
+import "@typechain/hardhat";
 import "@nomiclabs/hardhat-ethers";
 import "@nomiclabs/hardhat-waffle";
 import dotenv from "dotenv";
 // import "@solidstate/hardhat-4byte-uploader";
-import "@typechain/hardhat";
 import "hardhat-contract-sizer";
 import { extendEnvironment, HardhatUserConfig } from "hardhat/config.js";
 import { lazyObject } from "hardhat/plugins.js";
@@ -181,7 +180,7 @@ const config: HardhatUserConfig = {
     },
   },
   solidity: {
-    version: "0.8.17",
+    version: "0.8.18",
     settings: {
       optimizer: {
         enabled: true,
@@ -196,7 +195,7 @@ const config: HardhatUserConfig = {
   },
   typechain: {
     outDir: path.join(packageDirs["@ringuniversus/contracts"], "typechain"),
-    // target: "ethers-v5",
+    target: "ethers-v5",
   },
 };
 
