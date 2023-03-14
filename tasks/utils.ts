@@ -138,7 +138,9 @@ export async function saveDeploy(
    */
   export const START_BLOCK = ${isDev ? 0 : args.coreBlockNumber};
   /**
-   * The address for the RingUniversusPlayer contract.
+   * The address for the RingUniversus${capitalizeFirstLetter(
+     component
+   )} contract.
    */
   export const CONTRACT_ADDRESS = '${args.diamondAddress}';
   /**
