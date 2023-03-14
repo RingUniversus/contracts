@@ -19,6 +19,16 @@ import {ERC721MetadataStorage} from "@solidstate/contracts/token/ERC721/metadata
 // of your diamond. Add parameters to the init funciton if you need to.
 
 struct InitArgs {
+    // Addresses
+    address FEE_ADDRESS;
+    // Contract Address
+    address EQUIPMENT_ADDRESS;
+    address COIN_ADDRESS;
+    address RING_ADDRESS;
+    address TOWN_ADDRESS;
+    address BOUNTY_ADDRESS;
+    address VRF_ADDRESS;
+    // Base config
     uint256 BASE_MOVE_SPEED;
     uint256 BASE_ATTACK_POWER;
     uint256 MIN_TRIP_TIME;
@@ -54,6 +64,14 @@ contract InitDiamond is WithStorage {
         gs().diamondAddress = address(this);
 
         // Player config
+        gameConstants().FEE_ADDRESS = initArgs.FEE_ADDRESS;
+        gameConstants().EQUIPMENT_ADDRESS = initArgs.EQUIPMENT_ADDRESS;
+        gameConstants().COIN_ADDRESS = initArgs.COIN_ADDRESS;
+        gameConstants().RING_ADDRESS = initArgs.RING_ADDRESS;
+        gameConstants().TOWN_ADDRESS = initArgs.TOWN_ADDRESS;
+        gameConstants().BOUNTY_ADDRESS = initArgs.BOUNTY_ADDRESS;
+        gameConstants().VRF_ADDRESS = initArgs.VRF_ADDRESS;
+
         gameConstants().BASE_MOVE_SPEED = initArgs.BASE_MOVE_SPEED;
         gameConstants().BASE_ATTACK_POWER = initArgs.BASE_ATTACK_POWER;
         gameConstants().MIN_TRIP_TIME = initArgs.MIN_TRIP_TIME;

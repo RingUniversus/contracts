@@ -1,18 +1,18 @@
-import * as fs from "fs";
+import { constants } from "ethers";
 import { task } from "hardhat/config";
 import { HardhatRuntimeEnvironment, Libraries } from "hardhat/types";
-import path from "path";
-import dedent from "ts-dedent";
 import * as settings from "../settings";
 import { DiamondChanges } from "../utils/diamond";
-import { tscompile } from "../utils/tscompile";
 import {
   deployDiamond,
   deployDiamondCutFacet,
   deployDiamondInit,
   deployDiamondLoupeFacet,
   deployOwnershipFacet,
+  saveDeploy,
 } from "./utils";
+
+const { AddressZero } = constants;
 
 task("deployPlayer", "deploy player's contracts").setAction(deploy);
 task(
@@ -25,7 +25,15 @@ async function deploy(args: {}, hre: HardhatRuntimeEnvironment) {
     hre.network.name === "localhost" || hre.network.name === "hardhat";
 
   // Ensure we have required keys in our initializers
-  settings.required(hre.playerInitializers, []);
+  hre.playerInitializers.EQUIPMENT_ADDRESS =
+    hre.contracts.equipment.CONTRACT_ADDRESS;
+  hre.playerInitializers.COIN_ADDRESS = hre.contracts.coin.CONTRACT_ADDRESS;
+  hre.playerInitializers.RING_ADDRESS = hre.contracts.ring.CONTRACT_ADDRESS;
+  hre.playerInitializers.TOWN_ADDRESS = hre.contracts.town.CONTRACT_ADDRESS;
+  hre.playerInitializers.BOUNTY_ADDRESS = hre.contracts.bounty.CONTRACT_ADDRESS;
+  // TODO:
+  hre.playerInitializers.VRF_ADDRESS = AddressZero;
+  settings.required(hre.playerInitializers, ["FEE_ADDRESS"]);
 
   // need to force a compile for tasks
   await hre.run("compile");
@@ -56,6 +64,7 @@ async function deploy(args: {}, hre: HardhatRuntimeEnvironment) {
   );
 
   await saveDeploy(
+    "player",
     {
       coreBlockNumber: initReceipt.blockNumber,
       diamondAddress: diamond.address,
@@ -76,79 +85,6 @@ async function deploy(args: {}, hre: HardhatRuntimeEnvironment) {
   }
 
   console.log("Deployed successfully. Godspeed cadet.");
-}
-
-async function saveDeploy(
-  args: {
-    coreBlockNumber: number;
-    diamondAddress: string;
-    initAddress: string;
-  },
-  hre: HardhatRuntimeEnvironment
-) {
-  const isDev =
-    hre.network.name === "localhost" || hre.network.name === "hardhat";
-
-  // Save the addresses of the deployed contracts to the `@ringuniversus/contracts` package
-  const tsContents = dedent`
-  /**
-   * This package contains deployed contract addresses, ABIs, and Typechain types
-   * for the Ring Universus Player.
-   */
-
-  /**
-   * The name of the network where these contracts are deployed.
-   */
-  export const NETWORK = '${hre.network.name}';
-  /**
-   * The id of the network where these contracts are deployed.
-   */
-  export const NETWORK_ID = ${hre.network.config.chainId};
-  /**
-   * The block in which the RingUniversus contract was initialized.
-   */
-  export const START_BLOCK = ${isDev ? 0 : args.coreBlockNumber};
-  /**
-   * The address for the RingUniversusPlayer contract.
-   */
-  export const CONTRACT_ADDRESS = '${args.diamondAddress}';
-  /**
-   * The address for the initalizer contract. Useful for lobbies.
-   */
-  export const INIT_ADDRESS = '${args.initAddress}';
-  `;
-
-  const { jsContents, jsmapContents, dtsContents, dtsmapContents } = tscompile(
-    tsContents,
-    "player"
-  );
-
-  const contractsFileTS = path.join(
-    hre.packageDirs["@ringuniversus/contracts"],
-    "player.ts"
-  );
-  const contractsFileJS = path.join(
-    hre.packageDirs["@ringuniversus/contracts"],
-    "player.js"
-  );
-  const contractsFileJSMap = path.join(
-    hre.packageDirs["@ringuniversus/contracts"],
-    "player.js.map"
-  );
-  const contractsFileDTS = path.join(
-    hre.packageDirs["@ringuniversus/contracts"],
-    "player.d.ts"
-  );
-  const contractsFileDTSMap = path.join(
-    hre.packageDirs["@ringuniversus/contracts"],
-    "player.d.ts.map"
-  );
-
-  fs.writeFileSync(contractsFileTS, tsContents);
-  fs.writeFileSync(contractsFileJS, jsContents);
-  fs.writeFileSync(contractsFileJSMap, jsmapContents);
-  fs.writeFileSync(contractsFileDTS, dtsContents);
-  fs.writeFileSync(contractsFileDTSMap, dtsmapContents);
 }
 
 export async function deployAndCut(

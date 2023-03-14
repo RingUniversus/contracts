@@ -24,6 +24,24 @@ contract RUPlayerFacet is Modifiers {
         _;
     }
 
+    function updateRelatedAddress(
+        address _feeAddress,
+        address _equipmentAddress,
+        address _coinAddress,
+        address _ringAddress,
+        address _townAddress,
+        address _bountyAddress,
+        address _vrfAddress
+    ) external onlyOwner {
+        gameConstants().FEE_ADDRESS = _feeAddress;
+        gameConstants().EQUIPMENT_ADDRESS = _equipmentAddress;
+        gameConstants().COIN_ADDRESS = _coinAddress;
+        gameConstants().RING_ADDRESS = _ringAddress;
+        gameConstants().TOWN_ADDRESS = _townAddress;
+        gameConstants().BOUNTY_ADDRESS = _bountyAddress;
+        gameConstants().VRF_ADDRESS = _vrfAddress;
+    }
+
     function equip(EquipmentSlot _slot, uint256 _equipmentId) external {
         address _player = msg.sender;
         require(
@@ -197,7 +215,10 @@ contract RUPlayerFacet is Modifiers {
         uint256[] memory randomWords
     ) external {
         // Role check
-        require(msg.sender == gs().vrfAddress, "VRF contracts only.");
+        require(
+            msg.sender == gameConstants().VRF_ADDRESS,
+            "VRF contracts only."
+        );
         address player = gs().vrfIdPlayer[requestId];
         // Update current move random words info
         gs().currentMoveInfo[player].randomWords = RandomWordsInfo(
@@ -357,7 +378,7 @@ contract RUPlayerFacet is Modifiers {
         );
         LibPlayer.coinContract().transferFrom(
             msg.sender,
-            gs().feeAddress,
+            gameConstants().FEE_ADDRESS,
             towns.length * gameConstants().TOWN_MINT_FEE
         );
 

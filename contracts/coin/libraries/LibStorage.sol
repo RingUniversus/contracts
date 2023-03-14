@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0
 pragma solidity ^0.8.0;
 
-import "hardhat/console.sol";
-
 import {LibDiamond} from "../../vendor/libraries/LibDiamond.sol";
 
 struct GameStorage {

@@ -30,6 +30,7 @@ import "./tasks/coin";
 import "./tasks/bounty";
 import "./tasks/equipment";
 import "./tasks/player";
+import "./tasks/deploy";
 import "./tasks/utils";
 
 dotenv.config();
@@ -56,59 +57,38 @@ extendEnvironment((env: HardhatRuntimeEnvironment) => {
   });
 
   env.initializers = lazyObject(() => {
-    const { initializers = {} } = settings.load(
-      env.network.name,
-      "initializers"
-    );
+    const { initializers = {} } = settings.load(env.network.name);
     return settings.parse(decodeInitializers, initializers);
   });
 
   env.townInitializers = lazyObject(() => {
-    const { initializers = {} } = settings.load(
-      env.network.name,
-      "town_initializers"
-    );
-    return settings.parse(decodeTownInitializers, initializers);
+    const { town_initializers = {} } = settings.load(env.network.name);
+    return settings.parse(decodeTownInitializers, town_initializers);
   });
 
   env.ringInitializers = lazyObject(() => {
-    const { initializers = {} } = settings.load(
-      env.network.name,
-      "ring_initializers"
-    );
-    return settings.parse(decodeRingInitializers, initializers);
+    const { ring_initializers = {} } = settings.load(env.network.name);
+    return settings.parse(decodeRingInitializers, ring_initializers);
   });
 
   env.coinInitializers = lazyObject(() => {
-    const { initializers = {} } = settings.load(
-      env.network.name,
-      "coin_initializers"
-    );
-    return settings.parse(decodeCoinInitializers, initializers);
+    const { coin_initializers = {} } = settings.load(env.network.name);
+    return settings.parse(decodeCoinInitializers, coin_initializers);
   });
 
   env.bountyInitializers = lazyObject(() => {
-    const { initializers = {} } = settings.load(
-      env.network.name,
-      "bounty_initializers"
-    );
-    return settings.parse(decodeBountyInitializers, initializers);
+    const { bounty_initializers = {} } = settings.load(env.network.name);
+    return settings.parse(decodeBountyInitializers, bounty_initializers);
   });
 
   env.equipmentInitializers = lazyObject(() => {
-    const { initializers = {} } = settings.load(
-      env.network.name,
-      "equipment_initializers"
-    );
-    return settings.parse(decodeEquipmentInitializers, initializers);
+    const { equipment_initializers = {} } = settings.load(env.network.name);
+    return settings.parse(decodeEquipmentInitializers, equipment_initializers);
   });
 
   env.playerInitializers = lazyObject(() => {
-    const { initializers = {} } = settings.load(
-      env.network.name,
-      "player_initializers"
-    );
-    return settings.parse(decodePlayerInitializers, initializers);
+    const { player_initializers = {} } = settings.load(env.network.name);
+    return settings.parse(decodePlayerInitializers, player_initializers);
   });
 });
 

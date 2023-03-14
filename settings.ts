@@ -135,10 +135,7 @@ function tomlLoader(filename: string, content: string) {
 
 const explorers: { [key: string]: ReturnType<typeof cosmiconfigSync> } = {};
 
-export function load(
-  network: string,
-  group: string
-): { [key: string]: unknown } {
+export function load(network: string): { [key: string]: unknown } {
   let explorer = explorers[network];
   if (!explorer) {
     // Config file loading stuff, cache it based on network key
@@ -152,7 +149,7 @@ export function load(
   }
   const result = explorer.search();
   if (result) {
-    return result.config[group];
+    return result.config;
   } else {
     console.warn(
       chalk.yellow("Could not find `RingUniversus.toml` - using defaults.")

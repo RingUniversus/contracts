@@ -32,23 +32,23 @@ library LibPlayer {
     }
 
     function equipmentContract() public view returns (IRUEquipmentFacet) {
-        return IRUEquipmentFacet(gs().equipmentAddress);
+        return IRUEquipmentFacet(gameConstants().EQUIPMENT_ADDRESS);
     }
 
     function coinContract() public view returns (IRUCoinFacet) {
-        return IRUCoinFacet(gs().coinAddress);
+        return IRUCoinFacet(gameConstants().COIN_ADDRESS);
     }
 
     function ringContract() public view returns (IRURingFacet) {
-        return IRURingFacet(gs().ringAddress);
+        return IRURingFacet(gameConstants().RING_ADDRESS);
     }
 
     function townContract() public view returns (IRUTownFacet) {
-        return IRUTownFacet(gs().townAddress);
+        return IRUTownFacet(gameConstants().TOWN_ADDRESS);
     }
 
     function bountyContract() public view returns (IRUBountyFacet) {
-        return IRUBountyFacet(gs().bountyAddress);
+        return IRUBountyFacet(gameConstants().BOUNTY_ADDRESS);
     }
 
     function info(address _player) public view returns (Info memory) {

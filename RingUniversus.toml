@@ -30,6 +30,8 @@ PLACEHOLDER = 0
 VALID_DELAY = 259200 # 3 days
 
 [player_initializers]
+FEE_ADDRESS = "0xfeEFEEfeefEeFeefEEFEEfEeFeefEEFeeFEEFEeF"
+
 BASE_MOVE_SPEED = 10000              # 1.0000
 BASE_ATTACK_POWER = 10000            # 1.0000
 MIN_TRIP_TIME = 1                    # 10 * 30, 300 secs
