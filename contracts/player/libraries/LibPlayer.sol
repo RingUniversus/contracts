@@ -95,138 +95,38 @@ library LibPlayer {
     function slotMulti(address _player) public view returns (uint256, uint256) {
         uint256 _speedMulti = gameConstants().BASE_MOVE_SPEED;
         uint256 _attackPowerMulti = gameConstants().BASE_ATTACK_POWER;
-        // Neck
-        (_speedMulti, _attackPowerMulti) = eMultied(
-            gs().equipmentSlots[_player][EquipmentSlot.Neck],
-            _speedMulti,
-            _attackPowerMulti
-        );
-        // Head
-        (_speedMulti, _attackPowerMulti) = eMultied(
-            gs().equipmentSlots[_player][EquipmentSlot.Head],
-            _speedMulti,
-            _attackPowerMulti
-        );
-        // Back
-        (_speedMulti, _attackPowerMulti) = eMultied(
-            gs().equipmentSlots[_player][EquipmentSlot.Back],
-            _speedMulti,
-            _attackPowerMulti
-        );
-        // Back
-        (_speedMulti, _attackPowerMulti) = eMultied(
-            gs().equipmentSlots[_player][EquipmentSlot.Back],
-            _speedMulti,
-            _attackPowerMulti
-        );
-        // RightHand
-        (_speedMulti, _attackPowerMulti) = eMultied(
-            gs().equipmentSlots[_player][EquipmentSlot.RightHand],
-            _speedMulti,
-            _attackPowerMulti
-        );
-        // LeftHand
-        (_speedMulti, _attackPowerMulti) = eMultied(
-            gs().equipmentSlots[_player][EquipmentSlot.LeftHand],
-            _speedMulti,
-            _attackPowerMulti
-        );
-        // LeftHand
-        (_speedMulti, _attackPowerMulti) = eMultied(
-            gs().equipmentSlots[_player][EquipmentSlot.LeftHand],
-            _speedMulti,
-            _attackPowerMulti
-        );
-        // Body
-        (_speedMulti, _attackPowerMulti) = eMultied(
-            gs().equipmentSlots[_player][EquipmentSlot.Body],
-            _speedMulti,
-            _attackPowerMulti
-        );
-        // FingersLT
-        (_speedMulti, _attackPowerMulti) = eMultied(
-            gs().equipmentSlots[_player][EquipmentSlot.FingersLT],
-            _speedMulti,
-            _attackPowerMulti
-        );
-        // FingersLI
-        (_speedMulti, _attackPowerMulti) = eMultied(
-            gs().equipmentSlots[_player][EquipmentSlot.FingersLI],
-            _speedMulti,
-            _attackPowerMulti
-        );
-        // FingersLM
-        (_speedMulti, _attackPowerMulti) = eMultied(
-            gs().equipmentSlots[_player][EquipmentSlot.FingersLM],
-            _speedMulti,
-            _attackPowerMulti
-        );
-        // FingersLR
-        (_speedMulti, _attackPowerMulti) = eMultied(
-            gs().equipmentSlots[_player][EquipmentSlot.FingersLR],
-            _speedMulti,
-            _attackPowerMulti
-        );
-        // FingersLL
-        (_speedMulti, _attackPowerMulti) = eMultied(
-            gs().equipmentSlots[_player][EquipmentSlot.FingersLL],
-            _speedMulti,
-            _attackPowerMulti
-        );
-        // FingersRT
-        (_speedMulti, _attackPowerMulti) = eMultied(
-            gs().equipmentSlots[_player][EquipmentSlot.FingersRT],
-            _speedMulti,
-            _attackPowerMulti
-        );
-        // FingersRI
-        (_speedMulti, _attackPowerMulti) = eMultied(
-            gs().equipmentSlots[_player][EquipmentSlot.FingersRI],
-            _speedMulti,
-            _attackPowerMulti
-        );
-        // FingersRM
-        (_speedMulti, _attackPowerMulti) = eMultied(
-            gs().equipmentSlots[_player][EquipmentSlot.FingersRM],
-            _speedMulti,
-            _attackPowerMulti
-        );
-        // FingersRR
-        (_speedMulti, _attackPowerMulti) = eMultied(
-            gs().equipmentSlots[_player][EquipmentSlot.FingersRR],
-            _speedMulti,
-            _attackPowerMulti
-        );
-        // FingersRL
-        (_speedMulti, _attackPowerMulti) = eMultied(
-            gs().equipmentSlots[_player][EquipmentSlot.FingersRL],
-            _speedMulti,
-            _attackPowerMulti
-        );
-        // Legs
-        (_speedMulti, _attackPowerMulti) = eMultied(
-            gs().equipmentSlots[_player][EquipmentSlot.Legs],
-            _speedMulti,
-            _attackPowerMulti
-        );
-        // Hands
-        (_speedMulti, _attackPowerMulti) = eMultied(
-            gs().equipmentSlots[_player][EquipmentSlot.Hands],
-            _speedMulti,
-            _attackPowerMulti
-        );
-        // Feet
-        (_speedMulti, _attackPowerMulti) = eMultied(
-            gs().equipmentSlots[_player][EquipmentSlot.Feet],
-            _speedMulti,
-            _attackPowerMulti
-        );
-        // Pet
-        (_speedMulti, _attackPowerMulti) = eMultied(
-            gs().equipmentSlots[_player][EquipmentSlot.Pet],
-            _speedMulti,
-            _attackPowerMulti
-        );
+
+        EquipmentSlot[20] memory slots = [
+            EquipmentSlot.Neck,
+            EquipmentSlot.Head,
+            EquipmentSlot.Back,
+            EquipmentSlot.RightHand,
+            EquipmentSlot.LeftHand,
+            EquipmentSlot.Body,
+            EquipmentSlot.FingersLT,
+            EquipmentSlot.FingersLI,
+            EquipmentSlot.FingersLM,
+            EquipmentSlot.FingersLR,
+            EquipmentSlot.FingersLL,
+            EquipmentSlot.FingersRT,
+            EquipmentSlot.FingersRI,
+            EquipmentSlot.FingersRM,
+            EquipmentSlot.FingersRR,
+            EquipmentSlot.FingersRL,
+            EquipmentSlot.Legs,
+            EquipmentSlot.Hands,
+            EquipmentSlot.Feet,
+            EquipmentSlot.Pet
+        ];
+
+        for (uint256 i = 0; i < slots.length; i++) {
+            (_speedMulti, _attackPowerMulti) = eMultied(
+                gs().equipmentSlots[_player][slots[i]],
+                _speedMulti,
+                _attackPowerMulti
+            );
+        }
+
         return (_speedMulti, _attackPowerMulti);
     }
 

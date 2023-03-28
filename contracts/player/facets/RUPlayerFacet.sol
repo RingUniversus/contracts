@@ -42,6 +42,15 @@ contract RUPlayerFacet is Modifiers {
         gameConstants().VRF_ADDRESS = _vrfAddress;
     }
 
+    function _updatePlayerAttributes(address _player, uint256 _eId) internal {
+        // calc player new attributes
+        (uint256 speed, uint256 attackPower) = LibPlayer.slotMulti(_player);
+        gs().info[_player].moveSpeed = speed;
+        gs().info[_player].attackPower = attackPower;
+        // update E's status
+        LibPlayer.equipmentContract().unequip(_eId);
+    }
+
     function equip(EquipmentSlot _slot, uint256 _equipmentId) external {
         address _player = msg.sender;
         require(
@@ -53,52 +62,31 @@ contract RUPlayerFacet is Modifiers {
             _equipmentId
         );
         // equip slot check
-        if (_slot == EquipmentSlot.Neck) {
-            require(eMetadata.eType == ETypes.Necklace, "Type error.");
-        } else if (_slot == EquipmentSlot.Head) {
-            require(eMetadata.eType == ETypes.Helmet, "Type error.");
-        } else if (_slot == EquipmentSlot.Back) {
-            require(eMetadata.eType == ETypes.Wings, "Type error.");
-        } else if (
-            _slot == EquipmentSlot.RightHand || _slot == EquipmentSlot.LeftHand
+        if (
+            (_slot == EquipmentSlot.Neck &&
+                eMetadata.eType == ETypes.Necklace) ||
+            (_slot == EquipmentSlot.Head && eMetadata.eType == ETypes.Helmet) ||
+            (_slot == EquipmentSlot.Back && eMetadata.eType == ETypes.Wings) ||
+            ((_slot == EquipmentSlot.RightHand ||
+                _slot == EquipmentSlot.LeftHand) &&
+                (eMetadata.eType == ETypes.Shield ||
+                    eMetadata.eType == ETypes.Weapon)) ||
+            (_slot == EquipmentSlot.Body && eMetadata.eType == ETypes.Chest) ||
+            ((_slot >= EquipmentSlot.FingersLT &&
+                _slot <= EquipmentSlot.FingersRL) &&
+                eMetadata.eType == ETypes.Ring) ||
+            (_slot == EquipmentSlot.Legs && eMetadata.eType == ETypes.Pants) ||
+            (_slot == EquipmentSlot.Hands &&
+                eMetadata.eType == ETypes.Gloves) ||
+            (_slot == EquipmentSlot.Feet && eMetadata.eType == ETypes.Boots) ||
+            (_slot == EquipmentSlot.Pet && eMetadata.eType == ETypes.Pet)
         ) {
-            require(
-                eMetadata.eType == ETypes.Shield ||
-                    eMetadata.eType == ETypes.Weapon,
-                "Type error."
-            );
-        } else if (_slot == EquipmentSlot.Body) {
-            require(eMetadata.eType == ETypes.Chest, "Type error.");
-        } else if (
-            _slot == EquipmentSlot.FingersLT ||
-            _slot == EquipmentSlot.FingersLI ||
-            _slot == EquipmentSlot.FingersLM ||
-            _slot == EquipmentSlot.FingersLR ||
-            _slot == EquipmentSlot.FingersLL ||
-            _slot == EquipmentSlot.FingersRT ||
-            _slot == EquipmentSlot.FingersRI ||
-            _slot == EquipmentSlot.FingersRM ||
-            _slot == EquipmentSlot.FingersRR ||
-            _slot == EquipmentSlot.FingersRL
-        ) {
-            require(eMetadata.eType == ETypes.Ring, "Type error.");
-        } else if (_slot == EquipmentSlot.Legs) {
-            require(eMetadata.eType == ETypes.Pants, "Type error.");
-        } else if (_slot == EquipmentSlot.Hands) {
-            require(eMetadata.eType == ETypes.Gloves, "Type error.");
-        } else if (_slot == EquipmentSlot.Feet) {
-            require(eMetadata.eType == ETypes.Boots, "Type error.");
-        } else if (_slot == EquipmentSlot.Pet) {
-            require(eMetadata.eType == ETypes.Pet, "Type error.");
+            gs().equipmentSlots[_player][_slot] = _equipmentId;
+        } else {
+            revert("Type error.");
         }
-        gs().equipmentSlots[_player][_slot] = _equipmentId;
 
-        // calc player new attributes
-        (uint256 speed, uint256 attackPower) = LibPlayer.slotMulti(_player);
-        gs().info[_player].moveSpeed = speed;
-        gs().info[_player].attackPower = attackPower;
-        // update E's status
-        LibPlayer.equipmentContract().equip(_equipmentId);
+        _updatePlayerAttributes(_player, _equipmentId);
     }
 
     function unequip(EquipmentSlot _slot) external {
@@ -106,12 +94,7 @@ contract RUPlayerFacet is Modifiers {
         uint256 _eId = gs().equipmentSlots[_player][_slot];
         delete gs().equipmentSlots[_player][_slot];
 
-        // calc player new attributes
-        (uint256 speed, uint256 attackPower) = LibPlayer.slotMulti(_player);
-        gs().info[_player].moveSpeed = speed;
-        gs().info[_player].attackPower = attackPower;
-        // update E's status
-        LibPlayer.equipmentContract().unequip(_eId);
+        _updatePlayerAttributes(_player, _eId);
     }
 
     function initPlayer(
