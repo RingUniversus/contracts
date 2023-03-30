@@ -11,7 +11,7 @@ import {Modifiers, WithStorage} from "../libraries/LibStorage.sol";
 
 // Type imports
 import {Point, EMetadata, ETypes, Ring, BTYOwnType} from "../../shared/Types.sol";
-import {Info, EquipmentSlot, Status, Moving, RandomWordsInfo, NewTownArgs, NewBountyArgs} from "../Types.sol";
+import {Info, EquipmentSlot, Status, Moving, RandomWordsInfo, NewTownArgs, NewBountyArgs, UpdateRelatedAddressArgs} from "../Types.sol";
 
 contract RUPlayerFacet is Modifiers {
     using SafeCast for int256;
@@ -25,21 +25,15 @@ contract RUPlayerFacet is Modifiers {
     }
 
     function updateRelatedAddress(
-        address _feeAddress,
-        address _equipmentAddress,
-        address _coinAddress,
-        address _ringAddress,
-        address _townAddress,
-        address _bountyAddress,
-        address _vrfAddress
+        UpdateRelatedAddressArgs calldata _addresses
     ) external onlyOwner {
-        gameConstants().FEE_ADDRESS = _feeAddress;
-        gameConstants().EQUIPMENT_ADDRESS = _equipmentAddress;
-        gameConstants().COIN_ADDRESS = _coinAddress;
-        gameConstants().RING_ADDRESS = _ringAddress;
-        gameConstants().TOWN_ADDRESS = _townAddress;
-        gameConstants().BOUNTY_ADDRESS = _bountyAddress;
-        gameConstants().VRF_ADDRESS = _vrfAddress;
+        gameConstants().FEE_ADDRESS = _addresses.feeAddress;
+        gameConstants().EQUIPMENT_ADDRESS = _addresses.equipmentAddress;
+        gameConstants().COIN_ADDRESS = _addresses.coinAddress;
+        gameConstants().RING_ADDRESS = _addresses.ringAddress;
+        gameConstants().TOWN_ADDRESS = _addresses.townAddress;
+        gameConstants().BOUNTY_ADDRESS = _addresses.bountyAddress;
+        gameConstants().VRF_ADDRESS = _addresses.vrfAddress;
     }
 
     function _updatePlayerAttributes(address _player, uint256 _eId) internal {

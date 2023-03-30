@@ -294,3 +294,24 @@ export async function deployDebugFacet(
   console.log(`RUPlayerDebugFacet deployed to: ${contract.address}`);
   return contract;
 }
+
+task("updateRelatedAddress", "update related address after deploy").setAction(
+  afterDeploy
+);
+async function afterDeploy(args: {}, hre: HardhatRuntimeEnvironment) {
+  const contract = await hre.ethers.getContractAt(
+    "RUPlayerFacet",
+    hre.contracts.player.CONTRACT_ADDRESS
+  );
+  const setTransferEnabledReceipt = await contract.updateRelatedAddress({
+    feeAddress: hre.playerInitializers.FEE_ADDRESS,
+    equipmentAddress: hre.contracts.equipment.CONTRACT_ADDRESS,
+    coinAddress: hre.contracts.coin.CONTRACT_ADDRESS,
+    ringAddress: hre.contracts.ring.CONTRACT_ADDRESS,
+    townAddress: hre.contracts.town.CONTRACT_ADDRESS,
+    bountyAddress: hre.contracts.bounty.CONTRACT_ADDRESS,
+    // TODO
+    vrfAddress: AddressZero,
+  });
+  await setTransferEnabledReceipt.wait();
+}

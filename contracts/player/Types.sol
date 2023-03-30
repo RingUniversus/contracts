@@ -89,3 +89,14 @@ struct NewBountyArgs {
     Point start;
     Point end;
 }
+
+// Function arguements
+struct UpdateRelatedAddressArgs {
+    address feeAddress;
+    address equipmentAddress;
+    address coinAddress;
+    address ringAddress;
+    address townAddress;
+    address bountyAddress;
+    address vrfAddress;
+}
