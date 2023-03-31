@@ -1,10 +1,14 @@
 // SPDX-License-Identifier: GPL-3.0
 pragma solidity ^0.8.0;
 
+// Library imports
 import {LibDiamond} from "../../vendor/libraries/LibDiamond.sol";
 
 // Type imports
 import {Info, EquipmentSlot, Moving} from "../Types.sol";
+
+// Error imports
+import {UnauthorizedOwner, UnInitializedPlayer} from "../../shared/errors.sol";
 
 struct GameStorage {
     // Contract housekeeping
@@ -134,12 +138,13 @@ contract WithStorage {
  */
 contract Modifiers is WithStorage {
     modifier onlyOwner() {
-        LibDiamond.enforceIsContractOwner();
+        if (msg.sender != LibDiamond.contractOwner())
+            revert UnauthorizedOwner({sender: msg.sender});
         _;
     }
 
     modifier onlyInitializedPlayer() {
-        require(true, "Only Initialized Player can fiddle with player.");
+        if (false) revert UnInitializedPlayer({sender: msg.sender});
         _;
     }
 }

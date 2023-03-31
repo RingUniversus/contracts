@@ -1,10 +1,14 @@
 // SPDX-License-Identifier: GPL-3.0
 pragma solidity ^0.8.0;
 
+// Library imports
 import {LibDiamond} from "../../vendor/libraries/LibDiamond.sol";
 
 // Type imports
 import {Town, Attribute} from "../Types.sol";
+
+// Error imports
+import {UnauthorizedOwner, UnauthorizedOwnerOrPlayer} from "../../shared/errors.sol";
 
 struct GameStorage {
     // Contract housekeeping
@@ -125,16 +129,16 @@ contract WithStorage {
  */
 contract Modifiers is WithStorage {
     modifier onlyOwner() {
-        LibDiamond.enforceIsContractOwner();
+        if (msg.sender != LibDiamond.contractOwner())
+            revert UnauthorizedOwner({sender: msg.sender});
         _;
     }
 
     modifier onlyOwnerOrPlayer() {
-        require(
-            msg.sender == gameConstants().PLAYER_ADDRESS ||
-                msg.sender == LibDiamond.contractOwner(),
-            "Only the Owner or Player Contract addresses can fiddle with town."
-        );
+        if (
+            !(msg.sender == gameConstants().PLAYER_ADDRESS ||
+                msg.sender == LibDiamond.contractOwner())
+        ) revert UnauthorizedOwnerOrPlayer({sender: msg.sender});
         _;
     }
 }
