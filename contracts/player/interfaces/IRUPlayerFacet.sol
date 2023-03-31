@@ -2,6 +2,8 @@
 pragma solidity ^0.8.0;
 
 // Type imports
-import {Point} from "../../shared/Types.sol";
+import {Info} from "../Types.sol";
 
-interface IRUPlayerFacet {}
+interface IRUPlayerFacet {
+    function playerInfo(address _player) external view returns (Info memory);
+}

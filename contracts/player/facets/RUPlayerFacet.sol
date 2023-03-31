@@ -109,6 +109,40 @@ contract RUPlayerFacet is Modifiers {
         return gs().info[_player];
     }
 
+    function playerInfo(address _player) external view returns (Info memory) {
+        return LibPlayer.info(_player);
+    }
+
+    function currentLocation(
+        address _player
+    ) external view returns (Point memory, uint256, uint256) {
+        return LibPlayer.currentLocation(_player);
+    }
+
+    function movingTime(address _player) external view returns (uint256) {
+        return LibPlayer.movingTime(_player);
+    }
+
+    function currentMoveInfo(
+        address _player
+    ) external view returns (Moving memory) {
+        return LibPlayer.currentMoveInfo(_player);
+    }
+
+    function slotMulti(
+        address _player
+    ) external view returns (uint256, uint256) {
+        return LibPlayer.slotMulti(_player);
+    }
+
+    function moveInfo(
+        address _player,
+        Point calldata start,
+        Point calldata end
+    ) external view returns (uint256, uint256, uint256) {
+        return LibPlayer.moveInfo(_player, start, end);
+    }
+
     function _resetPlayerMoveInfo(
         address _player,
         Point memory _end,

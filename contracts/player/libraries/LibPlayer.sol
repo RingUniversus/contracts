@@ -17,7 +17,7 @@ import {LibUtil} from "../../shared/libraries/LibUtil.sol";
 
 // Type imports
 import {Point} from "../../shared/Types.sol";
-import {Info, EquipmentSlot, Status} from "../Types.sol";
+import {Info, EquipmentSlot, Status, Moving} from "../Types.sol";
 
 library LibPlayer {
     using SafeCast for uint256;
@@ -53,6 +53,12 @@ library LibPlayer {
 
     function info(address _player) public view returns (Info memory) {
         return gs().info[_player];
+    }
+
+    function currentMoveInfo(
+        address _player
+    ) external view returns (Moving memory) {
+        return gs().currentMoveInfo[_player];
     }
 
     function targetPoint(
@@ -177,8 +183,8 @@ library LibPlayer {
 
     function moveInfo(
         address _player,
-        Point memory start,
-        Point memory end
+        Point calldata start,
+        Point calldata end
     ) public view returns (uint256, uint256, uint256) {
         uint256 speed = gs().info[_player].moveSpeed;
         int256 distance = LibUtil.caculateDistance(
