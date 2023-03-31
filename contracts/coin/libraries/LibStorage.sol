@@ -6,8 +6,6 @@ import {LibDiamond} from "../../vendor/libraries/LibDiamond.sol";
 struct GameStorage {
     // Contract housekeeping
     address diamondAddress;
-    // Player contract
-    address playerAddress;
 }
 
 // Game config
@@ -108,15 +106,6 @@ contract WithStorage {
 contract Modifiers is WithStorage {
     modifier onlyOwner() {
         LibDiamond.enforceIsContractOwner();
-        _;
-    }
-
-    modifier onlyOwnerOrPlayer() {
-        require(
-            msg.sender == gs().playerAddress ||
-                msg.sender == LibDiamond.contractOwner(),
-            "Only the Owner or Player Contract addresses can fiddle with coin."
-        );
         _;
     }
 }

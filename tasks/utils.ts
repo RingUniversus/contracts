@@ -181,3 +181,18 @@ export async function saveDeploy(
   fs.writeFileSync(contractsFileDTS, dtsContents);
   fs.writeFileSync(contractsFileDTSMap, dtsmapContents);
 }
+
+export async function updateRelatedAddress(
+  targetContract: string,
+  contractAddress: string,
+  args: {},
+  hre: HardhatRuntimeEnvironment
+) {
+  const contract = await hre.ethers.getContractAt(
+    targetContract,
+    contractAddress
+  );
+  const updateRelatedAddressReceipt = await contract.updateRelatedAddress(args);
+  await updateRelatedAddressReceipt.wait();
+  console.log(`Completed update ${targetContract}'s related contracts.`);
+}

@@ -9,8 +9,6 @@ import {EMetadata} from "../../shared/Types.sol";
 struct GameStorage {
     // Contract housekeeping
     address diamondAddress;
-    // Player contract
-    address playerAddress;
     mapping(uint256 => EMetadata) equipments;
     // Current Token ID
     uint256 tokenId;
@@ -18,6 +16,7 @@ struct GameStorage {
 
 // Game config
 struct GameConstants {
+    address PLAYER_ADDRESS;
     uint256 PLACEHOLDER;
 }
 
@@ -119,7 +118,7 @@ contract Modifiers is WithStorage {
 
     modifier onlyOwnerOrPlayer() {
         require(
-            msg.sender == gs().playerAddress ||
+            msg.sender == gameConstants().PLAYER_ADDRESS ||
                 msg.sender == LibDiamond.contractOwner(),
             "Only the Owner or Player Contract addresses can fiddle with equipment."
         );

@@ -9,8 +9,6 @@ import {Ring} from "../../shared/Types.sol";
 struct GameStorage {
     // Contract housekeeping
     address diamondAddress;
-    // Player contract
-    address playerAddress;
     // Ring token ID
     uint256 tokenId;
     mapping(uint256 => Ring) rings;
@@ -18,6 +16,7 @@ struct GameStorage {
 
 // Game config
 struct GameConstants {
+    address PLAYER_ADDRESS;
     // Distance for each circle
     // 100000 means 10.0000
     uint256 DISTANCE;
@@ -130,7 +129,7 @@ contract Modifiers is WithStorage {
 
     modifier onlyOwnerOrPlayer() {
         require(
-            msg.sender == gs().playerAddress ||
+            msg.sender == gameConstants().PLAYER_ADDRESS ||
                 msg.sender == LibDiamond.contractOwner(),
             "Only the Owner or Player Contract addresses can fiddle with ring."
         );

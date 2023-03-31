@@ -8,9 +8,16 @@ import {LibRing} from "../libraries/LibRing.sol";
 import {Modifiers} from "../libraries/LibStorage.sol";
 
 // Type imports
+import {UpdateRelatedAddressArgs} from "../Types.sol";
 import {Ring} from "../../shared/Types.sol";
 
 contract RURingFacet is Modifiers {
+    function updateRelatedAddress(
+        UpdateRelatedAddressArgs calldata _addresses
+    ) external onlyOwner {
+        gameConstants().PLAYER_ADDRESS = _addresses.playerAddress;
+    }
+
     function metadata(uint256 _ringId) public view returns (Ring memory) {
         (Ring memory _ring, ) = LibRing.metadata(_ringId);
         return _ring;

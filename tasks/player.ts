@@ -10,6 +10,7 @@ import {
   deployDiamondLoupeFacet,
   deployOwnershipFacet,
   saveDeploy,
+  updateRelatedAddress,
 } from "./utils";
 
 const { AddressZero } = constants;
@@ -19,6 +20,9 @@ task(
   "upgradePlayer",
   "upgrade player contracts and replace in the diamond"
 ).setAction(upgrade);
+task("updateRelatedAddress", "update related address after deploy").setAction(
+  afterDeploy
+);
 
 async function deploy(args: {}, hre: HardhatRuntimeEnvironment) {
   const isDev =
@@ -295,23 +299,56 @@ export async function deployDebugFacet(
   return contract;
 }
 
-task("updateRelatedAddress", "update related address after deploy").setAction(
-  afterDeploy
-);
 async function afterDeploy(args: {}, hre: HardhatRuntimeEnvironment) {
-  const contract = await hre.ethers.getContractAt(
+  await updateRelatedAddress(
     "RUPlayerFacet",
-    hre.contracts.player.CONTRACT_ADDRESS
+    hre.contracts.player.CONTRACT_ADDRESS,
+    {
+      feeAddress: hre.playerInitializers.FEE_ADDRESS,
+      equipmentAddress: hre.contracts.equipment.CONTRACT_ADDRESS,
+      coinAddress: hre.contracts.coin.CONTRACT_ADDRESS,
+      ringAddress: hre.contracts.ring.CONTRACT_ADDRESS,
+      townAddress: hre.contracts.town.CONTRACT_ADDRESS,
+      bountyAddress: hre.contracts.bounty.CONTRACT_ADDRESS,
+      // TODO
+      vrfAddress: AddressZero,
+    },
+    hre
   );
-  const setTransferEnabledReceipt = await contract.updateRelatedAddress({
-    feeAddress: hre.playerInitializers.FEE_ADDRESS,
-    equipmentAddress: hre.contracts.equipment.CONTRACT_ADDRESS,
-    coinAddress: hre.contracts.coin.CONTRACT_ADDRESS,
-    ringAddress: hre.contracts.ring.CONTRACT_ADDRESS,
-    townAddress: hre.contracts.town.CONTRACT_ADDRESS,
-    bountyAddress: hre.contracts.bounty.CONTRACT_ADDRESS,
-    // TODO
-    vrfAddress: AddressZero,
-  });
-  await setTransferEnabledReceipt.wait();
+
+  await updateRelatedAddress(
+    "RUBountyFacet",
+    hre.contracts.bounty.CONTRACT_ADDRESS,
+    {
+      playerAddress: hre.contracts.player.CONTRACT_ADDRESS,
+    },
+    hre
+  );
+
+  await updateRelatedAddress(
+    "RUEquipmentFacet",
+    hre.contracts.bounty.CONTRACT_ADDRESS,
+    {
+      playerAddress: hre.contracts.player.CONTRACT_ADDRESS,
+    },
+    hre
+  );
+
+  await updateRelatedAddress(
+    "RURingFacet",
+    hre.contracts.bounty.CONTRACT_ADDRESS,
+    {
+      playerAddress: hre.contracts.player.CONTRACT_ADDRESS,
+    },
+    hre
+  );
+
+  await updateRelatedAddress(
+    "RUTownFacet",
+    hre.contracts.bounty.CONTRACT_ADDRESS,
+    {
+      playerAddress: hre.contracts.player.CONTRACT_ADDRESS,
+    },
+    hre
+  );
 }

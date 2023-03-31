@@ -14,6 +14,9 @@ async function deploy(args: {}, hre: HardhatRuntimeEnvironment) {
   await hre.run("deployRing");
   await hre.run("deployTown");
   await hre.run("deployPlayer");
+
+  await hre.run("updateRelatedAddress");
+  console.log("finished.");
 }
 
 async function upgrade(args: {}, hre: HardhatRuntimeEnvironment) {}

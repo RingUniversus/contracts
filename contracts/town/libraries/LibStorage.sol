@@ -9,8 +9,6 @@ import {Town, Attribute} from "../Types.sol";
 struct GameStorage {
     // Contract housekeeping
     address diamondAddress;
-    // Player contract
-    address playerAddress;
     // Town metadata
     mapping(uint256 => Town) towns;
     // Town extra Attribute
@@ -25,6 +23,7 @@ struct GameStorage {
 
 // Game config
 struct GameConstants {
+    address PLAYER_ADDRESS;
     // 1000 means 10.00%
     uint256 EXPLORER_FEE_RATIO;
     uint256 SYSTEM_EXPLORE_FEE_RATIO;
@@ -132,7 +131,7 @@ contract Modifiers is WithStorage {
 
     modifier onlyOwnerOrPlayer() {
         require(
-            msg.sender == gs().playerAddress ||
+            msg.sender == gameConstants().PLAYER_ADDRESS ||
                 msg.sender == LibDiamond.contractOwner(),
             "Only the Owner or Player Contract addresses can fiddle with town."
         );

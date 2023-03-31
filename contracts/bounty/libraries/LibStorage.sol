@@ -9,7 +9,6 @@ import {BTYMetadata, BTYInfo} from "../../shared/Types.sol";
 struct GameStorage {
     // Contract housekeeping
     address diamondAddress;
-    address playerAddress;
     uint256 tokenId;
     mapping(uint256 => BTYMetadata) metadata;
     // ring's bounty info
@@ -18,6 +17,7 @@ struct GameStorage {
 
 // Game config
 struct GameConstants {
+    address PLAYER_ADDRESS;
     uint256 VALID_DELAY;
 }
 
@@ -119,7 +119,7 @@ contract Modifiers is WithStorage {
 
     modifier onlyOwnerOrPlayer() {
         require(
-            msg.sender == gs().playerAddress ||
+            msg.sender == gameConstants().PLAYER_ADDRESS ||
                 msg.sender == LibDiamond.contractOwner(),
             "Only the Owner or Player Contract addresses can fiddle with bounty."
         );
