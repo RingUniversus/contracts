@@ -1,5 +1,5 @@
 import * as fs from "fs/promises";
-import { utils } from "ethers";
+import { Fragment, FormatType } from "ethers";
 import { TASK_COMPILE } from "hardhat/builtin-tasks/task-names";
 import { task } from "hardhat/config";
 import type {
@@ -11,8 +11,6 @@ import type {
 import * as path from "path";
 import * as prettier from "prettier";
 import * as diamondUtils from "../utils/diamond";
-
-const { Fragment, FormatTypes } = utils;
 
 task(TASK_COMPILE, "hook the compile step to copy our abis after").setAction(
   copyAbi
@@ -99,7 +97,7 @@ async function copyAbi(
     // Validate same function
     const diamondAbiSet = new Set();
     abi.forEach((abi) => {
-      const sighash = Fragment.fromObject(abi).format(FormatTypes.sighash);
+      const sighash = Fragment.from(abi).format("sighash");
       if (diamondAbiSet.has(sighash)) {
         // throw new Error(
         //   `Failed to create ${nameForAbi(app)} - \`${sighash}\` appears twice.`

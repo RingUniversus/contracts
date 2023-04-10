@@ -1,4 +1,3 @@
-import { constants } from "ethers";
 import { task } from "hardhat/config";
 import { HardhatRuntimeEnvironment, Libraries } from "hardhat/types";
 import * as settings from "../settings";
@@ -12,8 +11,6 @@ import {
   saveDeploy,
   updateRelatedAddress,
 } from "./utils";
-
-const { AddressZero } = constants;
 
 task("deployPlayer", "deploy player's contracts").setAction(deploy);
 task(
@@ -36,7 +33,7 @@ async function deploy(args: {}, hre: HardhatRuntimeEnvironment) {
   hre.playerInitializers.TOWN_ADDRESS = hre.contracts.town.CONTRACT_ADDRESS;
   hre.playerInitializers.BOUNTY_ADDRESS = hre.contracts.bounty.CONTRACT_ADDRESS;
   // TODO:
-  hre.playerInitializers.VRF_ADDRESS = AddressZero;
+  hre.playerInitializers.VRF_ADDRESS = hre.ethers.ZeroAddress;
   settings.required(hre.playerInitializers, ["FEE_ADDRESS"]);
 
   // need to force a compile for tasks
@@ -237,7 +234,7 @@ async function upgrade({}, hre: HardhatRuntimeEnvironment) {
   // and empty calldata are specified for those `diamondCut` parameters.
   // If the Diamond storage needs to be changed on an upgrade, a contract would need to be
   // deployed and these variables would need to be adjusted similar to the `deploy` task.
-  const initAddress = hre.ethers.constants.AddressZero;
+  const initAddress = hre.ethers.ZeroAddress;
   const initFunctionCall = "0x";
 
   const upgradeTx = await diamond.diamondCut(

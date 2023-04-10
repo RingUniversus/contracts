@@ -113,7 +113,7 @@ export async function deployAndCut(
     {
       ownerAddress: ownerAddress,
       // The `diamondCutFacet` is cut upon deployment
-      diamondCutAddress: diamondCutFacet.address,
+      diamondCutAddress: await diamondCutFacet.getAddress(),
     },
     libraries,
     hre
