@@ -6,4 +6,7 @@ import {Status} from "./Types.sol";
 
 // Error when player status not required
 // player, required status, current status
-error PlayerStatusError(address _address, Status _required, Status _current);
+error PlayerStatusError(address player, Status required, Status current);
+
+// Error when player uninitialized
+error UnInitializedPlayer(address sender);

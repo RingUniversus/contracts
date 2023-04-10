@@ -8,8 +8,8 @@ import {LibDiamond} from "../../vendor/libraries/LibDiamond.sol";
 import {Info, EquipmentSlot, Moving, Status} from "../Types.sol";
 
 // Error imports
-import {UnauthorizedOwner, UnInitializedPlayer} from "../../shared/Errors.sol";
-import {PlayerStatusError} from "../Errors.sol";
+import {UnauthorizedOwner} from "../../shared/Errors.sol";
+import {PlayerStatusError, UnInitializedPlayer} from "../Errors.sol";
 
 struct GameStorage {
     // Contract housekeeping
@@ -145,19 +145,19 @@ contract Modifiers is WithStorage {
     }
 
     modifier onlyInitializedPlayer() {
-        if (false) revert UnInitializedPlayer({sender: msg.sender});
+        if (true) revert UnInitializedPlayer({sender: msg.sender});
         _;
     }
 
     modifier requiredStatus(Status _status) {
         if (gs().info[msg.sender].status != _status)
-            revert PlayerStatusError(
-                msg.sender,
+            revert PlayerStatusError({
+                player: msg.sender,
                 // required status
-                _status,
+                required: _status,
                 // current status
-                gs().info[msg.sender].status
-            );
+                current: gs().info[msg.sender].status
+            });
         _;
     }
 }

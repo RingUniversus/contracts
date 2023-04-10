@@ -4,10 +4,10 @@ pragma solidity ^0.8.0;
 // Library imports
 
 // Storage imports
-import {WithStorage} from "../libraries/LibStorage.sol";
+import {Modifiers} from "../libraries/LibStorage.sol";
 
 // Type imports
 
-contract RUPlayerAdminFacet is WithStorage {
+contract RUPlayerAdminFacet is Modifiers {
 
 }

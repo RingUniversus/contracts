@@ -7,7 +7,7 @@ import {LibUtil} from "../../shared/libraries/LibUtil.sol";
 import {SafeCast} from "../../shared/libraries/LibSafeCast.sol";
 
 // Storage imports
-import {Modifiers, WithStorage} from "../libraries/LibStorage.sol";
+import {Modifiers} from "../libraries/LibStorage.sol";
 
 // Type imports
 import {Point, EMetadata, ETypes, Ring, BTYOwnType} from "../../shared/Types.sol";
