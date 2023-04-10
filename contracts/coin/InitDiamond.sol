@@ -8,6 +8,7 @@ import {IDiamondCut} from "../vendor/interfaces/IDiamondCut.sol";
 import {IERC173} from "../vendor/interfaces/IERC173.sol";
 import {IERC165} from "../vendor/interfaces/IERC165.sol";
 // Custom import blow
+import {IRUCoinFacet} from "./interfaces/IRUCoinFacet.sol";
 import {WithStorage} from "./libraries/LibStorage.sol";
 import {IERC20} from "@solidstate/contracts/interfaces/IERC20.sol";
 import {IERC20Metadata} from "@solidstate/contracts/token/ERC20/metadata/IERC20Metadata.sol";
@@ -18,7 +19,10 @@ import {ERC20MetadataStorage} from "@solidstate/contracts/token/ERC20/metadata/E
 // of your diamond. Add parameters to the init funciton if you need to.
 
 struct InitArgs {
-    uint256 PLACEHOLDER;
+    string NAME;
+    string SYMBOL;
+    uint8 DECIMALS;
+    uint256 TOTAL_SUPPLY;
 }
 
 contract InitDiamond is WithStorage {
@@ -47,8 +51,11 @@ contract InitDiamond is WithStorage {
         // Coin config
         ERC20MetadataStorage.Layout storage layout = ERC20MetadataStorage
             .layout();
-        layout.name = "Universus Coin";
-        layout.symbol = "UNiC";
-        layout.decimals = 18; // 1e18
+        layout.name = initArgs.NAME;
+        layout.symbol = initArgs.SYMBOL;
+        layout.decimals = initArgs.DECIMALS;
+
+        IRUCoinFacet uniC = IRUCoinFacet(address(this));
+        uniC.mint(initArgs.TOTAL_SUPPLY * 1e18);
     }
 }

@@ -22,7 +22,12 @@ async function deploy(args: {}, hre: HardhatRuntimeEnvironment) {
     hre.network.name === "localhost" || hre.network.name === "hardhat";
 
   // Ensure we have required keys in our initializers
-  settings.required(hre.coinInitializers, []);
+  settings.required(hre.coinInitializers, [
+    "NAME",
+    "SYMBOL",
+    "DECIMALS",
+    "TOTAL_SUPPLY",
+  ]);
 
   // need to force a compile for tasks
   await hre.run("compile");
