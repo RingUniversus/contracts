@@ -8,7 +8,7 @@ import {LibDiamond} from "../../vendor/libraries/LibDiamond.sol";
 import {Town, Attribute} from "../Types.sol";
 
 // Error imports
-import {UnauthorizedOwner, UnauthorizedOwnerOrPlayer} from "../../shared/errors.sol";
+import {UnauthorizedOwner, UnauthorizedOwnerOrPlayer} from "../../shared/Errors.sol";
 
 struct GameStorage {
     // Contract housekeeping

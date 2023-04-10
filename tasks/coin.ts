@@ -135,12 +135,12 @@ export async function deployAndCut(
     ...changes.getFacetCuts("RUCoinFacet", coinFacet),
   ];
 
-  if (isDev) {
-    // const debugFacet = await deployDebugFacet({}, libraries, hre);
-    // ringUniversusFacetCuts.push(
-    //   ...changes.getFacetCuts("RUCoinDebugFacet", debugFacet)
-    // );
-  }
+  // if (isDev) {
+  //   const debugFacet = await deployDebugFacet({}, libraries, hre);
+  //   ringUniversusCoinFacetCuts.push(
+  //     ...changes.getFacetCuts("RUCoinDebugFacet", debugFacet)
+  //   );
+  // }
 
   const toCut = [...diamondSpecFacetCuts, ...ringUniversusCoinFacetCuts];
 
@@ -168,7 +168,7 @@ export async function deployAndCut(
 }
 
 async function upgrade({}, hre: HardhatRuntimeEnvironment) {
-  await hre.run("utils:assertChainId", { appName: "coin" });
+  await hre.run("utils:assertChainId", { component: "coin" });
 
   const isDev =
     hre.network.name === "localhost" || hre.network.name === "hardhat";
@@ -240,5 +240,17 @@ export async function deployCoinFacet(
   const contract = await factory.deploy();
   await contract.deployTransaction.wait();
   console.log(`RUCoinFacet deployed to: ${contract.address}`);
+  return contract;
+}
+
+export async function deployDebugFacet(
+  {},
+  {}: Libraries,
+  hre: HardhatRuntimeEnvironment
+) {
+  const factory = await hre.ethers.getContractFactory("RUCoinDebugFacet");
+  const contract = await factory.deploy();
+  await contract.deployTransaction.wait();
+  console.log(`RUCoinDebugFacet deployed to: ${contract.address}`);
   return contract;
 }

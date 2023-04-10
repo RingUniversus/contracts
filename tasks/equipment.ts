@@ -166,7 +166,7 @@ export async function deployAndCut(
 }
 
 async function upgrade({}, hre: HardhatRuntimeEnvironment) {
-  await hre.run("utils:assertChainId", { appName: "equipment" });
+  await hre.run("utils:assertChainId", { component: "equipment" });
 
   const isDev =
     hre.network.name === "localhost" || hre.network.name === "hardhat";

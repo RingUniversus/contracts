@@ -6,7 +6,7 @@ task("upgrade", "upgrade contracts").setAction(upgrade);
 
 async function deploy(args: {}, hre: HardhatRuntimeEnvironment) {
   await hre.run("settingIndex");
-  await hre.run("utils:assertChainId", { appName: "player" });
+  await hre.run("utils:assertChainId", { component: "player" });
 
   await hre.run("deployBounty");
   await hre.run("deployCoin");

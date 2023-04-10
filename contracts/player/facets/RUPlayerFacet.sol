@@ -16,14 +16,6 @@ import {Info, EquipmentSlot, Status, Moving, RandomWordsInfo, NewTownArgs, NewBo
 contract RUPlayerFacet is Modifiers {
     using SafeCast for int256;
 
-    modifier onlyMoving() {
-        require(
-            gs().info[msg.sender].status == Status.Moving,
-            "Player is not moving."
-        );
-        _;
-    }
-
     function updateRelatedAddress(
         UpdateRelatedAddressArgs calldata _addresses
     ) external onlyOwner {
@@ -199,8 +191,11 @@ contract RUPlayerFacet is Modifiers {
         return (distance, spendTime, speed);
     }
 
-    function stopAndRequestRandomWords(address _player) external onlyMoving {
-        require(_player == msg.sender, "Permission denied");
+    function stopAndRequestRandomWords()
+        external
+        requiredStatus(Status.Moving)
+    {
+        address _player = msg.sender;
         // if move to near, pass rewards calculate process
         if (
             gs().currentMoveInfo[_player].endTime -
@@ -339,13 +334,12 @@ contract RUPlayerFacet is Modifiers {
 
     /// @notice Claim rewards after get random words form RF
     /// @dev Change moving state after call function which require moving state
-    function claim(
-        address _player
-    ) external returns (uint256[] memory, uint256) {
-        require(
-            gs().info[_player].status == Status.Moving,
-            "Player is not moving."
-        );
+    function claim()
+        external
+        requiredStatus(Status.Moving)
+        returns (uint256[] memory, uint256)
+    {
+        address _player = msg.sender;
 
         Moving memory _moveInfo = gs().currentMoveInfo[_player];
         // Only claim rewards after random words filled by VRF

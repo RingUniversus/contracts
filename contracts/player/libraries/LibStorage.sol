@@ -5,10 +5,11 @@ pragma solidity ^0.8.0;
 import {LibDiamond} from "../../vendor/libraries/LibDiamond.sol";
 
 // Type imports
-import {Info, EquipmentSlot, Moving} from "../Types.sol";
+import {Info, EquipmentSlot, Moving, Status} from "../Types.sol";
 
 // Error imports
-import {UnauthorizedOwner, UnInitializedPlayer} from "../../shared/errors.sol";
+import {UnauthorizedOwner, UnInitializedPlayer} from "../../shared/Errors.sol";
+import {PlayerStatusError} from "../Errors.sol";
 
 struct GameStorage {
     // Contract housekeeping
@@ -145,6 +146,18 @@ contract Modifiers is WithStorage {
 
     modifier onlyInitializedPlayer() {
         if (false) revert UnInitializedPlayer({sender: msg.sender});
+        _;
+    }
+
+    modifier requiredStatus(Status _status) {
+        if (gs().info[msg.sender].status != _status)
+            revert PlayerStatusError(
+                msg.sender,
+                // required status
+                _status,
+                // current status
+                gs().info[msg.sender].status
+            );
         _;
     }
 }

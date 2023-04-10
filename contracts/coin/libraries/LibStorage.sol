@@ -5,7 +5,7 @@ pragma solidity ^0.8.0;
 import {LibDiamond} from "../../vendor/libraries/LibDiamond.sol";
 
 // Error imports
-import {UnauthorizedOwner} from "../../shared/errors.sol";
+import {UnauthorizedOwner} from "../../shared/Errors.sol";
 
 struct GameStorage {
     // Contract housekeeping

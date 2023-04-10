@@ -12,18 +12,14 @@ subtask("utils:assertChainId", "Assert proper network is selectaed").setAction(
 type Components = "bounty" | "coin" | "equipment" | "player" | "ring" | "town";
 
 async function assertChainId(
-  {
-    appName,
-  }: {
-    appName: Components;
-  },
+  { component }: { component: Components },
   hre: HardhatRuntimeEnvironment
 ) {
-  const { NETWORK_ID } = hre.contracts[appName];
+  const { NETWORK_ID } = hre.contracts[component];
 
   if (hre.network.config.chainId !== NETWORK_ID) {
     throw new Error(
-      `Hardhat defined network chain id ${hre.network.config.chainId} is NOT same as ${appName} contracts network id: ${NETWORK_ID}.`
+      `Hardhat defined network chain id ${hre.network.config.chainId} is NOT same as ${component} contracts network id: ${NETWORK_ID}.`
     );
   }
 }
@@ -194,5 +190,7 @@ export async function updateRelatedAddress(
   );
   const updateRelatedAddressReceipt = await contract.updateRelatedAddress(args);
   await updateRelatedAddressReceipt.wait();
-  console.log(`Completed update ${targetContract}'s related contracts.`);
+  console.log(
+    `Completed update ${targetContract}'s related contracts' address.`
+  );
 }

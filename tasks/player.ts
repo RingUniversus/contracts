@@ -182,7 +182,7 @@ export async function deployAndCut(
 }
 
 async function upgrade({}, hre: HardhatRuntimeEnvironment) {
-  await hre.run("utils:assertChainId", { appName: "player" });
+  await hre.run("utils:assertChainId", { component: "player" });
 
   const isDev =
     hre.network.name === "localhost" || hre.network.name === "hardhat";
@@ -195,6 +195,8 @@ async function upgrade({}, hre: HardhatRuntimeEnvironment) {
     "RingUniversusPlayer",
     hre.contracts.player.CONTRACT_ADDRESS
   );
+  // console.log(diamond);
+  // console.log(diamond.interface.fragments);
 
   const previousFacets = await diamond.facets();
 
@@ -311,7 +313,7 @@ async function afterDeploy(args: {}, hre: HardhatRuntimeEnvironment) {
       townAddress: hre.contracts.town.CONTRACT_ADDRESS,
       bountyAddress: hre.contracts.bounty.CONTRACT_ADDRESS,
       // TODO
-      vrfAddress: AddressZero,
+      vrfAddress: "0x3097403B64fe672467345bf159F4C9C5464bD89e",
     },
     hre
   );
