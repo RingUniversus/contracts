@@ -144,8 +144,9 @@ contract Modifiers is WithStorage {
         _;
     }
 
-    modifier onlyInitializedPlayer() {
-        if (true) revert UnInitializedPlayer({sender: msg.sender});
+    modifier onlyInitializedPlayer(address _player) {
+        if (gs().info[_player].createdAt == 0)
+            revert UnInitializedPlayer({sender: msg.sender});
         _;
     }
 

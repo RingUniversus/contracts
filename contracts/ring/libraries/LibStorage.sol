@@ -134,8 +134,8 @@ contract Modifiers is WithStorage {
 
     modifier onlyOwnerOrPlayer() {
         if (
-            !(msg.sender == gameConstants().PLAYER_ADDRESS ||
-                msg.sender == LibDiamond.contractOwner())
+            msg.sender != gameConstants().PLAYER_ADDRESS &&
+            msg.sender != LibDiamond.contractOwner()
         ) revert UnauthorizedOwnerOrPlayer({sender: msg.sender});
         _;
     }

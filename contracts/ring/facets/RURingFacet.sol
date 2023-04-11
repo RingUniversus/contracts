@@ -8,16 +8,9 @@ import {LibRing} from "../libraries/LibRing.sol";
 import {Modifiers} from "../libraries/LibStorage.sol";
 
 // Type imports
-import {UpdateRelatedAddressArgs} from "../Types.sol";
 import {Ring} from "../../shared/Types.sol";
 
 contract RURingFacet is Modifiers {
-    function updateRelatedAddress(
-        UpdateRelatedAddressArgs calldata _addresses
-    ) external onlyOwner {
-        gameConstants().PLAYER_ADDRESS = _addresses.playerAddress;
-    }
-
     function metadata(uint256 _ringId) public view returns (Ring memory) {
         (Ring memory _ring, ) = LibRing.metadata(_ringId);
         return _ring;
@@ -49,7 +42,7 @@ contract RURingFacet is Modifiers {
     function safeMint(
         uint256 _tokenId,
         address _explorer
-    ) external onlyOwner returns (Ring memory, bool) {
+    ) external onlyOwnerOrPlayer returns (Ring memory, bool) {
         // if minted
         if (LibRing.isMinted(_tokenId) == true) {
             return (gs().rings[_tokenId], false);
@@ -65,7 +58,7 @@ contract RURingFacet is Modifiers {
     function increaseTownCount(
         uint256 _ringId,
         uint256 _step
-    ) external onlyOwner {
+    ) external onlyOwnerOrPlayer {
         require(_step > 0, "Step must greater than 1.");
         gs().rings[_ringId].townCount += _step;
         if (gs().rings[_ringId].townCount >= gs().rings[_ringId].townLimit) {

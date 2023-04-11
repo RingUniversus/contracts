@@ -11,22 +11,12 @@ import {Modifiers} from "../libraries/LibStorage.sol";
 
 // Type imports
 import {Point, EMetadata, ETypes, Ring, BTYOwnType} from "../../shared/Types.sol";
-import {Info, EquipmentSlot, Status, Moving, RandomWordsInfo, NewTownArgs, NewBountyArgs, UpdateRelatedAddressArgs} from "../Types.sol";
+import {Info, EquipmentSlot, Status, Moving, RandomWordsInfo, NewTownArgs, NewBountyArgs} from "../Types.sol";
+
+import {NotVRFContract} from "../Errors.sol";
 
 contract RUPlayerFacet is Modifiers {
     using SafeCast for int256;
-
-    function updateRelatedAddress(
-        UpdateRelatedAddressArgs calldata _addresses
-    ) external onlyOwner {
-        gameConstants().FEE_ADDRESS = _addresses.feeAddress;
-        gameConstants().EQUIPMENT_ADDRESS = _addresses.equipmentAddress;
-        gameConstants().COIN_ADDRESS = _addresses.coinAddress;
-        gameConstants().RING_ADDRESS = _addresses.ringAddress;
-        gameConstants().TOWN_ADDRESS = _addresses.townAddress;
-        gameConstants().BOUNTY_ADDRESS = _addresses.bountyAddress;
-        gameConstants().VRF_ADDRESS = _addresses.vrfAddress;
-    }
 
     function _updatePlayerAttributes(address _player, uint256 _eId) internal {
         // calc player new attributes
@@ -37,7 +27,10 @@ contract RUPlayerFacet is Modifiers {
         LibPlayer.equipmentContract().unequip(_eId);
     }
 
-    function equip(EquipmentSlot _slot, uint256 _equipmentId) external {
+    function equip(
+        EquipmentSlot _slot,
+        uint256 _equipmentId
+    ) external onlyInitializedPlayer(msg.sender) {
         address _player = msg.sender;
         require(
             LibPlayer.equipmentContract().ownerOf(_equipmentId) == _player,
@@ -75,7 +68,9 @@ contract RUPlayerFacet is Modifiers {
         _updatePlayerAttributes(_player, _equipmentId);
     }
 
-    function unequip(EquipmentSlot _slot) external {
+    function unequip(
+        EquipmentSlot _slot
+    ) external onlyInitializedPlayer(msg.sender) {
         address _player = msg.sender;
         uint256 _eId = gs().equipmentSlots[_player][_slot];
         delete gs().equipmentSlots[_player][_slot];
@@ -148,31 +143,37 @@ contract RUPlayerFacet is Modifiers {
 
     function move(
         Point calldata _target
-    ) external returns (uint256, uint256, uint256) {
-        address player = msg.sender;
+    )
+        external
+        onlyInitializedPlayer(msg.sender)
+        returns (uint256, uint256, uint256)
+    {
+        address _player = msg.sender;
         require(
-            gs().info[player].status == Status.Idle ||
-                gs().info[player].status == Status.Moving,
+            gs().info[_player].status == Status.Idle ||
+                gs().info[_player].status == Status.Moving,
             "Player is busy."
         );
 
         Point memory start;
-        if (gs().info[player].status == Status.Moving) {
+        if (gs().info[_player].status == Status.Moving) {
             // if player is moving, start new
-            (start, , ) = LibPlayer.currentLocation(player);
+            (start, , ) = LibPlayer.currentLocation(_player);
         } else {
             // if not, start from last location
-            start = gs().info[player].location;
+            start = gs().info[_player].location;
         }
         // reset moving info before move
-        _resetPlayerMoveInfo(player, start, block.timestamp);
+        _resetPlayerMoveInfo(_player, start, block.timestamp);
+        // change player status to moving status
+        gs().info[_player].status = Status.Moving;
 
         (uint256 distance, uint256 spendTime, uint256 speed) = LibPlayer
-            .moveInfo(player, start, _target);
+            .moveInfo(_player, start, _target);
 
         // check move time
         require(spendTime >= gameConstants().MIN_TRIP_TIME, "Target too near.");
-        gs().currentMoveInfo[player] = Moving({
+        gs().currentMoveInfo[_player] = Moving({
             target: _target,
             spendTime: spendTime,
             speed: speed,
@@ -186,13 +187,12 @@ contract RUPlayerFacet is Modifiers {
                 .SEGMENTATION_DISTANCE_PER_MOVE,
             randomWords: RandomWordsInfo(new uint256[](0), 0, 0)
         });
-        // change player status to moving status
-        gs().info[player].status = Status.Moving;
         return (distance, spendTime, speed);
     }
 
     function stopAndRequestRandomWords()
         external
+        onlyInitializedPlayer(msg.sender)
         requiredStatus(Status.Moving)
     {
         address _player = msg.sender;
@@ -221,10 +221,11 @@ contract RUPlayerFacet is Modifiers {
         uint256[] memory randomWords
     ) external {
         // Role check
-        require(
-            msg.sender == gameConstants().VRF_ADDRESS,
-            "VRF contracts only."
-        );
+        if (msg.sender != gameConstants().VRF_ADDRESS) revert NotVRFContract();
+        // require(
+        //     msg.sender == gameConstants().VRF_ADDRESS,
+        //     "VRF contracts only."
+        // );
         address player = gs().vrfIdPlayer[requestId];
         // Update current move random words info
         gs().currentMoveInfo[player].randomWords = RandomWordsInfo(
@@ -308,7 +309,7 @@ contract RUPlayerFacet is Modifiers {
         Point memory _bountyLocation = LibPlayer.targetPoint(
             _calldata.start,
             _calldata.end,
-            _calldata.location
+            _calldata.location % 10000
         );
         (Ring memory _ring, uint256 _ringId) = _mintRing(
             _bountyLocation,
@@ -336,6 +337,7 @@ contract RUPlayerFacet is Modifiers {
     /// @dev Change moving state after call function which require moving state
     function claim()
         external
+        onlyInitializedPlayer(msg.sender)
         requiredStatus(Status.Moving)
         returns (uint256[] memory, uint256)
     {
@@ -350,7 +352,7 @@ contract RUPlayerFacet is Modifiers {
         // check account coin balance
         // need sender to pay
         require(
-            LibPlayer.coinContract().balanceOf(msg.sender) >=
+            LibPlayer.coinContract().balanceOf(_player) >=
                 _moveInfo.maxTownToMint * gameConstants().TOWN_MINT_FEE,
             "Insufficient number of tokens."
         );
@@ -360,6 +362,9 @@ contract RUPlayerFacet is Modifiers {
             gs().info[_player].location.y
         );
         (Point memory end, , ) = LibPlayer.currentLocation(_player);
+
+        // Change state
+        _resetPlayerMoveInfo(_player, end, _moveInfo.endTime);
 
         uint256[] memory randomWords = _moveInfo.randomWords.randomWords;
 
@@ -382,7 +387,7 @@ contract RUPlayerFacet is Modifiers {
             })
         );
         LibPlayer.coinContract().transferFrom(
-            msg.sender,
+            _player,
             gameConstants().FEE_ADDRESS,
             towns.length * gameConstants().TOWN_MINT_FEE
         );
@@ -404,9 +409,6 @@ contract RUPlayerFacet is Modifiers {
                 end: end
             })
         );
-
-        // Change state
-        _resetPlayerMoveInfo(_player, end, _moveInfo.endTime);
 
         return (towns, bId);
     }

@@ -14,7 +14,7 @@ struct GameStorage {
 
 // Game config
 struct GameConstants {
-    uint256 PLACEHOLDER;
+    uint256 MINT_AT;
 }
 
 /**

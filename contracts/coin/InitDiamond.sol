@@ -54,8 +54,5 @@ contract InitDiamond is WithStorage {
         layout.name = initArgs.NAME;
         layout.symbol = initArgs.SYMBOL;
         layout.decimals = initArgs.DECIMALS;
-
-        IRUCoinFacet uniC = IRUCoinFacet(address(this));
-        uniC.mint(initArgs.TOTAL_SUPPLY * 1e18);
     }
 }

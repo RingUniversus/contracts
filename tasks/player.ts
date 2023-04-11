@@ -11,6 +11,7 @@ import {
   deployOwnershipFacet,
   saveDeploy,
   updateRelatedAddress,
+  deployAdminFacet,
 } from "./utils";
 
 const { AddressZero } = constants;
@@ -143,10 +144,12 @@ export async function deployAndCut(
 
   // Ring Universus facets
   const playerFacet = await deployPlayerFacet({}, libraries, hre);
+  const adminFacet = await deployAdminFacet("RUPlayerAdminFacet", {}, {}, hre);
 
   // The `cuts` to perform for Ring Universus facets
   const ringUniversusPlayerFacetCuts = [
     ...changes.getFacetCuts("RUPlayerFacet", playerFacet),
+    ...changes.getFacetCuts("RUPlayerAdminFacet", adminFacet),
   ];
 
   if (isDev) {
@@ -181,6 +184,20 @@ export async function deployAndCut(
   return [diamond, diamondInit, initReceipt] as const;
 }
 
+// export async function deployAdminFacet(
+//   {},
+//   {}: Libraries,
+//   hre: HardhatRuntimeEnvironment
+// ) {
+//   const factory = await hre.ethers.getContractFactory("RUPlayerAdminFacet", {
+//     libraries: {},
+//   });
+//   const contract = await factory.deploy();
+//   await contract.deployTransaction.wait();
+//   console.log(`RUPlayerAdminFacet deployed to: ${contract.address}`);
+//   return contract;
+// }
+
 async function upgrade({}, hre: HardhatRuntimeEnvironment) {
   await hre.run("utils:assertChainId", { component: "player" });
 
@@ -195,8 +212,6 @@ async function upgrade({}, hre: HardhatRuntimeEnvironment) {
     "RingUniversusPlayer",
     hre.contracts.player.CONTRACT_ADDRESS
   );
-  // console.log(diamond);
-  // console.log(diamond.interface.fragments);
 
   const previousFacets = await diamond.facets();
 
@@ -207,10 +222,12 @@ async function upgrade({}, hre: HardhatRuntimeEnvironment) {
 
   // Ring Universus facets
   const playerFacet = await deployPlayerFacet({}, libraries, hre);
+  const adminFacet = await deployAdminFacet("RUPlayerAdminFacet", {}, {}, hre);
 
   // The `cuts` to perform for Ring Universus facets
   const ringUniversusPlayerFacetCuts = [
     ...changes.getFacetCuts("RUPlayerFacet", playerFacet),
+    ...changes.getFacetCuts("RUPlayerAdminFacet", adminFacet),
   ];
 
   if (isDev) {
@@ -303,7 +320,7 @@ export async function deployDebugFacet(
 
 async function afterDeploy(args: {}, hre: HardhatRuntimeEnvironment) {
   await updateRelatedAddress(
-    "RUPlayerFacet",
+    "RUPlayerAdminFacet",
     hre.contracts.player.CONTRACT_ADDRESS,
     {
       feeAddress: hre.playerInitializers.FEE_ADDRESS,
@@ -329,7 +346,7 @@ async function afterDeploy(args: {}, hre: HardhatRuntimeEnvironment) {
 
   await updateRelatedAddress(
     "RUEquipmentFacet",
-    hre.contracts.bounty.CONTRACT_ADDRESS,
+    hre.contracts.equipment.CONTRACT_ADDRESS,
     {
       playerAddress: hre.contracts.player.CONTRACT_ADDRESS,
     },
@@ -337,8 +354,8 @@ async function afterDeploy(args: {}, hre: HardhatRuntimeEnvironment) {
   );
 
   await updateRelatedAddress(
-    "RURingFacet",
-    hre.contracts.bounty.CONTRACT_ADDRESS,
+    "RURingAdminFacet",
+    hre.contracts.ring.CONTRACT_ADDRESS,
     {
       playerAddress: hre.contracts.player.CONTRACT_ADDRESS,
     },
@@ -347,7 +364,7 @@ async function afterDeploy(args: {}, hre: HardhatRuntimeEnvironment) {
 
   await updateRelatedAddress(
     "RUTownFacet",
-    hre.contracts.bounty.CONTRACT_ADDRESS,
+    hre.contracts.town.CONTRACT_ADDRESS,
     {
       playerAddress: hre.contracts.player.CONTRACT_ADDRESS,
     },

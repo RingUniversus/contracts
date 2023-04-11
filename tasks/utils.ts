@@ -194,3 +194,18 @@ export async function updateRelatedAddress(
     `Completed update ${targetContract}'s related contracts' address.`
   );
 }
+
+export async function deployAdminFacet(
+  targetContract: string,
+  {},
+  libraries: Libraries,
+  hre: HardhatRuntimeEnvironment
+) {
+  const factory = await hre.ethers.getContractFactory(targetContract, {
+    libraries: libraries,
+  });
+  const contract = await factory.deploy();
+  await contract.deployTransaction.wait();
+  console.log(`${targetContract} deployed to: ${contract.address}`);
+  return contract;
+}

@@ -9,6 +9,7 @@ import {
   deployDiamondLoupeFacet,
   deployOwnershipFacet,
   saveDeploy,
+  deployAdminFacet,
 } from "./utils";
 
 task("deployRing", "deploy ring's contracts").setAction(deploy);
@@ -128,10 +129,12 @@ export async function deployAndCut(
 
   // Ring Universus facets
   const ringFacet = await deployRingFacet({}, libraries, hre);
+  const adminFacet = await deployAdminFacet("RURingAdminFacet", {}, {}, hre);
 
   // The `cuts` to perform for Ring Universus facets
   const ringUniversusRingFacetCuts = [
     ...changes.getFacetCuts("RURingFacet", ringFacet),
+    ...changes.getFacetCuts("RURingAdminFacet", adminFacet),
   ];
 
   const toCut = [...diamondSpecFacetCuts, ...ringUniversusRingFacetCuts];
@@ -183,10 +186,12 @@ async function upgrade({}, hre: HardhatRuntimeEnvironment) {
 
   // Ring Universus facets
   const ringFacet = await deployRingFacet({}, libraries, hre);
+  const adminFacet = await deployAdminFacet("RURingAdminFacet", {}, {}, hre);
 
   // The `cuts` to perform for Ring Universus facets
   const ringUniversusRingFacetCuts = [
     ...changes.getFacetCuts("RURingFacet", ringFacet),
+    ...changes.getFacetCuts("RURingAdminFacet", adminFacet),
   ];
 
   // The `cuts` to remove any old, unused functions
