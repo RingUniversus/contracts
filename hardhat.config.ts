@@ -52,6 +52,7 @@ extendEnvironment((env: HardhatRuntimeEnvironment) => {
   env.packageDirs = packageDirs;
 
   env.contracts = lazyObject(() => {
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
     const contracts = require("@ringuniversus/contracts");
     return settings.parse(decodeContracts, contracts);
   });

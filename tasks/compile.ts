@@ -34,7 +34,7 @@ async function copyAbi(
 
   await fs.mkdir(abisDir, { recursive: true });
 
-  let mergedAbisByApps: Record<string, any[]> = {
+  const mergedAbisByApps: Record<string, any[]> = {
     vendor: [],
     // shared: [],
     town: [],
@@ -87,12 +87,12 @@ async function copyAbi(
 
   // console.log("mergedAbisByApps:", mergedAbisByApps);
   // console.log("mergedAbisByApps.vendor:", mergedAbisByApps.vendor);
-  for (let app in mergedAbisByApps) {
+  for (const app in mergedAbisByApps) {
     // Skip vender
     if (app === "vendor") {
       continue;
     }
-    let abi = mergedAbisByApps[app];
+    const abi = mergedAbisByApps[app];
     // Add Diamond abi
     abi.push(...mergedAbisByApps.vendor);
 

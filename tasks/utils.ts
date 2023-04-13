@@ -25,7 +25,7 @@ async function assertChainId(
 }
 
 export async function deployDiamondCutFacet(
-  {},
+  args: object,
   libraries: Libraries,
   hre: HardhatRuntimeEnvironment
 ) {
@@ -44,7 +44,7 @@ export async function deployDiamond(
     ownerAddress: string;
     diamondCutAddress: string;
   },
-  {}: Libraries,
+  libraries: Libraries,
   hre: HardhatRuntimeEnvironment
 ) {
   const factory = await hre.ethers.getContractFactory("Diamond");
@@ -75,8 +75,8 @@ export async function deployDiamondInit(
 }
 
 export async function deployDiamondLoupeFacet(
-  {},
-  {}: Libraries,
+  args: object,
+  libraries: Libraries,
   hre: HardhatRuntimeEnvironment
 ) {
   const factory = await hre.ethers.getContractFactory("DiamondLoupeFacet");
@@ -87,8 +87,8 @@ export async function deployDiamondLoupeFacet(
 }
 
 export async function deployOwnershipFacet(
-  {},
-  {}: Libraries,
+  args: object,
+  libraries: Libraries,
   hre: HardhatRuntimeEnvironment
 ) {
   const factory = await hre.ethers.getContractFactory("OwnershipFacet");
@@ -178,17 +178,23 @@ export async function saveDeploy(
   fs.writeFileSync(contractsFileDTSMap, dtsmapContents);
 }
 
+interface AddressMapping {
+  [key: string]: string;
+}
+
 export async function updateRelatedAddress(
   targetContract: string,
   contractAddress: string,
-  args: {},
+  addressMapping: AddressMapping,
   hre: HardhatRuntimeEnvironment
 ) {
   const contract = await hre.ethers.getContractAt(
     targetContract,
     contractAddress
   );
-  const updateRelatedAddressReceipt = await contract.updateRelatedAddress(args);
+  const updateRelatedAddressReceipt = await contract.updateRelatedAddress(
+    addressMapping
+  );
   await updateRelatedAddressReceipt.wait();
   console.log(
     `Completed update ${targetContract}'s related contracts' address.`
@@ -197,7 +203,6 @@ export async function updateRelatedAddress(
 
 export async function deployAdminFacet(
   targetContract: string,
-  {},
   libraries: Libraries,
   hre: HardhatRuntimeEnvironment
 ) {

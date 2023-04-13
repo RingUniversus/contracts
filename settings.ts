@@ -39,9 +39,11 @@ declare module "hardhat/types/runtime" {
   }
 }
 
+type VerifyFunction = (externalData: any) => any;
+
 // Util for parsing & validating schemas with pretty printing
 export function parse(
-  verify: Function,
+  verify: VerifyFunction,
   externalData: unknown
 ): ReturnType<any> {
   try {

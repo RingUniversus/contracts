@@ -16,7 +16,7 @@ task("upgradeE", "upgrade E's contracts and replace in the diamond").setAction(
   upgrade
 );
 
-async function deploy(args: {}, hre: HardhatRuntimeEnvironment) {
+async function deploy(args: object, hre: HardhatRuntimeEnvironment) {
   const isDev =
     hre.network.name === "localhost" || hre.network.name === "hardhat";
 
@@ -165,7 +165,7 @@ export async function deployAndCut(
   return [diamond, diamondInit, initReceipt] as const;
 }
 
-async function upgrade({}, hre: HardhatRuntimeEnvironment) {
+async function upgrade(args: object, hre: HardhatRuntimeEnvironment) {
   await hre.run("utils:assertChainId", { component: "equipment" });
 
   const isDev =
@@ -229,7 +229,7 @@ async function upgrade({}, hre: HardhatRuntimeEnvironment) {
 }
 
 export async function deployEquipmentFacet(
-  {},
+  args: object,
   { LibEquipment }: Libraries,
   hre: HardhatRuntimeEnvironment
 ) {
@@ -242,7 +242,10 @@ export async function deployEquipmentFacet(
   return contract;
 }
 
-export async function deployLibraries({}, hre: HardhatRuntimeEnvironment) {
+export async function deployLibraries(
+  args: object,
+  hre: HardhatRuntimeEnvironment
+) {
   const LibEquipmentFactory = await hre.ethers.getContractFactory(
     "LibEquipment",
     {

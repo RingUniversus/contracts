@@ -7,7 +7,7 @@ import { tscompile } from "../utils/tscompile";
 
 task("settingIndex", "create setting index").setAction(settingIndex);
 
-async function settingIndex(args: {}, hre: HardhatRuntimeEnvironment) {
+async function settingIndex(args: object, hre: HardhatRuntimeEnvironment) {
   const isDev =
     hre.network.name === "localhost" || hre.network.name === "hardhat";
 

@@ -2,9 +2,9 @@ import { task } from "hardhat/config";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 
 task("deploy", "deploy contracts").setAction(deploy);
-task("upgrade", "upgrade contracts").setAction(upgrade);
+// task("upgrade", "upgrade contracts").setAction(upgrade);
 
-async function deploy(args: {}, hre: HardhatRuntimeEnvironment) {
+async function deploy(args: object, hre: HardhatRuntimeEnvironment) {
   await hre.run("settingIndex");
   await hre.run("utils:assertChainId", { component: "player" });
 
@@ -16,7 +16,7 @@ async function deploy(args: {}, hre: HardhatRuntimeEnvironment) {
   await hre.run("deployPlayer");
 
   await hre.run("updateRelatedAddress");
-  console.log("finished.");
+  console.log("Deploy finished.");
 }
 
-async function upgrade(args: {}, hre: HardhatRuntimeEnvironment) {}
+// async function upgrade(args: object, hre: HardhatRuntimeEnvironment) {}

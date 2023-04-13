@@ -25,7 +25,7 @@ task("updateRelatedAddress", "update related address after deploy").setAction(
   afterDeploy
 );
 
-async function deploy(args: {}, hre: HardhatRuntimeEnvironment) {
+async function deploy(args: object, hre: HardhatRuntimeEnvironment) {
   const isDev =
     hre.network.name === "localhost" || hre.network.name === "hardhat";
 
@@ -144,7 +144,7 @@ export async function deployAndCut(
 
   // Ring Universus facets
   const playerFacet = await deployPlayerFacet({}, libraries, hre);
-  const adminFacet = await deployAdminFacet("RUPlayerAdminFacet", {}, {}, hre);
+  const adminFacet = await deployAdminFacet("RUPlayerAdminFacet", {}, hre);
 
   // The `cuts` to perform for Ring Universus facets
   const ringUniversusPlayerFacetCuts = [
@@ -198,7 +198,7 @@ export async function deployAndCut(
 //   return contract;
 // }
 
-async function upgrade({}, hre: HardhatRuntimeEnvironment) {
+async function upgrade(args: object, hre: HardhatRuntimeEnvironment) {
   await hre.run("utils:assertChainId", { component: "player" });
 
   const isDev =
@@ -222,7 +222,7 @@ async function upgrade({}, hre: HardhatRuntimeEnvironment) {
 
   // Ring Universus facets
   const playerFacet = await deployPlayerFacet({}, libraries, hre);
-  const adminFacet = await deployAdminFacet("RUPlayerAdminFacet", {}, {}, hre);
+  const adminFacet = await deployAdminFacet("RUPlayerAdminFacet", {}, hre);
 
   // The `cuts` to perform for Ring Universus facets
   const ringUniversusPlayerFacetCuts = [
@@ -271,7 +271,7 @@ async function upgrade({}, hre: HardhatRuntimeEnvironment) {
 }
 
 export async function deployPlayerFacet(
-  {},
+  args: object,
   { LibPlayer, LibUtil }: Libraries,
   hre: HardhatRuntimeEnvironment
 ) {
@@ -284,7 +284,10 @@ export async function deployPlayerFacet(
   return contract;
 }
 
-export async function deployLibraries({}, hre: HardhatRuntimeEnvironment) {
+export async function deployLibraries(
+  args: object,
+  hre: HardhatRuntimeEnvironment
+) {
   // TODO: Deploy shared libraries first
   const LibUtilFactory = await hre.ethers.getContractFactory(
     "contracts/shared/libraries/LibUtil.sol:LibUtil"
@@ -307,8 +310,8 @@ export async function deployLibraries({}, hre: HardhatRuntimeEnvironment) {
 }
 
 export async function deployDebugFacet(
-  {},
-  {}: Libraries,
+  args: object,
+  libraries: Libraries,
   hre: HardhatRuntimeEnvironment
 ) {
   const factory = await hre.ethers.getContractFactory("RUPlayerDebugFacet");
@@ -318,7 +321,7 @@ export async function deployDebugFacet(
   return contract;
 }
 
-async function afterDeploy(args: {}, hre: HardhatRuntimeEnvironment) {
+async function afterDeploy(args: object, hre: HardhatRuntimeEnvironment) {
   await updateRelatedAddress(
     "RUPlayerAdminFacet",
     hre.contracts.player.CONTRACT_ADDRESS,

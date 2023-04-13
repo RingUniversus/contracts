@@ -17,7 +17,7 @@ task(
   "upgrade town contracts and replace in the diamond"
 ).setAction(upgrade);
 
-async function deploy(args: {}, hre: HardhatRuntimeEnvironment) {
+async function deploy(args: object, hre: HardhatRuntimeEnvironment) {
   const isDev =
     hre.network.name === "localhost" || hre.network.name === "hardhat";
 
@@ -167,7 +167,7 @@ export async function deployAndCut(
   return [diamond, diamondInit, initReceipt] as const;
 }
 
-async function upgrade({}, hre: HardhatRuntimeEnvironment) {
+async function upgrade(args: object, hre: HardhatRuntimeEnvironment) {
   await hre.run("utils:assertChainId", { component: "town" });
 
   const isDev =
@@ -230,12 +230,12 @@ async function upgrade({}, hre: HardhatRuntimeEnvironment) {
 }
 
 export async function deployTownFacet(
-  {},
-  {}: Libraries,
+  args: object,
+  libraries: Libraries,
   hre: HardhatRuntimeEnvironment
 ) {
   const factory = await hre.ethers.getContractFactory("RUTownFacet", {
-    libraries: {},
+    libraries: libraries,
   });
   const contract = await factory.deploy();
   await contract.deployTransaction.wait();

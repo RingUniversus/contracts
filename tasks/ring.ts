@@ -18,7 +18,7 @@ task(
   "upgrade ring contracts and replace in the diamond"
 ).setAction(upgrade);
 
-async function deploy(args: {}, hre: HardhatRuntimeEnvironment) {
+async function deploy(args: object, hre: HardhatRuntimeEnvironment) {
   const isDev =
     hre.network.name === "localhost" || hre.network.name === "hardhat";
 
@@ -129,7 +129,7 @@ export async function deployAndCut(
 
   // Ring Universus facets
   const ringFacet = await deployRingFacet({}, libraries, hre);
-  const adminFacet = await deployAdminFacet("RURingAdminFacet", {}, {}, hre);
+  const adminFacet = await deployAdminFacet("RURingAdminFacet", {}, hre);
 
   // The `cuts` to perform for Ring Universus facets
   const ringUniversusRingFacetCuts = [
@@ -162,7 +162,7 @@ export async function deployAndCut(
   return [diamond, diamondInit, initReceipt] as const;
 }
 
-async function upgrade({}, hre: HardhatRuntimeEnvironment) {
+async function upgrade(args: object, hre: HardhatRuntimeEnvironment) {
   await hre.run("utils:assertChainId", { component: "ring" });
 
   const isDev =
@@ -186,7 +186,7 @@ async function upgrade({}, hre: HardhatRuntimeEnvironment) {
 
   // Ring Universus facets
   const ringFacet = await deployRingFacet({}, libraries, hre);
-  const adminFacet = await deployAdminFacet("RURingAdminFacet", {}, {}, hre);
+  const adminFacet = await deployAdminFacet("RURingAdminFacet", {}, hre);
 
   // The `cuts` to perform for Ring Universus facets
   const ringUniversusRingFacetCuts = [
@@ -228,7 +228,7 @@ async function upgrade({}, hre: HardhatRuntimeEnvironment) {
 }
 
 export async function deployRingFacet(
-  {},
+  args: object,
   { LibRing }: Libraries,
   hre: HardhatRuntimeEnvironment
 ) {
@@ -241,7 +241,10 @@ export async function deployRingFacet(
   return contract;
 }
 
-export async function deployLibraries({}, hre: HardhatRuntimeEnvironment) {
+export async function deployLibraries(
+  args: object,
+  hre: HardhatRuntimeEnvironment
+) {
   // TODO: Deploy shared libraries first
   const LibUtilFactory = await hre.ethers.getContractFactory(
     "contracts/shared/libraries/LibUtil.sol:LibUtil"

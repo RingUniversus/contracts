@@ -17,7 +17,7 @@ task(
   "upgrade coin contracts and replace in the diamond"
 ).setAction(upgrade);
 
-async function deploy(args: {}, hre: HardhatRuntimeEnvironment) {
+async function deploy(args: object, hre: HardhatRuntimeEnvironment) {
   const isDev =
     hre.network.name === "localhost" || hre.network.name === "hardhat";
 
@@ -172,7 +172,7 @@ export async function deployAndCut(
   return [diamond, diamondInit, initReceipt] as const;
 }
 
-async function upgrade({}, hre: HardhatRuntimeEnvironment) {
+async function upgrade(args: object, hre: HardhatRuntimeEnvironment) {
   await hre.run("utils:assertChainId", { component: "coin" });
 
   const isDev =
@@ -235,12 +235,12 @@ async function upgrade({}, hre: HardhatRuntimeEnvironment) {
 }
 
 export async function deployCoinFacet(
-  {},
-  {}: Libraries,
+  args: object,
+  libraries: Libraries,
   hre: HardhatRuntimeEnvironment
 ) {
   const factory = await hre.ethers.getContractFactory("RUCoinFacet", {
-    libraries: {},
+    libraries: libraries,
   });
   const contract = await factory.deploy();
   await contract.deployTransaction.wait();
@@ -249,8 +249,8 @@ export async function deployCoinFacet(
 }
 
 export async function deployDebugFacet(
-  {},
-  {}: Libraries,
+  args: object,
+  libraries: Libraries,
   hre: HardhatRuntimeEnvironment
 ) {
   const factory = await hre.ethers.getContractFactory("RUCoinDebugFacet");
