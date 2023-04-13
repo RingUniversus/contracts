@@ -1,7 +1,6 @@
 import { task } from "hardhat/config";
 import { HardhatRuntimeEnvironment, Libraries } from "hardhat/types";
-import * as settings from "../settings";
-import { DiamondChanges } from "../utils/diamond";
+
 import {
   deployDiamond,
   deployDiamondCutFacet,
@@ -10,6 +9,8 @@ import {
   deployOwnershipFacet,
   saveDeploy,
 } from "./utils";
+import * as settings from "../settings";
+import { DiamondChanges } from "../utils/diamond";
 
 task("deployTown", "deploy town's contracts").setAction(deploy);
 task(

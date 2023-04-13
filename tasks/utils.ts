@@ -1,8 +1,10 @@
 import * as fs from "fs";
+import path from "path";
+
 import { subtask } from "hardhat/config";
 import { HardhatRuntimeEnvironment, Libraries } from "hardhat/types";
-import path from "path";
 import dedent from "ts-dedent";
+
 import { tscompile } from "../utils/tscompile";
 
 subtask("utils:assertChainId", "Assert proper network is selectaed").setAction(

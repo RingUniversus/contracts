@@ -4,24 +4,26 @@
 import "@typechain/hardhat";
 import "@nomiclabs/hardhat-ethers";
 import "@nomiclabs/hardhat-waffle";
+
+import * as path from "path";
+
+import {
+  decodeBountyInitializers,
+  decodeCoinInitializers,
+  decodeContracts,
+  decodeEquipmentInitializers,
+  decodeInitializers,
+  decodePlayerInitializers,
+  decodeRingInitializers,
+  decodeTownInitializers,
+} from "@ringuniversus/settings";
 import dotenv from "dotenv";
-// import "@solidstate/hardhat-4byte-uploader";
 import "hardhat-contract-sizer";
-import { extendEnvironment, HardhatUserConfig } from "hardhat/config.js";
+import { HardhatUserConfig, extendEnvironment } from "hardhat/config.js";
 import { lazyObject } from "hardhat/plugins.js";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
-import * as path from "path";
+
 import * as settings from "./settings";
-import {
-  decodeContracts,
-  decodeInitializers,
-  decodeTownInitializers,
-  decodeRingInitializers,
-  decodeCoinInitializers,
-  decodeBountyInitializers,
-  decodeEquipmentInitializers,
-  decodePlayerInitializers,
-} from "@ringuniversus/settings";
 import "./tasks/compile";
 import "./tasks/settingIndex";
 import "./tasks/town";
@@ -32,6 +34,7 @@ import "./tasks/equipment";
 import "./tasks/player";
 import "./tasks/deploy";
 import "./tasks/utils";
+// import "@solidstate/hardhat-4byte-uploader";
 
 dotenv.config();
 

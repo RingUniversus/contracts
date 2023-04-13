@@ -1,4 +1,6 @@
 import * as fs from "fs/promises";
+import * as path from "path";
+
 import { utils } from "ethers";
 import { TASK_COMPILE } from "hardhat/builtin-tasks/task-names";
 import { task } from "hardhat/config";
@@ -8,8 +10,8 @@ import type {
   RunSuperFunction,
   TaskArguments,
 } from "hardhat/types";
-import * as path from "path";
 import * as prettier from "prettier";
+
 import * as diamondUtils from "../utils/diamond";
 
 const { Fragment, FormatTypes } = utils;

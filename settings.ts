@@ -1,19 +1,19 @@
-import {
-  Contracts,
-  Initializers,
-  TownInitializers,
-  RingInitializers,
-  CoinInitializers,
-  BountyInitializers,
-  EquipmentInitializers,
-  PlayerInitializers,
-} from "@ringuniversus/settings";
+import * as path from "path";
+
 import toml from "@iarna/toml";
+import {
+  BountyInitializers,
+  CoinInitializers,
+  Contracts,
+  EquipmentInitializers,
+  Initializers,
+  PlayerInitializers,
+  RingInitializers,
+  TownInitializers,
+} from "@ringuniversus/settings";
 import chalk from "chalk";
 import { cosmiconfigSync } from "cosmiconfig";
-// HRE stuff
 import "hardhat/types/runtime";
-import * as path from "path";
 import resolvePackage from "resolve-package-path";
 import { dedent } from "ts-dedent";
 

@@ -1,8 +1,10 @@
 import fs from "fs";
+import path from "path";
+
 import { task } from "hardhat/config";
 import { HardhatRuntimeEnvironment } from "hardhat/types/runtime";
-import path from "path";
 import dedent from "ts-dedent";
+
 import { tscompile } from "../utils/tscompile";
 
 task("settingIndex", "create setting index").setAction(settingIndex);

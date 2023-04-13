@@ -1,16 +1,17 @@
 import { task } from "hardhat/config";
 import { HardhatRuntimeEnvironment, Libraries } from "hardhat/types";
-import * as settings from "../settings";
-import { DiamondChanges } from "../utils/diamond";
+
 import {
+  deployAdminFacet,
   deployDiamond,
   deployDiamondCutFacet,
   deployDiamondInit,
   deployDiamondLoupeFacet,
   deployOwnershipFacet,
   saveDeploy,
-  deployAdminFacet,
 } from "./utils";
+import * as settings from "../settings";
+import { DiamondChanges } from "../utils/diamond";
 
 task("deployRing", "deploy ring's contracts").setAction(deploy);
 task(

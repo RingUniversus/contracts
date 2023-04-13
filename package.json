@@ -38,6 +38,7 @@
     "dotenv": "^16.0.3",
     "eslint": "^8.38.0",
     "eslint-config-prettier": "^8.8.0",
+    "eslint-import-resolver-typescript": "^3.5.5",
     "eslint-plugin-import": "^2.27.5",
     "eslint-plugin-prettier": "^4.2.1",
     "ethereum-waffle": "^4.0.10",
@@ -65,7 +66,7 @@
   "scripts": {
     "test": "hardhat test && yarn subgraph:template:dev",
     "lint": "eslint '**/*.{ts,tsx}'",
-    "lint:fix": "eslint '**/*.{ts,tsx}' --fix",
+    "lint:fix": "yarn lint --fix",
     "format": "prettier --write .",
     "hardhat:node": "hardhat node --hostname 0.0.0.0",
     "hardhat:dev": "hardhat --network localhost",

@@ -16,12 +16,14 @@
  * TypeScript only knows them as `string`.
  */
 
+import readline from "readline";
+
 import type { JsonFragment } from "@ethersproject/abi";
 import chalk from "chalk";
 import Table from "cli-table";
-import { constants, Contract, utils } from "ethers";
+import { Contract, constants, utils } from "ethers";
 import fetch from "node-fetch";
-import readline from "readline";
+
 import DiamondCutFacetABI from "./DiamondCutFacet.json";
 import DiamondLoupeFacetABI from "./DiamondLoupeFacet.json";
 import OwnershipFacetABI from "./OwnershipFacet.json";
