@@ -336,7 +336,7 @@ async function afterDeploy(args: {}, hre: HardhatRuntimeEnvironment) {
   );
 
   await updateRelatedAddress(
-    "RUBountyFacet",
+    "RUBountyAdminFacet",
     hre.contracts.bounty.CONTRACT_ADDRESS,
     {
       playerAddress: hre.contracts.player.CONTRACT_ADDRESS,
@@ -345,7 +345,7 @@ async function afterDeploy(args: {}, hre: HardhatRuntimeEnvironment) {
   );
 
   await updateRelatedAddress(
-    "RUEquipmentFacet",
+    "RUEquipmentAdminFacet",
     hre.contracts.equipment.CONTRACT_ADDRESS,
     {
       playerAddress: hre.contracts.player.CONTRACT_ADDRESS,
@@ -363,7 +363,7 @@ async function afterDeploy(args: {}, hre: HardhatRuntimeEnvironment) {
   );
 
   await updateRelatedAddress(
-    "RUTownFacet",
+    "RUTownAdminFacet",
     hre.contracts.town.CONTRACT_ADDRESS,
     {
       playerAddress: hre.contracts.player.CONTRACT_ADDRESS,

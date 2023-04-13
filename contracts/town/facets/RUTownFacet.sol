@@ -12,16 +12,10 @@ import {Modifiers, WithStorage} from "../libraries/LibStorage.sol";
 
 // Type imports
 import {Point} from "../../shared/Types.sol";
-import {Town, Attribute, UpdateRelatedAddressArgs} from "../Types.sol";
+import {Town, Attribute} from "../Types.sol";
 
 contract RUTownFacet is Modifiers, SolidStateERC721 {
     using UintUtils for uint256;
-
-    function updateRelatedAddress(
-        UpdateRelatedAddressArgs calldata _addresses
-    ) external onlyOwner {
-        gameConstants().PLAYER_ADDRESS = _addresses.playerAddress;
-    }
 
     function metadata(uint256 _tokenId) public view returns (Town memory) {
         return gs().towns[_tokenId];

@@ -11,16 +11,9 @@ import {UintUtils} from "@solidstate/contracts/utils/UintUtils.sol";
 import {Modifiers, WithStorage} from "../libraries/LibStorage.sol";
 
 // Type imports
-import {UpdateRelatedAddressArgs} from "../Types.sol";
 import {Point, BTYOwnType, BTYInfo, BTYMetadata} from "../../shared/Types.sol";
 
 contract RUBountyFacet is Modifiers, SolidStateERC721 {
-    function updateRelatedAddress(
-        UpdateRelatedAddressArgs calldata _addresses
-    ) external onlyOwner {
-        gameConstants().PLAYER_ADDRESS = _addresses.playerAddress;
-    }
-
     function newBounty(
         address _player,
         uint256 _circleId,

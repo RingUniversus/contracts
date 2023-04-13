@@ -12,17 +12,10 @@ import {LibEquipment} from "../libraries/LibEquipment.sol";
 import {Modifiers, WithStorage} from "../libraries/LibStorage.sol";
 
 // Type imports
-import {UpdateRelatedAddressArgs} from "../Types.sol";
 import {Point, EMetadata, ETypes, ERarity} from "../../shared/Types.sol";
 
 contract RUEquipmentFacet is Modifiers, SolidStateERC721 {
     using UintUtils for uint256;
-
-    function updateRelatedAddress(
-        UpdateRelatedAddressArgs calldata _addresses
-    ) external onlyOwner {
-        gameConstants().PLAYER_ADDRESS = _addresses.playerAddress;
-    }
 
     function metadata(
         uint256 _tokenId
