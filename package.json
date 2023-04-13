@@ -67,7 +67,7 @@
     "test": "hardhat test && yarn subgraph:template:dev",
     "lint": "eslint '**/*.{ts,tsx}'",
     "lint:fix": "yarn lint --fix",
-    "format": "prettier --write .",
+    "format": "yarn lint:fix && prettier --write .",
     "hardhat:node": "hardhat node --hostname 0.0.0.0",
     "hardhat:dev": "hardhat --network localhost",
     "hardhat:prod": "hardhat --network xdai",
