@@ -3,7 +3,7 @@ import path from "path";
 
 import { task } from "hardhat/config";
 import { HardhatRuntimeEnvironment } from "hardhat/types/runtime";
-import dedent from "ts-dedent";
+import { dedent as dedentString } from "ts-dedent";
 
 import { tscompile } from "../utils/tscompile";
 
@@ -14,7 +14,7 @@ async function settingIndex(args: object, hre: HardhatRuntimeEnvironment) {
     hre.network.name === "localhost" || hre.network.name === "hardhat";
 
   // create index file for deployed contracts to the `@ringuniversus/contracts` package
-  const tsContents = dedent`
+  const tsContents = dedentString`
   /**
    * This package contains deployed contract addresses, ABIs, and Typechain types
    * for the Ring Universus game.

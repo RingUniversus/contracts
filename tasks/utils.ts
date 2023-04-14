@@ -3,7 +3,7 @@ import path from "path";
 
 import { subtask } from "hardhat/config";
 import { HardhatRuntimeEnvironment, Libraries } from "hardhat/types";
-import dedent from "ts-dedent";
+import { dedent as dedentString } from "ts-dedent";
 
 import { tscompile } from "../utils/tscompile";
 
@@ -117,7 +117,7 @@ export async function saveDeploy(
     hre.network.name === "localhost" || hre.network.name === "hardhat";
 
   // Save the addresses of the deployed contracts to the `@ringuniversus/contracts` package
-  const tsContents = dedent`
+  const tsContents = dedentString`
   /**
    * This package contains deployed contract addresses, ABIs, and Typechain types
    * for the Ring Universus ${capitalizeFirstLetter(component)}.
