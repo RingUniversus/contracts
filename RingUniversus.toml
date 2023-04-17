@@ -27,7 +27,8 @@ DECIMALS = 18
 TOTAL_SUPPLY = 1_000_000_000
 
 [equipment_initializers]
-PLACEHOLDER = 0
+NAME = "Universus Equipment"
+SYMBOL = "UNiE"
 
 [bounty_initializers]
 VALID_DELAY = 259200 # 3 days

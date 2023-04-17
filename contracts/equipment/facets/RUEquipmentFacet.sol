@@ -12,10 +12,19 @@ import {LibEquipment} from "../libraries/LibEquipment.sol";
 import {Modifiers, WithStorage} from "../libraries/LibStorage.sol";
 
 // Type imports
+import {EquipmentNotExists, EquipmentAlreadyEquiped, EquipmentNotOwned, EquipmentNotEquiped} from "../Errors.sol";
 import {Point, EMetadata, ETypes, ERarity} from "../../shared/Types.sol";
 
 contract RUEquipmentFacet is Modifiers, SolidStateERC721 {
     using UintUtils for uint256;
+
+    modifier onlyValidEuqipment(uint256 _tokenId) {
+        if (gs().equipments[_tokenId].mintedBy == address(0))
+            revert EquipmentNotExists({tokenId: _tokenId});
+        if (this.ownerOf(_tokenId) != msg.sender)
+            revert EquipmentNotOwned({tokenId: _tokenId});
+        _;
+    }
 
     function metadata(
         uint256 _tokenId
@@ -120,10 +129,8 @@ contract RUEquipmentFacet is Modifiers, SolidStateERC721 {
         uint256 tokenId
     ) internal override(SolidStateERC721) {
         // prevent transfer equiped E
-        require(
-            gs().equipments[tokenId].equipedAt == 0,
-            "Cannot transfer equiped E"
-        );
+        if (gs().equipments[tokenId].equipedAt != 0)
+            revert EquipmentAlreadyEquiped({tokenId: tokenId});
         super._beforeTokenTransfer(from, to, tokenId);
     }
 
@@ -152,23 +159,21 @@ contract RUEquipmentFacet is Modifiers, SolidStateERC721 {
         return (baseSpeedMulit, baseAttackPowerMulit);
     }
 
-    function equip(uint256 _tokenId) external onlyOwnerOrPlayer {
-        require(
-            gs().equipments[_tokenId].mintedBy != address(0),
-            "Not Minted."
-        );
-        require(gs().equipments[_tokenId].equipedAt == 0, "Already Euqiped.");
-        require(this.ownerOf(_tokenId) == msg.sender, "E not owned.");
+    function equip(
+        uint256 _tokenId
+    ) external onlyOwnerOrPlayer onlyValidEuqipment(_tokenId) {
+        if (gs().equipments[_tokenId].equipedAt != 0)
+            revert EquipmentAlreadyEquiped({tokenId: _tokenId});
+
         gs().equipments[_tokenId].equipedAt = block.timestamp;
     }
 
-    function unequip(uint256 _tokenId) external onlyOwnerOrPlayer {
-        require(
-            gs().equipments[_tokenId].mintedBy != address(0),
-            "Not Minted."
-        );
-        require(gs().equipments[_tokenId].equipedAt != 0, "Not Euqiped.");
-        require(this.ownerOf(_tokenId) == msg.sender, "E not owned.");
+    function unequip(
+        uint256 _tokenId
+    ) external onlyOwnerOrPlayer onlyValidEuqipment(_tokenId) {
+        if (gs().equipments[_tokenId].equipedAt == 0)
+            revert EquipmentNotEquiped({tokenId: _tokenId});
+
         gs().equipments[_tokenId].equipedAt = 0;
     }
 }

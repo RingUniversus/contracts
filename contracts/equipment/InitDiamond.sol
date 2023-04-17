@@ -19,7 +19,8 @@ import {ERC721MetadataStorage} from "@solidstate/contracts/token/ERC721/metadata
 // of your diamond. Add parameters to the init funciton if you need to.
 
 struct InitArgs {
-    uint256 PLACEHOLDER;
+    string NAME;
+    string SYMBOL;
 }
 
 contract InitDiamond is WithStorage {
@@ -49,8 +50,8 @@ contract InitDiamond is WithStorage {
         // Equipment config
         ERC721MetadataStorage.Layout storage layout = ERC721MetadataStorage
             .layout();
-        layout.name = "Universus Equipment";
-        layout.symbol = "UNiE";
+        layout.name = initArgs.NAME;
+        layout.symbol = initArgs.SYMBOL;
         // layout.baseURI = baseURI;
 
         // gameConstants().EXPLORER_FEE_RATIO = initArgs.EXPLORER_FEE_RATIO;
