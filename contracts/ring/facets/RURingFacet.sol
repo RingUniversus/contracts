@@ -10,6 +10,9 @@ import {Modifiers} from "../libraries/LibStorage.sol";
 // Type imports
 import {Ring} from "../../shared/Types.sol";
 
+// Errors imports
+import {IncreaseStepError} from "../Errors.sol";
+
 contract RURingFacet is Modifiers {
     function metadata(uint256 _ringId) public view returns (Ring memory) {
         (Ring memory _ring, ) = LibRing.metadata(_ringId);
@@ -59,7 +62,7 @@ contract RURingFacet is Modifiers {
         uint256 _ringId,
         uint256 _step
     ) external onlyOwnerOrPlayer {
-        require(_step > 0, "Step must greater than 1.");
+        if (_step == 0) revert IncreaseStepError({step: _step});
         gs().rings[_ringId].townCount += _step;
         if (gs().rings[_ringId].townCount >= gs().rings[_ringId].townLimit) {
             gs().rings[_ringId].townMintingRatio = gameConstants()

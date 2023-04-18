@@ -14,6 +14,9 @@ import {Modifiers, WithStorage} from "../libraries/LibStorage.sol";
 import {Point} from "../../shared/Types.sol";
 import {Town, Attribute} from "../Types.sol";
 
+// Errors imports
+import {InsufficientExplorerSlot} from "../Errors.sol";
+
 contract RUTownFacet is Modifiers, SolidStateERC721 {
     using UintUtils for uint256;
 
@@ -120,7 +123,8 @@ contract RUTownFacet is Modifiers, SolidStateERC721 {
     ) public onlyOwnerOrPlayer {
         uint256 townExplorerCount = attribute(_tokenId).explorerCounter;
         uint256 townExplorerSlot = metadata(_tokenId).explorerSlot;
-        require(townExplorerCount < townExplorerSlot, "No explorer slot left.");
+        if (townExplorerSlot <= townExplorerCount)
+            revert InsufficientExplorerSlot();
 
         for (uint256 index = 0; index < townExplorerSlot; index++) {
             if (gs().townExplorers[_tokenId][index] == address(0)) {

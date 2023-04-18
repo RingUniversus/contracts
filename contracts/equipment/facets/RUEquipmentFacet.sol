@@ -12,8 +12,11 @@ import {LibEquipment} from "../libraries/LibEquipment.sol";
 import {Modifiers, WithStorage} from "../libraries/LibStorage.sol";
 
 // Type imports
-import {EquipmentNotExists, EquipmentAlreadyEquiped, EquipmentNotOwned, EquipmentNotEquiped} from "../Errors.sol";
 import {Point, EMetadata, ETypes, ERarity} from "../../shared/Types.sol";
+
+// Error imports
+import {EquipmentNotExists, EquipmentAlreadyEquiped, EquipmentNotEquiped} from "../Errors.sol";
+import {EquipmentNotOwned} from "../../shared/Errors.sol";
 
 contract RUEquipmentFacet is Modifiers, SolidStateERC721 {
     using UintUtils for uint256;

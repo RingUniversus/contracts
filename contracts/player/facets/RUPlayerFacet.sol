@@ -13,7 +13,9 @@ import {Modifiers} from "../libraries/LibStorage.sol";
 import {Point, EMetadata, ETypes, Ring, BTYOwnType} from "../../shared/Types.sol";
 import {Info, EquipmentSlot, Status, Moving, RandomWordsInfo, NewTownArgs, NewBountyArgs} from "../Types.sol";
 
-import {NotVRFContract} from "../Errors.sol";
+// Error imports
+import {NotVRFContract, InitializedPlayer} from "../Errors.sol";
+import {EquipmentNotOwned} from "../../shared/Errors.sol";
 
 contract RUPlayerFacet is Modifiers {
     using SafeCast for int256;
@@ -32,10 +34,8 @@ contract RUPlayerFacet is Modifiers {
         uint256 _equipmentId
     ) external onlyInitializedPlayer(msg.sender) {
         address _player = msg.sender;
-        require(
-            LibPlayer.equipmentContract().ownerOf(_equipmentId) == _player,
-            "Permission error."
-        );
+        if (LibPlayer.equipmentContract().ownerOf(_equipmentId) != _player)
+            revert EquipmentNotOwned({tokenId: _equipmentId});
 
         EMetadata memory eMetadata = LibPlayer.equipmentContract().metadata(
             _equipmentId
@@ -82,7 +82,8 @@ contract RUPlayerFacet is Modifiers {
         string calldata _nickname
     ) external returns (Info memory) {
         address _player = msg.sender;
-        require(gs().info[_player].createdAt == 0, "Already inited.");
+        if (gs().info[_player].createdAt != 0)
+            revert InitializedPlayer({sender: _player});
 
         gs().info[_player] = Info({
             nickname: _nickname,
@@ -222,10 +223,6 @@ contract RUPlayerFacet is Modifiers {
     ) external {
         // Role check
         if (msg.sender != gameConstants().VRF_ADDRESS) revert NotVRFContract();
-        // require(
-        //     msg.sender == gameConstants().VRF_ADDRESS,
-        //     "VRF contracts only."
-        // );
         address player = gs().vrfIdPlayer[requestId];
         // Update current move random words info
         gs().currentMoveInfo[player].randomWords = RandomWordsInfo(

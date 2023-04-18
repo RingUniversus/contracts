@@ -12,3 +12,4 @@ error PlayerStatusError(address player, Status required, Status current);
 
 // Error when player uninitialized
 error UnInitializedPlayer(address sender);
+error InitializedPlayer(address sender);
