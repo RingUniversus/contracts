@@ -2,6 +2,7 @@ import { task } from "hardhat/config";
 import { HardhatRuntimeEnvironment, Libraries } from "hardhat/types";
 
 import {
+  deployAdminFacet,
   deployDiamond,
   deployDiamondCutFacet,
   deployDiamondInit,
@@ -128,10 +129,12 @@ export async function deployAndCut(
 
   // Ring Universus facets
   const equipmentFacet = await deployEquipmentFacet({}, libraries, hre);
+  const adminFacet = await deployAdminFacet("RUEquipmentAdminFacet", {}, hre);
 
   // The `cuts` to perform for Ring Universus facets
   const ringUniversusEquipmentFacetCuts = [
     ...changes.getFacetCuts("RUEquipmentFacet", equipmentFacet),
+    ...changes.getFacetCuts("RUEquipmentAdminFacet", adminFacet),
   ];
 
   if (isDev) {
@@ -190,10 +193,12 @@ async function upgrade(args: object, hre: HardhatRuntimeEnvironment) {
 
   // Ring Universus facets
   const equipmentFacet = await deployEquipmentFacet({}, libraries, hre);
+  const adminFacet = await deployAdminFacet("RUEquipmentAdminFacet", {}, hre);
 
   // The `cuts` to perform for Ring Universus facets
   const ringUniversusEquipmentFacetCuts = [
     ...changes.getFacetCuts("RUEquipmentFacet", equipmentFacet),
+    ...changes.getFacetCuts("RUEquipmentAdminFacet", adminFacet),
   ];
 
   // The `cuts` to remove any old, unused functions

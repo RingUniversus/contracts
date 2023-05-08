@@ -125,7 +125,7 @@ const config: HardhatUserConfig = {
     ...(DEPLOYER_MNEMONIC ? { xdai } : undefined),
     ...(DEPLOYER_MNEMONIC ? { mainnet } : undefined),
     localhost: {
-      url: "http://localhost:8545/",
+      url: "http://127.0.0.1:8545/",
       accounts: {
         // Same mnemonic used in the .env.example
         mnemonic:

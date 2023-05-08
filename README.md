@@ -28,5 +28,5 @@ yarn hardhat:node
 # setting index
 yarn hardhat:dev settingIndex
 # deploy
-yarn hardhat:dev deploy
+yarn deploy:contracts
 ```
