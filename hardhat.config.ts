@@ -17,7 +17,7 @@ import {
   decodeRingInitializers,
   decodeTownInitializers,
 } from "@ringuniversus/settings";
-import dotenv from "dotenv";
+import { config as dotEnvConfig } from "dotenv";
 import "hardhat-contract-sizer";
 import { HardhatUserConfig, extendEnvironment } from "hardhat/config.js";
 import { lazyObject } from "hardhat/plugins.js";
@@ -36,7 +36,7 @@ import "./tasks/deploy";
 import "./tasks/utils";
 // import "@solidstate/hardhat-4byte-uploader";
 
-dotenv.config();
+dotEnvConfig();
 
 const { DEPLOYER_MNEMONIC, ADMIN_PUBLIC_ADDRESS } = process.env;
 
