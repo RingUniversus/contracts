@@ -15,7 +15,7 @@ import { DiamondChanges } from "../utils/diamond";
 
 task("deployE", "deploy E's contracts").setAction(deploy);
 task("upgradeE", "upgrade E's contracts and replace in the diamond").setAction(
-  upgrade
+  upgrade,
 );
 
 async function deploy(args: object, hre: HardhatRuntimeEnvironment) {
@@ -40,8 +40,8 @@ async function deploy(args: object, hre: HardhatRuntimeEnvironment) {
   if (!isDev && balance.lt(requires)) {
     throw new Error(
       `${deployer.address} requires ~$${hre.ethers.utils.formatEther(
-        requires
-      )} but has ${hre.ethers.utils.formatEther(balance)} top up and rerun`
+        requires,
+      )} but has ${hre.ethers.utils.formatEther(balance)} top up and rerun`,
     );
   }
 
@@ -50,7 +50,7 @@ async function deploy(args: object, hre: HardhatRuntimeEnvironment) {
       ownerAddress: deployer.address,
       initializers: hre.equipmentInitializers,
     },
-    hre
+    hre,
   );
 
   await saveDeploy(
@@ -60,14 +60,14 @@ async function deploy(args: object, hre: HardhatRuntimeEnvironment) {
       diamondAddress: diamond.address,
       initAddress: diamondInit.address,
     },
-    hre
+    hre,
   );
 
   // give all contract administration over to an admin adress if was provided
   if (hre.ADMIN_PUBLIC_ADDRESS) {
     const ownership = await hre.ethers.getContractAt(
       "RingUniversusEquipment",
-      diamond.address
+      diamond.address,
     );
     const tx = await ownership.transferOwnership(hre.ADMIN_PUBLIC_ADDRESS);
     await tx.wait();
@@ -85,7 +85,7 @@ export async function deployAndCut(
     ownerAddress: string;
     initializers: HardhatRuntimeEnvironment["equipmentInitializers"];
   },
-  hre: HardhatRuntimeEnvironment
+  hre: HardhatRuntimeEnvironment,
 ) {
   const isDev =
     hre.network.name === "localhost" || hre.network.name === "hardhat";
@@ -116,7 +116,7 @@ export async function deployAndCut(
       diamondCutAddress: diamondCutFacet.address,
     },
     libraries,
-    hre
+    hre,
   );
 
   const diamondInit = await deployDiamondInit(
@@ -124,7 +124,7 @@ export async function deployAndCut(
       targetContract: "contracts/equipment/InitDiamond.sol:InitDiamond",
     },
     {},
-    hre
+    hre,
   );
 
   // Ring Universus facets
@@ -148,7 +148,7 @@ export async function deployAndCut(
 
   const diamondCut = await hre.ethers.getContractAt(
     "RingUniversusEquipment",
-    diamond.address
+    diamond.address,
   );
 
   const initAddress = diamondInit.address;
@@ -159,7 +159,7 @@ export async function deployAndCut(
   const initTx = await diamondCut.diamondCut(
     toCut,
     initAddress,
-    initFunctionCall
+    initFunctionCall,
   );
   const initReceipt = await initTx.wait();
   if (!initReceipt.status) {
@@ -181,7 +181,7 @@ async function upgrade(args: object, hre: HardhatRuntimeEnvironment) {
   console.log("E Diamond address:", hre.contracts.equipment.CONTRACT_ADDRESS);
   const diamond = await hre.ethers.getContractAt(
     "RingUniversusEquipment",
-    hre.contracts.equipment.CONTRACT_ADDRESS
+    hre.contracts.equipment.CONTRACT_ADDRESS,
   );
 
   const previousFacets = await diamond.facets();
@@ -224,7 +224,7 @@ async function upgrade(args: object, hre: HardhatRuntimeEnvironment) {
   const upgradeTx = await diamond.diamondCut(
     toCut,
     initAddress,
-    initFunctionCall
+    initFunctionCall,
   );
   const upgradeReceipt = await upgradeTx.wait();
   if (!upgradeReceipt.status) {
@@ -237,7 +237,7 @@ async function upgrade(args: object, hre: HardhatRuntimeEnvironment) {
 export async function deployEquipmentFacet(
   args: object,
   { LibEquipment }: Libraries,
-  hre: HardhatRuntimeEnvironment
+  hre: HardhatRuntimeEnvironment,
 ) {
   const factory = await hre.ethers.getContractFactory("RUEquipmentFacet", {
     libraries: { LibEquipment },
@@ -250,13 +250,13 @@ export async function deployEquipmentFacet(
 
 export async function deployLibraries(
   args: object,
-  hre: HardhatRuntimeEnvironment
+  hre: HardhatRuntimeEnvironment,
 ) {
   const LibEquipmentFactory = await hre.ethers.getContractFactory(
     "LibEquipment",
     {
       libraries: {},
-    }
+    },
   );
   const LibEquipment = await LibEquipmentFactory.deploy();
   await LibEquipment.deployTransaction.wait();

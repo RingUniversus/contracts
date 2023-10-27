@@ -20,10 +20,10 @@ const { AddressZero } = constants;
 task("deployPlayer", "deploy player's contracts").setAction(deploy);
 task(
   "upgradePlayer",
-  "upgrade player contracts and replace in the diamond"
+  "upgrade player contracts and replace in the diamond",
 ).setAction(upgrade);
 task("updateRelatedAddress", "update related address after deploy").setAction(
-  afterDeploy
+  afterDeploy,
 );
 
 async function deploy(args: object, hre: HardhatRuntimeEnvironment) {
@@ -56,8 +56,8 @@ async function deploy(args: object, hre: HardhatRuntimeEnvironment) {
   if (!isDev && balance.lt(requires)) {
     throw new Error(
       `${deployer.address} requires ~$${hre.ethers.utils.formatEther(
-        requires
-      )} but has ${hre.ethers.utils.formatEther(balance)} top up and rerun`
+        requires,
+      )} but has ${hre.ethers.utils.formatEther(balance)} top up and rerun`,
     );
   }
 
@@ -66,7 +66,7 @@ async function deploy(args: object, hre: HardhatRuntimeEnvironment) {
       ownerAddress: deployer.address,
       initializers: hre.playerInitializers,
     },
-    hre
+    hre,
   );
 
   await saveDeploy(
@@ -76,14 +76,14 @@ async function deploy(args: object, hre: HardhatRuntimeEnvironment) {
       diamondAddress: diamond.address,
       initAddress: diamondInit.address,
     },
-    hre
+    hre,
   );
 
   // give all contract administration over to an admin adress if was provided
   if (hre.ADMIN_PUBLIC_ADDRESS) {
     const ownership = await hre.ethers.getContractAt(
       "RingUniversusPlayer",
-      diamond.address
+      diamond.address,
     );
     const tx = await ownership.transferOwnership(hre.ADMIN_PUBLIC_ADDRESS);
     await tx.wait();
@@ -101,7 +101,7 @@ export async function deployAndCut(
     ownerAddress: string;
     initializers: HardhatRuntimeEnvironment["playerInitializers"];
   },
-  hre: HardhatRuntimeEnvironment
+  hre: HardhatRuntimeEnvironment,
 ) {
   const isDev =
     hre.network.name === "localhost" || hre.network.name === "hardhat";
@@ -132,7 +132,7 @@ export async function deployAndCut(
       diamondCutAddress: diamondCutFacet.address,
     },
     libraries,
-    hre
+    hre,
   );
 
   const diamondInit = await deployDiamondInit(
@@ -140,7 +140,7 @@ export async function deployAndCut(
       targetContract: "contracts/player/InitDiamond.sol:InitDiamond",
     },
     {},
-    hre
+    hre,
   );
 
   // Ring Universus facets
@@ -156,7 +156,7 @@ export async function deployAndCut(
   if (isDev) {
     const debugFacet = await deployDebugFacet({}, libraries, hre);
     ringUniversusPlayerFacetCuts.push(
-      ...changes.getFacetCuts("RUPlayerDebugFacet", debugFacet)
+      ...changes.getFacetCuts("RUPlayerDebugFacet", debugFacet),
     );
   }
 
@@ -164,7 +164,7 @@ export async function deployAndCut(
 
   const diamondCut = await hre.ethers.getContractAt(
     "RingUniversusPlayer",
-    diamond.address
+    diamond.address,
   );
 
   const initAddress = diamondInit.address;
@@ -175,7 +175,7 @@ export async function deployAndCut(
   const initTx = await diamondCut.diamondCut(
     toCut,
     initAddress,
-    initFunctionCall
+    initFunctionCall,
   );
   const initReceipt = await initTx.wait();
   if (!initReceipt.status) {
@@ -211,7 +211,7 @@ async function upgrade(args: object, hre: HardhatRuntimeEnvironment) {
   console.log("Player Diamond address:", hre.contracts.player.CONTRACT_ADDRESS);
   const diamond = await hre.ethers.getContractAt(
     "RingUniversusPlayer",
-    hre.contracts.player.CONTRACT_ADDRESS
+    hre.contracts.player.CONTRACT_ADDRESS,
   );
 
   const previousFacets = await diamond.facets();
@@ -234,7 +234,7 @@ async function upgrade(args: object, hre: HardhatRuntimeEnvironment) {
   if (isDev) {
     const debugFacet = await deployDebugFacet({}, libraries, hre);
     ringUniversusPlayerFacetCuts.push(
-      ...changes.getFacetCuts("RUPlayerDebugFacet", debugFacet)
+      ...changes.getFacetCuts("RUPlayerDebugFacet", debugFacet),
     );
   }
 
@@ -261,7 +261,7 @@ async function upgrade(args: object, hre: HardhatRuntimeEnvironment) {
   const upgradeTx = await diamond.diamondCut(
     toCut,
     initAddress,
-    initFunctionCall
+    initFunctionCall,
   );
   const upgradeReceipt = await upgradeTx.wait();
   if (!upgradeReceipt.status) {
@@ -274,7 +274,7 @@ async function upgrade(args: object, hre: HardhatRuntimeEnvironment) {
 export async function deployPlayerFacet(
   args: object,
   { LibPlayer, LibUtil }: Libraries,
-  hre: HardhatRuntimeEnvironment
+  hre: HardhatRuntimeEnvironment,
 ) {
   const factory = await hre.ethers.getContractFactory("RUPlayerFacet", {
     libraries: { LibPlayer, LibUtil },
@@ -287,11 +287,11 @@ export async function deployPlayerFacet(
 
 export async function deployLibraries(
   args: object,
-  hre: HardhatRuntimeEnvironment
+  hre: HardhatRuntimeEnvironment,
 ) {
   // TODO: Deploy shared libraries first
   const LibUtilFactory = await hre.ethers.getContractFactory(
-    "contracts/shared/libraries/LibUtil.sol:LibUtil"
+    "contracts/shared/libraries/LibUtil.sol:LibUtil",
   );
   const LibUtil = await LibUtilFactory.deploy();
   await LibUtil.deployTransaction.wait();
@@ -313,7 +313,7 @@ export async function deployLibraries(
 export async function deployDebugFacet(
   args: object,
   libraries: Libraries,
-  hre: HardhatRuntimeEnvironment
+  hre: HardhatRuntimeEnvironment,
 ) {
   const factory = await hre.ethers.getContractFactory("RUPlayerDebugFacet");
   const contract = await factory.deploy();
@@ -336,7 +336,7 @@ async function afterDeploy(args: object, hre: HardhatRuntimeEnvironment) {
       // TODO
       vrfAddress: "0x3097403B64fe672467345bf159F4C9C5464bD89e",
     },
-    hre
+    hre,
   );
 
   await updateRelatedAddress(
@@ -345,7 +345,7 @@ async function afterDeploy(args: object, hre: HardhatRuntimeEnvironment) {
     {
       playerAddress: hre.contracts.player.CONTRACT_ADDRESS,
     },
-    hre
+    hre,
   );
 
   await updateRelatedAddress(
@@ -354,7 +354,7 @@ async function afterDeploy(args: object, hre: HardhatRuntimeEnvironment) {
     {
       playerAddress: hre.contracts.player.CONTRACT_ADDRESS,
     },
-    hre
+    hre,
   );
 
   await updateRelatedAddress(
@@ -363,7 +363,7 @@ async function afterDeploy(args: object, hre: HardhatRuntimeEnvironment) {
     {
       playerAddress: hre.contracts.player.CONTRACT_ADDRESS,
     },
-    hre
+    hre,
   );
 
   await updateRelatedAddress(
@@ -372,6 +372,6 @@ async function afterDeploy(args: object, hre: HardhatRuntimeEnvironment) {
     {
       playerAddress: hre.contracts.player.CONTRACT_ADDRESS,
     },
-    hre
+    hre,
   );
 }

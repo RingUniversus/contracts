@@ -16,7 +16,7 @@ import { DiamondChanges } from "../utils/diamond";
 task("deployTown", "deploy town's contracts").setAction(deploy);
 task(
   "upgradeTown",
-  "upgrade town contracts and replace in the diamond"
+  "upgrade town contracts and replace in the diamond",
 ).setAction(upgrade);
 
 async function deploy(args: object, hre: HardhatRuntimeEnvironment) {
@@ -41,8 +41,8 @@ async function deploy(args: object, hre: HardhatRuntimeEnvironment) {
   if (!isDev && balance.lt(requires)) {
     throw new Error(
       `${deployer.address} requires ~$${hre.ethers.utils.formatEther(
-        requires
-      )} but has ${hre.ethers.utils.formatEther(balance)} top up and rerun`
+        requires,
+      )} but has ${hre.ethers.utils.formatEther(balance)} top up and rerun`,
     );
   }
 
@@ -51,7 +51,7 @@ async function deploy(args: object, hre: HardhatRuntimeEnvironment) {
       ownerAddress: deployer.address,
       initializers: hre.townInitializers,
     },
-    hre
+    hre,
   );
 
   await saveDeploy(
@@ -61,14 +61,14 @@ async function deploy(args: object, hre: HardhatRuntimeEnvironment) {
       diamondAddress: diamond.address,
       initAddress: diamondInit.address,
     },
-    hre
+    hre,
   );
 
   // give all contract administration over to an admin adress if was provided
   if (hre.ADMIN_PUBLIC_ADDRESS) {
     const ownership = await hre.ethers.getContractAt(
       "RingUniversusTown",
-      diamond.address
+      diamond.address,
     );
     const tx = await ownership.transferOwnership(hre.ADMIN_PUBLIC_ADDRESS);
     await tx.wait();
@@ -86,7 +86,7 @@ export async function deployAndCut(
     ownerAddress: string;
     initializers: HardhatRuntimeEnvironment["townInitializers"];
   },
-  hre: HardhatRuntimeEnvironment
+  hre: HardhatRuntimeEnvironment,
 ) {
   const isDev =
     hre.network.name === "localhost" || hre.network.name === "hardhat";
@@ -118,7 +118,7 @@ export async function deployAndCut(
       diamondCutAddress: diamondCutFacet.address,
     },
     libraries,
-    hre
+    hre,
   );
 
   const diamondInit = await deployDiamondInit(
@@ -126,7 +126,7 @@ export async function deployAndCut(
       targetContract: "contracts/town/InitDiamond.sol:InitDiamond",
     },
     libraries,
-    hre
+    hre,
   );
 
   // Ring Universus facets
@@ -150,7 +150,7 @@ export async function deployAndCut(
 
   const diamondCut = await hre.ethers.getContractAt(
     "RingUniversusTown",
-    diamond.address
+    diamond.address,
   );
 
   const initAddress = diamondInit.address;
@@ -161,7 +161,7 @@ export async function deployAndCut(
   const initTx = await diamondCut.diamondCut(
     toCut,
     initAddress,
-    initFunctionCall
+    initFunctionCall,
   );
   const initReceipt = await initTx.wait();
   if (!initReceipt.status) {
@@ -183,7 +183,7 @@ async function upgrade(args: object, hre: HardhatRuntimeEnvironment) {
   console.log("Town Diamond address:", hre.contracts.town.CONTRACT_ADDRESS);
   const diamond = await hre.ethers.getContractAt(
     "RingUniversusTown",
-    hre.contracts.town.CONTRACT_ADDRESS
+    hre.contracts.town.CONTRACT_ADDRESS,
   );
 
   const previousFacets = await diamond.facets();
@@ -225,7 +225,7 @@ async function upgrade(args: object, hre: HardhatRuntimeEnvironment) {
   const upgradeTx = await diamond.diamondCut(
     toCut,
     initAddress,
-    initFunctionCall
+    initFunctionCall,
   );
   const upgradeReceipt = await upgradeTx.wait();
   if (!upgradeReceipt.status) {
@@ -238,7 +238,7 @@ async function upgrade(args: object, hre: HardhatRuntimeEnvironment) {
 export async function deployTownFacet(
   args: object,
   libraries: Libraries,
-  hre: HardhatRuntimeEnvironment
+  hre: HardhatRuntimeEnvironment,
 ) {
   const factory = await hre.ethers.getContractFactory("RUTownFacet", {
     libraries: libraries,

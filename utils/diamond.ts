@@ -56,7 +56,7 @@ export function isIncluded(contractName: string, signature: string): boolean {
       } else {
         return false;
       }
-    }
+    },
   );
 
   return !isIgnored;
@@ -179,7 +179,7 @@ export class DiamondChanges {
   public getRemoveCuts(cuts: FacetCut[]): FacetCut[] {
     if (!this.previous) {
       throw new Error(
-        "You must construct DiamondChanges with previous cuts to find removals"
+        "You must construct DiamondChanges with previous cuts to find removals",
       );
     }
     const functionSelectors = cuts.flatMap((cut) => cut.functionSelectors);
@@ -270,7 +270,7 @@ export class DiamondChanges {
             } else {
               resolve(false);
             }
-          }
+          },
         );
       });
     } else {
@@ -305,7 +305,7 @@ export class DiamondChanges {
   private diffSelectors(
     contractName: string,
     contract: HasInterface,
-    previous: Facet[]
+    previous: Facet[],
   ): SelectorDiff {
     const signatures = this.getSignatures(contract);
 
@@ -349,13 +349,13 @@ export class DiamondChanges {
     });
     return [
       ...diamondCutSignatures.map((signature) =>
-        diamondCutFacetInterface.getSighash(signature)
+        diamondCutFacetInterface.getSighash(signature),
       ),
       ...diamondLoupeSignatures.map((signature) =>
-        diamondLoupeFacetInterface.getSighash(signature)
+        diamondLoupeFacetInterface.getSighash(signature),
       ),
       ...ownershipSignatures.map((signature) =>
-        ownershipFacetInterface.getSighash(signature)
+        ownershipFacetInterface.getSighash(signature),
       ),
     ].includes(selector);
   }
@@ -377,7 +377,7 @@ export class DiamondChanges {
           headers: {
             "Content-Type": "application/json",
           },
-        }
+        },
       );
 
       const json: FourBytesJson | undefined = await response.json();

@@ -21,7 +21,7 @@ export function tscompile(input: string, appName: string): CompiledOuput {
   const sourceFile = ts.createSourceFile(
     inputFileName,
     input,
-    ts.ScriptTarget.ES2020
+    ts.ScriptTarget.ES2020,
   );
 
   // Create a Program with an in-memory emit

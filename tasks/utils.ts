@@ -8,20 +8,20 @@ import { dedent as dedentString } from "ts-dedent";
 import { tscompile } from "../utils/tscompile";
 
 subtask("utils:assertChainId", "Assert proper network is selectaed").setAction(
-  assertChainId
+  assertChainId,
 );
 
 type Components = "bounty" | "coin" | "equipment" | "player" | "ring" | "town";
 
 async function assertChainId(
   { component }: { component: Components },
-  hre: HardhatRuntimeEnvironment
+  hre: HardhatRuntimeEnvironment,
 ) {
   const { NETWORK_ID } = hre.contracts[component];
 
   if (hre.network.config.chainId !== NETWORK_ID) {
     throw new Error(
-      `Hardhat defined network chain id ${hre.network.config.chainId} is NOT same as ${component} contracts network id: ${NETWORK_ID}.`
+      `Hardhat defined network chain id ${hre.network.config.chainId} is NOT same as ${component} contracts network id: ${NETWORK_ID}.`,
     );
   }
 }
@@ -29,7 +29,7 @@ async function assertChainId(
 export async function deployDiamondCutFacet(
   args: object,
   libraries: Libraries,
-  hre: HardhatRuntimeEnvironment
+  hre: HardhatRuntimeEnvironment,
 ) {
   const factory = await hre.ethers.getContractFactory("DiamondCutFacet");
   const contract = await factory.deploy();
@@ -47,7 +47,7 @@ export async function deployDiamond(
     diamondCutAddress: string;
   },
   libraries: Libraries,
-  hre: HardhatRuntimeEnvironment
+  hre: HardhatRuntimeEnvironment,
 ) {
   const factory = await hre.ethers.getContractFactory("Diamond");
   const contract = await factory.deploy(ownerAddress, diamondCutAddress);
@@ -63,7 +63,7 @@ export async function deployDiamondInit(
     targetContract: string;
   },
   libraries: Libraries,
-  hre: HardhatRuntimeEnvironment
+  hre: HardhatRuntimeEnvironment,
 ) {
   // Initialize contract provides a function that is called when the diamond is upgraded to initialize state variables
   // Read about how the diamondCut function works here: https://eips.ethereum.org/EIPS/eip-2535#addingreplacingremoving-functions
@@ -79,7 +79,7 @@ export async function deployDiamondInit(
 export async function deployDiamondLoupeFacet(
   args: object,
   libraries: Libraries,
-  hre: HardhatRuntimeEnvironment
+  hre: HardhatRuntimeEnvironment,
 ) {
   const factory = await hre.ethers.getContractFactory("DiamondLoupeFacet");
   const contract = await factory.deploy();
@@ -91,7 +91,7 @@ export async function deployDiamondLoupeFacet(
 export async function deployOwnershipFacet(
   args: object,
   libraries: Libraries,
-  hre: HardhatRuntimeEnvironment
+  hre: HardhatRuntimeEnvironment,
 ) {
   const factory = await hre.ethers.getContractFactory("OwnershipFacet");
   const contract = await factory.deploy();
@@ -111,7 +111,7 @@ export async function saveDeploy(
     diamondAddress: string;
     initAddress: string;
   },
-  hre: HardhatRuntimeEnvironment
+  hre: HardhatRuntimeEnvironment,
 ) {
   const isDev =
     hre.network.name === "localhost" || hre.network.name === "hardhat";
@@ -137,7 +137,7 @@ export async function saveDeploy(
   export const START_BLOCK = ${isDev ? 0 : args.coreBlockNumber};
   /**
    * The address for the RingUniversus${capitalizeFirstLetter(
-     component
+     component,
    )} contract.
    */
   export const CONTRACT_ADDRESS = '${args.diamondAddress}';
@@ -149,28 +149,28 @@ export async function saveDeploy(
 
   const { jsContents, jsmapContents, dtsContents, dtsmapContents } = tscompile(
     tsContents,
-    component
+    component,
   );
 
   const contractsFileTS = path.join(
     hre.packageDirs["@ringuniversus/contracts"],
-    `${component}.ts`
+    `${component}.ts`,
   );
   const contractsFileJS = path.join(
     hre.packageDirs["@ringuniversus/contracts"],
-    `${component}.js`
+    `${component}.js`,
   );
   const contractsFileJSMap = path.join(
     hre.packageDirs["@ringuniversus/contracts"],
-    `${component}.js.map`
+    `${component}.js.map`,
   );
   const contractsFileDTS = path.join(
     hre.packageDirs["@ringuniversus/contracts"],
-    `${component}.d.ts`
+    `${component}.d.ts`,
   );
   const contractsFileDTSMap = path.join(
     hre.packageDirs["@ringuniversus/contracts"],
-    `${component}.d.ts.map`
+    `${component}.d.ts.map`,
   );
 
   fs.writeFileSync(contractsFileTS, tsContents);
@@ -188,25 +188,24 @@ export async function updateRelatedAddress(
   targetContract: string,
   contractAddress: string,
   addressMapping: AddressMapping,
-  hre: HardhatRuntimeEnvironment
+  hre: HardhatRuntimeEnvironment,
 ) {
   const contract = await hre.ethers.getContractAt(
     targetContract,
-    contractAddress
+    contractAddress,
   );
-  const updateRelatedAddressReceipt = await contract.updateRelatedAddress(
-    addressMapping
-  );
+  const updateRelatedAddressReceipt =
+    await contract.updateRelatedAddress(addressMapping);
   await updateRelatedAddressReceipt.wait();
   console.log(
-    `Completed update ${targetContract}'s related contracts' address.`
+    `Completed update ${targetContract}'s related contracts' address.`,
   );
 }
 
 export async function deployAdminFacet(
   targetContract: string,
   libraries: Libraries,
-  hre: HardhatRuntimeEnvironment
+  hre: HardhatRuntimeEnvironment,
 ) {
   const factory = await hre.ethers.getContractFactory(targetContract, {
     libraries: libraries,

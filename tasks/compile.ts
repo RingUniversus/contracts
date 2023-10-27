@@ -17,13 +17,13 @@ import * as diamondUtils from "../utils/diamond";
 const { Fragment, FormatTypes } = utils;
 
 task(TASK_COMPILE, "hook the compile step to copy our abis after").setAction(
-  copyAbi
+  copyAbi,
 );
 
 async function copyAbi(
   args: HardhatArguments,
   hre: HardhatRuntimeEnvironment,
-  runSuper: RunSuperFunction<TaskArguments>
+  runSuper: RunSuperFunction<TaskArguments>,
 ) {
   const out = await runSuper(args);
 
@@ -31,7 +31,7 @@ async function copyAbi(
 
   const abisDir = path.join(
     hre.packageDirs["@ringuniversus/contracts"],
-    "abis"
+    "abis",
   );
 
   await fs.mkdir(abisDir, { recursive: true });
@@ -120,16 +120,17 @@ async function copyAbi(
       `${JSON.stringify(abi, null, 2)}\n`,
       {
         flag: "w",
-      }
+      },
     );
 
     const filteredDiamondAbi = abi.filter(abiFilter);
+    console.log(path.join(abisDir, `${nameForAbi(app)}_stripped.json`));
     await fs.writeFile(
       path.join(abisDir, `${nameForAbi(app)}_stripped.json`),
-      prettier.format(JSON.stringify(filteredDiamondAbi), {
+      await prettier.format(JSON.stringify(filteredDiamondAbi), {
         semi: false,
         parser: "json",
-      })
+      }),
     );
   }
 

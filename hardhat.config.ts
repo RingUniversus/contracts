@@ -43,7 +43,7 @@ const { DEPLOYER_MNEMONIC, ADMIN_PUBLIC_ADDRESS } = process.env;
 // Ensure we can lookup the needed workspace packages
 const packageDirs = {
   "@ringuniversus/contracts": settings.resolvePackageDir(
-    "@ringuniversus/contracts"
+    "@ringuniversus/contracts",
   ),
 };
 
