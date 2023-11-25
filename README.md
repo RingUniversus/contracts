@@ -29,4 +29,6 @@ yarn hardhat:node
 yarn hardhat:dev settingIndex
 # deploy
 yarn deploy:contracts
+# Interactive upgradable packages
+yarn upgrade-interactive --latest
 ```
