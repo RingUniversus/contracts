@@ -14,9 +14,10 @@
 
 Do not upgrade major version for following packages:
 
-1. chalk (ESM)
-2. node-fetch (ESM)
+1. chai (ESM)
+2. chalk (ESM)
 3. ethers (BreakingChange)
+4. node-fetch (ESM)
 
 ## Local testing
 
