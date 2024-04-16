@@ -64,7 +64,8 @@ contract RUTownFacet is Modifiers, SolidStateERC721 {
 
         // Init town's metadata
         Town memory newTown = Town({
-            nickname: string.concat("UNiT ", tokenId.toString()),
+            // Radix 10 with zero padding 5
+            nickname: string.concat("UNiT #", tokenId.toString(10, 5)),
             flagPath: "",
             location: _location,
             level: 1,
