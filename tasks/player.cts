@@ -11,9 +11,9 @@ import {
   deployOwnershipFacet,
   saveDeploy,
   updateRelatedAddress,
-} from "./utils";
-import * as settings from "../settings";
-import { DiamondChanges } from "../utils/diamond";
+} from "./utils.cts";
+import * as settings from "../settings.cts";
+import { DiamondChanges } from "../utils/diamond.cts";
 
 const { AddressZero } = constants;
 

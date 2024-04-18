@@ -12,7 +12,7 @@ import type {
 } from "hardhat/types";
 import * as prettier from "prettier";
 
-import * as diamondUtils from "../utils/diamond";
+import * as diamondUtils from "../utils/diamond.cts";
 
 const { Fragment, FormatTypes } = utils;
 

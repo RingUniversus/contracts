@@ -22,7 +22,7 @@ import type { JsonFragment } from "@ethersproject/abi";
 import chalk from "chalk";
 import Table from "cli-table";
 import { Contract, constants, utils } from "ethers";
-import fetch from "node-fetch";
+import fetch from 'node-fetch';
 
 import DiamondCutFacetABI from "./DiamondCutFacet.json";
 import DiamondLoupeFacetABI from "./DiamondLoupeFacet.json";

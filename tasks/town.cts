@@ -9,9 +9,9 @@ import {
   deployDiamondLoupeFacet,
   deployOwnershipFacet,
   saveDeploy,
-} from "./utils";
-import * as settings from "../settings";
-import { DiamondChanges } from "../utils/diamond";
+} from "./utils.cts";
+import * as settings from "../settings.cts";
+import { DiamondChanges } from "../utils/diamond.cts";
 
 task("deployTown", "deploy town's contracts").setAction(deploy);
 task(

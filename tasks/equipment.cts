@@ -9,9 +9,9 @@ import {
   deployDiamondLoupeFacet,
   deployOwnershipFacet,
   saveDeploy,
-} from "./utils";
-import * as settings from "../settings";
-import { DiamondChanges } from "../utils/diamond";
+} from "./utils.cts";
+import * as settings from "../settings.cts";
+import { DiamondChanges } from "../utils/diamond.cts";
 
 task("deployE", "deploy E's contracts").setAction(deploy);
 task("upgradeE", "upgrade E's contracts and replace in the diamond").setAction(

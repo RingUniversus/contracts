@@ -23,17 +23,17 @@ import { HardhatUserConfig, extendEnvironment } from "hardhat/config.js";
 import { lazyObject } from "hardhat/plugins.js";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 
-import * as settings from "./settings";
-import "./tasks/compile";
-import "./tasks/settingIndex";
-import "./tasks/town";
-import "./tasks/ring";
-import "./tasks/coin";
-import "./tasks/bounty";
-import "./tasks/equipment";
-import "./tasks/player";
-import "./tasks/deploy";
-import "./tasks/utils";
+import * as settings from "./settings.cts";
+import "./tasks/compile.cts";
+import "./tasks/settingIndex.cts";
+import "./tasks/town.cts";
+import "./tasks/ring.cts";
+import "./tasks/coin.cts";
+import "./tasks/bounty.cts";
+import "./tasks/equipment.cts";
+import "./tasks/player.cts";
+import "./tasks/deploy.cts";
+import "./tasks/utils.cts";
 // import "@solidstate/hardhat-4byte-uploader";
 
 dotEnvConfig();
@@ -164,7 +164,7 @@ const config: HardhatUserConfig = {
     },
   },
   solidity: {
-    version: "0.8.21",
+    version: "0.8.24",
     settings: {
       optimizer: {
         enabled: true,

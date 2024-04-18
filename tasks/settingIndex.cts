@@ -5,7 +5,7 @@ import { task } from "hardhat/config";
 import { HardhatRuntimeEnvironment } from "hardhat/types/runtime";
 import { dedent as dedentString } from "ts-dedent";
 
-import { tscompile } from "../utils/tscompile";
+import { tscompile } from "../utils/tscompile.cts";
 
 task("settingIndex", "create setting index").setAction(settingIndex);
 
