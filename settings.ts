@@ -93,7 +93,7 @@ export function required<S extends { [key: string]: unknown }>(
 }
 
 function printValidationErrors(err: Error) {
-  const header = `Encountered configuration errors:`;
+  const header = "Encountered configuration errors:";
   const message = err.message.trim();
   const longest = err.message
     .split("\n")

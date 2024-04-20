@@ -7,7 +7,8 @@
     // test/**/*.ts is explicitly not included to avoid a chicken-egg problem with typechain
     "utils/**/*.ts",
     "utils/**/*.json",
-    "../packages/packages/contracts/typechain"
+    "../packages/packages/contracts/typechain",
+    "eslint.config.mjs",
   ],
   "compilerOptions": {
     "target": "ES2020",
