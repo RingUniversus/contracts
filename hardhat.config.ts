@@ -96,14 +96,16 @@ extendEnvironment((env: HardhatRuntimeEnvironment) => {
   });
 });
 
-// The xdai config, but it isn't added to networks unless we have a DEPLOYER_MNEMONIC
-const xdai = {
-  url: process.env.XDAI_RPC_URL ?? "https://rpc-df.xdaichain.com/",
+// The custom rpc config, but it isn't added to networks unless we have a DEPLOYER_MNEMONIC
+const customNetwork = {
+  url: process.env.CUSTOM_RPC_URL ?? "https://rpc-df.xdaichain.com/",
   accounts: {
     mnemonic: DEPLOYER_MNEMONIC,
   },
-  chainId: 100,
-  gasMultiplier: 5,
+  chainId: Number(process.env.CUSTOM_CHAIN_ID),
+  gasMultiplier: 10,
+  // gas: 1,
+  // gasPrice: 10,
 };
 
 // The mainnet config, but it isn't added to networks unless we have a DEPLOYER_MNEMONIC
@@ -119,10 +121,10 @@ const mainnet = {
 const config: HardhatUserConfig = {
   defaultNetwork: "hardhat",
   networks: {
-    // Check for a DEPLOYER_MNEMONIC before we add xdai/mainnet network to the list of networks
-    // Ex: If you try to deploy to xdai without DEPLOYER_MNEMONIC, you'll see this error:
-    // > Error HH100: Network xdai doesn't exist
-    ...(DEPLOYER_MNEMONIC ? { xdai } : undefined),
+    // Check for a DEPLOYER_MNEMONIC before we add custom/mainnet network to the list of networks
+    // Ex: If you try to deploy to custom without DEPLOYER_MNEMONIC, you'll see this error:
+    // > Error HH100: Network custom doesn't exist
+    ...(DEPLOYER_MNEMONIC ? { customNetwork } : undefined),
     ...(DEPLOYER_MNEMONIC ? { mainnet } : undefined),
     localhost: {
       url: "http://127.0.0.1:8545/",

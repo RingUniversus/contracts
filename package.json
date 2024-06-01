@@ -73,7 +73,7 @@
     "format": "yarn lint:fix && prettier --write .",
     "hardhat:node": "hardhat node --hostname 0.0.0.0",
     "hardhat:dev": "hardhat --network localhost",
-    "hardhat:prod": "hardhat --network xdai",
+    "hardhat:prod": "hardhat --network customNetwork",
     "hardhat:mainnet": "hardhat --network mainnet",
     "compile": "del-cli artifacts && hardhat compile",
     "subgraph:template:dev": "yarn hardhat:dev subgraph:codegen",
