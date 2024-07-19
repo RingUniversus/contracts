@@ -152,23 +152,23 @@ export async function saveDeploy(
 
   const contractsFileTS = path.join(
     hre.packageDirs["@ringuniversus/contracts"],
-    `${component}.ts`
+    `src/${component}.ts`
   );
   const contractsFileJS = path.join(
     hre.packageDirs["@ringuniversus/contracts"],
-    `${component}.js`
+    `src/${component}.js`
   );
   const contractsFileJSMap = path.join(
     hre.packageDirs["@ringuniversus/contracts"],
-    `${component}.js.map`
+    `src/${component}.js.map`
   );
   const contractsFileDTS = path.join(
     hre.packageDirs["@ringuniversus/contracts"],
-    `${component}.d.ts`
+    `src/${component}.d.ts`
   );
   const contractsFileDTSMap = path.join(
     hre.packageDirs["@ringuniversus/contracts"],
-    `${component}.d.ts.map`
+    `src/${component}.d.ts.map`
   );
 
   fs.writeFileSync(contractsFileTS, tsContents);

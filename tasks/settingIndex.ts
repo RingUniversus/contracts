@@ -50,36 +50,37 @@ async function settingIndex(args: object, hre: HardhatRuntimeEnvironment) {
 
   export * as town from "./town";
   export * as ring from "./ring";
-  export * as coin from "./coin";
+  export * as coin from "./src/coin";
   export * as bounty from "./bounty";
   export * as equipment from "./equipment";
-  export * as player from "./player";
+  export * as player from "./src/player";
+
   `;
 
   const { jsContents, jsmapContents, dtsContents, dtsmapContents } = tscompile(
     tsContents,
-    "index",
+    "index"
   );
 
   const contractsFileTS = path.join(
     hre.packageDirs["@ringuniversus/contracts"],
-    "index.ts",
+    "index.ts"
   );
   const contractsFileJS = path.join(
     hre.packageDirs["@ringuniversus/contracts"],
-    "index.js",
+    "index.js"
   );
   const contractsFileJSMap = path.join(
     hre.packageDirs["@ringuniversus/contracts"],
-    "index.js.map",
+    "index.js.map"
   );
   const contractsFileDTS = path.join(
     hre.packageDirs["@ringuniversus/contracts"],
-    "index.d.ts",
+    "index.d.ts"
   );
   const contractsFileDTSMap = path.join(
     hre.packageDirs["@ringuniversus/contracts"],
-    "index.d.ts.map",
+    "index.d.ts.map"
   );
 
   fs.writeFileSync(contractsFileTS, tsContents);
