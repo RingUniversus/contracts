@@ -2,8 +2,9 @@
 // need to control the ordering that Hardhat tasks are registered
 
 import "@typechain/hardhat";
-import "@nomiclabs/hardhat-ethers";
-import "@nomiclabs/hardhat-waffle";
+import "@nomicfoundation/hardhat-ethers";
+import "@nomicfoundation/hardhat-chai-matchers";
+// import "@nomicfoundation/hardhat-waffle";
 
 import * as path from "path";
 
@@ -43,7 +44,7 @@ const { DEPLOYER_MNEMONIC, ADMIN_PUBLIC_ADDRESS } = process.env;
 // Ensure we can lookup the needed workspace packages
 const packageDirs = {
   "@ringuniversus/contracts": settings.resolvePackageDir(
-    "@ringuniversus/contracts",
+    "@ringuniversus/contracts"
   ),
 };
 
@@ -181,7 +182,8 @@ const config: HardhatUserConfig = {
   },
   typechain: {
     outDir: path.join(packageDirs["@ringuniversus/contracts"], "typechain"),
-    target: "ethers-v5",
+    target: "ethers-v6",
+    alwaysGenerateOverloads: false,
   },
 };
 

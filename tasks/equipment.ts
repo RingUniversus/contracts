@@ -15,7 +15,7 @@ import { DiamondChanges } from "../utils/diamond";
 
 task("deployE", "deploy E's contracts").setAction(deploy);
 task("upgradeE", "upgrade E's contracts and replace in the diamond").setAction(
-  upgrade,
+  upgrade
 );
 
 async function deploy(args: object, hre: HardhatRuntimeEnvironment) {
@@ -32,16 +32,16 @@ async function deploy(args: object, hre: HardhatRuntimeEnvironment) {
   // Is deployer of all contracts, but ownership is transferred to ADMIN_PUBLIC_ADDRESS if set
   const [deployer] = await hre.ethers.getSigners();
 
-  const requires = hre.ethers.utils.parseEther("2.1");
-  const balance = await deployer.getBalance();
+  const requires = hre.ethers.parseEther("0.1");
+  const balance = await deployer.provider.getBalance(deployer.address);
 
   // Only when deploying to production, give the deployer wallet money,
   // in order for it to be able to deploy the contracts
-  if (!isDev && balance.lt(requires)) {
+  if (!isDev && balance < requires) {
     throw new Error(
-      `${deployer.address} requires ~$${hre.ethers.utils.formatEther(
-        requires,
-      )} but has ${hre.ethers.utils.formatEther(balance)} top up and rerun`,
+      `${deployer.address} requires ~$${hre.ethers.formatEther(
+        requires
+      )} but has ${hre.ethers.formatEther(balance)} top up and rerun`
     );
   }
 
@@ -50,24 +50,24 @@ async function deploy(args: object, hre: HardhatRuntimeEnvironment) {
       ownerAddress: deployer.address,
       initializers: hre.equipmentInitializers,
     },
-    hre,
+    hre
   );
 
   await saveDeploy(
     "equipment",
     {
       coreBlockNumber: initReceipt.blockNumber,
-      diamondAddress: diamond.address,
-      initAddress: diamondInit.address,
+      diamondAddress: await diamond.getAddress(),
+      initAddress: await diamondInit.getAddress(),
     },
-    hre,
+    hre
   );
 
   // give all contract administration over to an admin adress if was provided
   if (hre.ADMIN_PUBLIC_ADDRESS) {
     const ownership = await hre.ethers.getContractAt(
       "RingUniversusEquipment",
-      diamond.address,
+      await diamond.getAddress()
     );
     const tx = await ownership.transferOwnership(hre.ADMIN_PUBLIC_ADDRESS);
     await tx.wait();
@@ -85,7 +85,7 @@ export async function deployAndCut(
     ownerAddress: string;
     initializers: HardhatRuntimeEnvironment["equipmentInitializers"];
   },
-  hre: HardhatRuntimeEnvironment,
+  hre: HardhatRuntimeEnvironment
 ) {
   const isDev =
     hre.network.name === "localhost" || hre.network.name === "hardhat";
@@ -105,18 +105,18 @@ export async function deployAndCut(
   // The `cuts` to perform for Diamond Spec facets
   const diamondSpecFacetCuts = [
     // Note: The `diamondCut` is omitted because it is cut upon deployment
-    ...changes.getFacetCuts("DiamondLoupeFacet", diamondLoupeFacet),
-    ...changes.getFacetCuts("OwnershipFacet", ownershipFacet),
+    ...(await changes.getFacetCuts("DiamondLoupeFacet", diamondLoupeFacet)),
+    ...(await changes.getFacetCuts("OwnershipFacet", ownershipFacet)),
   ];
 
   const diamond = await deployDiamond(
     {
       ownerAddress: ownerAddress,
       // The `diamondCutFacet` is cut upon deployment
-      diamondCutAddress: diamondCutFacet.address,
+      diamondCutAddress: await diamondCutFacet.getAddress(),
     },
     libraries,
-    hre,
+    hre
   );
 
   const diamondInit = await deployDiamondInit(
@@ -124,7 +124,7 @@ export async function deployAndCut(
       targetContract: "contracts/equipment/InitDiamond.sol:InitDiamond",
     },
     {},
-    hre,
+    hre
   );
 
   // Ring Universus facets
@@ -133,8 +133,8 @@ export async function deployAndCut(
 
   // The `cuts` to perform for Ring Universus facets
   const ringUniversusEquipmentFacetCuts = [
-    ...changes.getFacetCuts("RUEquipmentFacet", equipmentFacet),
-    ...changes.getFacetCuts("RUEquipmentAdminFacet", adminFacet),
+    ...(await changes.getFacetCuts("RUEquipmentFacet", equipmentFacet)),
+    ...(await changes.getFacetCuts("RUEquipmentAdminFacet", adminFacet)),
   ];
 
   if (isDev) {
@@ -148,10 +148,10 @@ export async function deployAndCut(
 
   const diamondCut = await hre.ethers.getContractAt(
     "RingUniversusEquipment",
-    diamond.address,
+    await diamond.getAddress()
   );
 
-  const initAddress = diamondInit.address;
+  const initAddress = await diamondInit.getAddress();
   const initFunctionCall = diamondInit.interface.encodeFunctionData("init", [
     initializers,
   ]);
@@ -159,7 +159,7 @@ export async function deployAndCut(
   const initTx = await diamondCut.diamondCut(
     toCut,
     initAddress,
-    initFunctionCall,
+    initFunctionCall
   );
   const initReceipt = await initTx.wait();
   if (!initReceipt.status) {
@@ -181,7 +181,7 @@ async function upgrade(args: object, hre: HardhatRuntimeEnvironment) {
   console.log("E Diamond address:", hre.contracts.equipment.CONTRACT_ADDRESS);
   const diamond = await hre.ethers.getContractAt(
     "RingUniversusEquipment",
-    hre.contracts.equipment.CONTRACT_ADDRESS,
+    hre.contracts.equipment.CONTRACT_ADDRESS
   );
 
   const previousFacets = await diamond.facets();
@@ -197,8 +197,8 @@ async function upgrade(args: object, hre: HardhatRuntimeEnvironment) {
 
   // The `cuts` to perform for Ring Universus facets
   const ringUniversusEquipmentFacetCuts = [
-    ...changes.getFacetCuts("RUEquipmentFacet", equipmentFacet),
-    ...changes.getFacetCuts("RUEquipmentAdminFacet", adminFacet),
+    ...(await changes.getFacetCuts("RUEquipmentFacet", equipmentFacet)),
+    ...(await changes.getFacetCuts("RUEquipmentAdminFacet", adminFacet)),
   ];
 
   // The `cuts` to remove any old, unused functions
@@ -218,13 +218,13 @@ async function upgrade(args: object, hre: HardhatRuntimeEnvironment) {
   // and empty calldata are specified for those `diamondCut` parameters.
   // If the Diamond storage needs to be changed on an upgrade, a contract would need to be
   // deployed and these variables would need to be adjusted similar to the `deploy` task.
-  const initAddress = hre.ethers.constants.AddressZero;
+  const initAddress = hre.ethers.ZeroAddress;
   const initFunctionCall = "0x";
 
   const upgradeTx = await diamond.diamondCut(
     toCut,
     initAddress,
-    initFunctionCall,
+    initFunctionCall
   );
   const upgradeReceipt = await upgradeTx.wait();
   if (!upgradeReceipt.status) {
@@ -237,31 +237,31 @@ async function upgrade(args: object, hre: HardhatRuntimeEnvironment) {
 export async function deployEquipmentFacet(
   args: object,
   { LibEquipment }: Libraries,
-  hre: HardhatRuntimeEnvironment,
+  hre: HardhatRuntimeEnvironment
 ) {
   const factory = await hre.ethers.getContractFactory("RUEquipmentFacet", {
     libraries: { LibEquipment },
   });
   const contract = await factory.deploy();
-  await contract.deployTransaction.wait();
-  console.log(`RUEquipmentFacet deployed to: ${contract.address}`);
+  await contract.deploymentTransaction()!.wait();
+  console.log(`RUEquipmentFacet deployed to: ${await contract.getAddress()}`);
   return contract;
 }
 
 export async function deployLibraries(
   args: object,
-  hre: HardhatRuntimeEnvironment,
+  hre: HardhatRuntimeEnvironment
 ) {
   const LibEquipmentFactory = await hre.ethers.getContractFactory(
     "LibEquipment",
     {
       libraries: {},
-    },
+    }
   );
   const LibEquipment = await LibEquipmentFactory.deploy();
-  await LibEquipment.deployTransaction.wait();
+  await LibEquipment.deploymentTransaction()!.wait();
 
   return {
-    LibEquipment: LibEquipment.address,
+    LibEquipment: await LibEquipment.getAddress(),
   };
 }

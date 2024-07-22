@@ -21,12 +21,21 @@ import readline from "readline";
 import type { JsonFragment } from "@ethersproject/abi";
 import chalk from "chalk";
 import Table from "cli-table";
-import { Contract, constants, utils } from "ethers";
 import fetch from "node-fetch";
 
 import DiamondCutFacetABI from "./DiamondCutFacet.json";
 import DiamondLoupeFacetABI from "./DiamondLoupeFacet.json";
 import OwnershipFacetABI from "./OwnershipFacet.json";
+import {
+  Contract,
+  FormatType,
+  Fragment,
+  FragmentType,
+  FunctionFragment,
+  id,
+  Interface,
+  ZeroAddress,
+} from "ethers";
 
 export const enum FacetCutAction {
   Add = 0,
@@ -36,27 +45,37 @@ export const enum FacetCutAction {
 
 // Turns an abiElement into a signature string, like `"init(bytes4)"`
 export function toSignature(abiElement: unknown): string {
-  return utils.Fragment.fromObject(abiElement as JsonFragment).format();
+  return Fragment.from(abiElement as JsonFragment).format();
 }
 
 /* In the form of `[ContractNameMatcher, IgnoredSignature]` */
 const signaturesToIgnore = [
   // The SolidState contracts adds a `supportsInterface` function,
   // but we already provide that function through DiamondLoupeFacet
-  ["RUTownFacet$", "supportsInterface(bytes4)"],
   ["RUBountyFacet$", "supportsInterface(bytes4)"],
+  // ["RUBountyFacet$", "OwnershipTransferred(address,address)"],
+  ["RUCoinFacet$", "supportsInterface(bytes4)"],
+  // ["RUCoinFacet$", "OwnershipTransferred(address,address)"],
   ["RUEquipmentFacet$", "supportsInterface(bytes4)"],
+  // ["RUEquipmentFacet$", "OwnershipTransferred(address,address)"],
+  ["RUPlayerFacet$", "supportsInterface(bytes4)"],
+  // ["RUPlayerFacet$", "OwnershipTransferred(address,address)"],
+  ["RURingFacet$", "supportsInterface(bytes4)"],
+  // ["RURingFacet$", "OwnershipTransferred(address,address)"],
+  ["RUTownFacet$", "supportsInterface(bytes4)"],
+  // ["RUTownFacet$", "OwnershipTransferred(address,address)"],
 ] as const;
 
 export function isIncluded(contractName: string, signature: string): boolean {
   const isIgnored = signaturesToIgnore.some(
     ([contractNameMatcher, ignoredSignature]) => {
       if (contractName.match(contractNameMatcher)) {
+        // console.log("signature: ", signature);
         return signature === ignoredSignature;
       } else {
         return false;
       }
-    },
+    }
   );
 
   return !isIgnored;
@@ -75,7 +94,7 @@ interface Facet {
 }
 
 interface HasInterface {
-  interface: utils.Interface;
+  interface: Interface;
 }
 
 interface Changeset {
@@ -135,7 +154,10 @@ export class DiamondChanges {
    * @param contract The ethers Contract object
    * @returns The `cuts` for your Diamond
    */
-  public getFacetCuts(contractName: string, contract: Contract): FacetCut[] {
+  public async getFacetCuts(
+    contractName: string,
+    contract: Contract
+  ): Promise<FacetCut[]> {
     const facetCuts = [];
 
     if (this.previous) {
@@ -143,26 +165,27 @@ export class DiamondChanges {
 
       if (diff.add.length > 0) {
         facetCuts.push({
-          facetAddress: contract.address,
+          facetAddress: await contract.getAddress(),
           action: FacetCutAction.Add,
           functionSelectors: diff.add,
         });
       }
       if (diff.replace.length > 0) {
         facetCuts.push({
-          facetAddress: contract.address,
+          facetAddress: await contract.getAddress(),
           action: FacetCutAction.Replace,
           functionSelectors: diff.replace,
         });
       }
     } else {
       facetCuts.push({
-        facetAddress: contract.address,
+        facetAddress: await contract.getAddress(),
         action: FacetCutAction.Add,
         functionSelectors: this.getSelectors(contractName, contract),
       });
     }
 
+    // console.log("facetCuts: ", facetCuts);
     return facetCuts;
   }
 
@@ -179,7 +202,7 @@ export class DiamondChanges {
   public getRemoveCuts(cuts: FacetCut[]): FacetCut[] {
     if (!this.previous) {
       throw new Error(
-        "You must construct DiamondChanges with previous cuts to find removals",
+        "You must construct DiamondChanges with previous cuts to find removals"
       );
     }
     const functionSelectors = cuts.flatMap((cut) => cut.functionSelectors);
@@ -204,7 +227,7 @@ export class DiamondChanges {
 
     if (toRemove.length) {
       removeCuts.push({
-        facetAddress: constants.AddressZero,
+        facetAddress: ZeroAddress,
         action: FacetCutAction.Remove,
         functionSelectors: toRemove,
       });
@@ -270,7 +293,7 @@ export class DiamondChanges {
             } else {
               resolve(false);
             }
-          },
+          }
         );
       });
     } else {
@@ -280,52 +303,71 @@ export class DiamondChanges {
     }
   }
 
-  private getSignatures(contract: HasInterface): string[] {
-    return Object.keys(contract.interface.functions);
+  private getFragmements(contract: HasInterface): ReadonlyArray<Fragment> {
+    return contract.interface.fragments;
   }
 
-  private getSelector(contract: HasInterface, signature: string): string {
-    return contract.interface.getSighash(signature);
+  private getFunctionFragment(
+    contract: HasInterface
+  ): ReadonlyArray<FunctionFragment> {
+    return contract.interface.fragments
+      .filter((f) => f.type == "function")
+      .map((f) => f as FunctionFragment);
   }
+
+  // private getSignatures(contract: HasInterface): string[] {
+  //   return Object.keys(
+  //     contract.interface.fragments
+  //       .filter((f) => f.type === "function")
+  //       .map((f) => f.format("minimal"))
+  //   );
+  // }
+
+  // private getSelector(contract: HasInterface, signature: string): string {
+  //   return contract.interface.getSighash(signature);
+  // }
 
   private getSelectors(contractName: string, contract: HasInterface): string[] {
-    const signatures = this.getSignatures(contract);
+    const fragements = this.getFunctionFragment(contract);
+    // const signatures = this.getSignatures(contract);
     const selectors: string[] = [];
 
-    for (const signature of signatures) {
-      if (isIncluded(contractName, signature)) {
-        selectors.push(this.getSelector(contract, signature));
-        this.changes.added.push([contractName, signature]);
+    for (const f of fragements) {
+      if (isIncluded(contractName, f.format("sighash"))) {
+        selectors.push(f.selector);
+        this.changes.added.push([contractName, f.format("sighash")]);
       }
     }
 
+    // console.log("this.changes: ", this.changes);
+    // console.log("selectors: ", selectors);
     return selectors;
   }
 
   private diffSelectors(
     contractName: string,
     contract: HasInterface,
-    previous: Facet[],
+    previous: Facet[]
   ): SelectorDiff {
-    const signatures = this.getSignatures(contract);
+    const fragements = this.getFunctionFragment(contract);
 
     const diff: SelectorDiff = { add: [], replace: [] };
 
-    for (const signature of signatures) {
-      if (isIncluded(contractName, signature)) {
-        const selector = contract.interface.getSighash(signature);
+    for (const f of fragements) {
+      if (isIncluded(contractName, f.format("sighash"))) {
+        const selector = f.selector;
         const selectorExists = previous.some(({ functionSelectors }) => {
           return functionSelectors.some((val) => selector === val);
         });
         if (selectorExists) {
-          this.changes.replaced.push([contractName, signature]);
+          this.changes.replaced.push([contractName, f.format("sighash")]);
           diff.replace.push(selector);
         } else {
-          this.changes.added.push([contractName, signature]);
+          this.changes.added.push([contractName, f.format("sighash")]);
           diff.add.push(selector);
         }
       } else {
-        this.changes.ignored.push([contractName, signature]);
+        this.changes.ignored.push([contractName, f.format("sighash")]);
       }
     }
 
@@ -333,30 +375,23 @@ export class DiamondChanges {
   }
 
   private isDiamondSpecSelector(selector: string): boolean {
-    const diamondCutFacetInterface = Contract.getInterface(DiamondCutFacetABI);
-    const diamondLoupeFacetInterface =
-      Contract.getInterface(DiamondLoupeFacetABI);
-    const ownershipFacetInterface = Contract.getInterface(OwnershipFacetABI);
+    const diamondCutFacetInterface = new Interface(DiamondCutFacetABI);
+    const diamondLoupeFacetInterface = new Interface(DiamondLoupeFacetABI);
+    const ownershipFacetInterface = new Interface(OwnershipFacetABI);
 
-    const diamondCutSignatures = this.getSignatures({
+    const diamondCutSignatures = this.getFunctionFragment({
       interface: diamondCutFacetInterface,
     });
-    const diamondLoupeSignatures = this.getSignatures({
+    const diamondLoupeSignatures = this.getFunctionFragment({
       interface: diamondLoupeFacetInterface,
     });
-    const ownershipSignatures = this.getSignatures({
+    const ownershipSignatures = this.getFunctionFragment({
       interface: ownershipFacetInterface,
     });
     return [
-      ...diamondCutSignatures.map((signature) =>
-        diamondCutFacetInterface.getSighash(signature),
-      ),
-      ...diamondLoupeSignatures.map((signature) =>
-        diamondLoupeFacetInterface.getSighash(signature),
-      ),
-      ...ownershipSignatures.map((signature) =>
-        ownershipFacetInterface.getSighash(signature),
-      ),
+      ...diamondCutSignatures.map((signature) => signature.selector),
+      ...diamondLoupeSignatures.map((signature) => signature.selector),
+      ...ownershipSignatures.map((signature) => signature.selector),
     ].includes(selector);
   }
 
@@ -377,7 +412,7 @@ export class DiamondChanges {
           headers: {
             "Content-Type": "application/json",
           },
-        },
+        }
       );
 
       const json: FourBytesJson | undefined = await response.json();

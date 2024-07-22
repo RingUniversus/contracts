@@ -8,7 +8,7 @@
     "utils/**/*.ts",
     "utils/**/*.json",
     "../packages/packages/contracts/typechain",
-    "eslint.config.mjs",
+    "eslint.config.mjs"
   ],
   "compilerOptions": {
     "target": "ES2020",
@@ -19,5 +19,6 @@
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "noEmit": true
-  }
+  },
+  "files": ["./hardhat.config.ts"]
 }

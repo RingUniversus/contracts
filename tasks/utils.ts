@@ -33,8 +33,8 @@ export async function deployDiamondCutFacet(
 ) {
   const factory = await hre.ethers.getContractFactory("DiamondCutFacet");
   const contract = await factory.deploy();
-  await contract.deployTransaction.wait();
-  console.log(`DiamondCutFacet deployed to: ${contract.address}`);
+  await contract.deploymentTransaction()!.wait();
+  console.log(`DiamondCutFacet deployed to: ${await contract.getAddress()}`);
   return contract;
 }
 
@@ -51,8 +51,8 @@ export async function deployDiamond(
 ) {
   const factory = await hre.ethers.getContractFactory("Diamond");
   const contract = await factory.deploy(ownerAddress, diamondCutAddress);
-  await contract.deployTransaction.wait();
-  console.log(`Diamond deployed to: ${contract.address}`);
+  await contract.deploymentTransaction()!.wait();
+  console.log(`Diamond deployed to: ${await contract.getAddress()}`);
   return contract;
 }
 
@@ -71,8 +71,8 @@ export async function deployDiamondInit(
     libraries: libraries,
   });
   const contract = await factory.deploy();
-  await contract.deployTransaction.wait();
-  console.log(`${targetContract} deployed to: ${contract.address}`);
+  await contract.deploymentTransaction()!.wait();
+  console.log(`${targetContract} deployed to: ${await contract.getAddress()}`);
   return contract;
 }
 
@@ -83,8 +83,8 @@ export async function deployDiamondLoupeFacet(
 ) {
   const factory = await hre.ethers.getContractFactory("DiamondLoupeFacet");
   const contract = await factory.deploy();
-  await contract.deployTransaction.wait();
-  console.log(`DiamondLoupeFacet deployed to: ${contract.address}`);
+  await contract.deploymentTransaction()!.wait();
+  console.log(`DiamondLoupeFacet deployed to: ${await contract.getAddress()}`);
   return contract;
 }
 
@@ -95,8 +95,8 @@ export async function deployOwnershipFacet(
 ) {
   const factory = await hre.ethers.getContractFactory("OwnershipFacet");
   const contract = await factory.deploy();
-  await contract.deployTransaction.wait();
-  console.log(`OwnershipFacet deployed to: ${contract.address}`);
+  await contract.deploymentTransaction()!.wait();
+  console.log(`OwnershipFacet deployed to: ${await contract.getAddress()}`);
   return contract;
 }
 
@@ -209,7 +209,7 @@ export async function deployAdminFacet(
     libraries: libraries,
   });
   const contract = await factory.deploy();
-  await contract.deployTransaction.wait();
-  console.log(`${targetContract} deployed to: ${contract.address}`);
+  await contract.deploymentTransaction()!.wait();
+  console.log(`${targetContract} deployed to: ${await contract.getAddress()}`);
   return contract;
 }

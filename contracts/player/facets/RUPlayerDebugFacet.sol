@@ -6,7 +6,6 @@ import {Modifiers} from "../libraries/LibStorage.sol";
 
 // Type imports
 import {Status} from "../Types.sol";
-import {PlayerStatusError} from "../Errors.sol";
 
 // Functions used in tests/development for easily modifying game state
 contract RUPlayerDebugFacet is Modifiers {

@@ -1,7 +1,6 @@
 import * as fs from "fs/promises";
 import * as path from "path";
 
-import { utils } from "ethers";
 import { TASK_COMPILE } from "hardhat/builtin-tasks/task-names";
 import { task } from "hardhat/config";
 import type {
@@ -13,17 +12,16 @@ import type {
 import * as prettier from "prettier";
 
 import * as diamondUtils from "../utils/diamond";
-
-const { Fragment, FormatTypes } = utils;
+import { Fragment, FormatType } from "ethers";
 
 task(TASK_COMPILE, "hook the compile step to copy our abis after").setAction(
-  copyAbi,
+  copyAbi
 );
 
 async function copyAbi(
   args: HardhatArguments,
   hre: HardhatRuntimeEnvironment,
-  runSuper: RunSuperFunction<TaskArguments>,
+  runSuper: RunSuperFunction<TaskArguments>
 ) {
   const out = await runSuper(args);
 
@@ -31,7 +29,7 @@ async function copyAbi(
 
   const abisDir = path.join(
     hre.packageDirs["@ringuniversus/contracts"],
-    "abis",
+    "abis"
   );
 
   await fs.mkdir(abisDir, { recursive: true });
@@ -48,6 +46,8 @@ async function copyAbi(
     admin: [],
   };
 
+  //     if (!["contracts/"].some((m) => contractName.match(m))) {
+
   for (const contractName of contracts) {
     if (!["Facet"].some((m) => contractName.match(m))) {
       // console.log(
@@ -55,13 +55,25 @@ async function copyAbi(
       // );
       continue;
     }
-    if (["interface", "Interface"].some((m) => contractName.match(m))) {
+    if (["interfaces", "Interfaces"].some((m) => contractName.match(m))) {
       // console.log(
       //   `Skipping ${contractName} because it didn't match any \`include\` patterns.`
       // );
       continue;
     }
     const appName = contractName.split("/")[1];
+    // if (["AdminFacet", "Debug", "vendor"].some((m) => appName.match(m))) {
+    //   // console.log(
+    //   //   `Skipping ${contractName} because it didn't match any \`include\` patterns.`
+    //   // );
+    //   continue;
+    // }
+    // if (["AdminFacet", "Debug", "vendor"].some((m) => contractName.match(m))) {
+    //   // console.log(
+    //   //   `Skipping ${contractName} because it didn't match any \`include\` patterns.`
+    //   // );
+    //   continue;
+    // }
 
     console.log(`Including ${contractName} in your RingUniversus ABI.`);
 
@@ -91,7 +103,8 @@ async function copyAbi(
   // console.log("mergedAbisByApps.vendor:", mergedAbisByApps.vendor);
   for (const app in mergedAbisByApps) {
     // Skip vender
-    if (app === "vendor") {
+    console.log("app: ", app);
+    if (app === "vendor" || app === "shared") {
       continue;
     }
     const abi = mergedAbisByApps[app];
@@ -101,11 +114,15 @@ async function copyAbi(
     // Validate same function
     const diamondAbiSet = new Set();
     abi.forEach((abi) => {
-      const sighash = Fragment.fromObject(abi).format(FormatTypes.sighash);
+      const sighash = Fragment.from(abi).format("sighash");
+      // console.log("sighash: ", sighash);
       if (diamondAbiSet.has(sighash)) {
         // throw new Error(
         //   `Failed to create ${nameForAbi(app)} - \`${sighash}\` appears twice.`
         // );
+        console.log(
+          `Failed to create ${nameForAbi(app)} - \`${sighash}\` appears twice.`
+        );
       }
       diamondAbiSet.add(sighash);
     });
@@ -120,18 +137,18 @@ async function copyAbi(
       `${JSON.stringify(abi, null, 2)}\n`,
       {
         flag: "w",
-      },
+      }
     );
 
-    const filteredDiamondAbi = abi.filter(abiFilter);
-    console.log(path.join(abisDir, `${nameForAbi(app)}_stripped.json`));
-    await fs.writeFile(
-      path.join(abisDir, `${nameForAbi(app)}_stripped.json`),
-      await prettier.format(JSON.stringify(filteredDiamondAbi), {
-        semi: false,
-        parser: "json",
-      }),
-    );
+    // const filteredDiamondAbi = abi.filter(abiFilter);
+    // console.log(path.join(abisDir, `${nameForAbi(app)}_stripped.json`));
+    // await fs.writeFile(
+    //   path.join(abisDir, `${nameForAbi(app)}_stripped.json`),
+    //   await prettier.format(JSON.stringify(filteredDiamondAbi), {
+    //     semi: false,
+    //     parser: "json",
+    //   })
+    // );
   }
 
   return out;
