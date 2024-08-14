@@ -67,17 +67,21 @@ contract InitDiamond is WithStorage {
         initDefaults();
     }
 
-    function initDefaults() public {
+    function initDefaults() internal {
         // First ring mint by defaults by deployer
-        LibRing.mint(
-            Ring({
-                townLimit: 10,
-                townCount: 0,
-                townMintingRatio: gameConstants().TOWN_MINTING_RATIO,
-                bountyMintingRatio: gameConstants().BOUNTY_MINTING_RATIO,
-                explorer: msg.sender,
-                exploredAt: block.timestamp
-            })
-        );
+        gs().rings[0] = Ring({
+            townLimit: 10,
+            townCount: 0,
+            townMintingRatio: gameConstants().TOWN_MINTING_RATIO,
+            bountyMintingRatio: gameConstants().BOUNTY_MINTING_RATIO,
+            explorer: msg.sender,
+            exploredAt: block.timestamp
+        });
+        gs().nextRingId = 1;
+
+        // Todo: test
+        for (uint i = 0; i < 9; i++) {
+            LibRing.mintByExplorer(msg.sender);
+        }
     }
 }

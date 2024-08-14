@@ -61,25 +61,26 @@ library LibPlayer {
         return gs().currentMoveInfo[_player];
     }
 
-    function targetPoint(
-        Point memory _p1,
-        Point memory _p2,
+    function coordsAtRatio(
+        Point memory _startCoords,
+        Point memory _endCoords,
         uint256 _ratio
     ) public pure returns (Point memory) {
         // _ratio must within 10000
         // 9982 means 0.9982
-        require(10000 >= _ratio && _ratio >= 0, "Ratio error.");
-        int256 x;
-        int256 y;
-        if (_p1.x == _p2.x) {
-            x = _p1.x * 10000;
-            y = (_p2.y - _p1.y) * _ratio.toInt256() * 10000 + _p1.y * 100000000;
-        } else {
-            int256 a = ((_p2.y - _p1.y) * 10000) / (_p2.x - _p1.x);
-            x = (_p2.x - _p1.x) * _ratio.toInt256() + _p1.x * 10000;
-            y = a * (x - _p1.x * 10000) + _p1.y * 100000000;
+        // if player moved over than 99.90%, set as completed
+        if (_ratio >= 10000) {
+            return _endCoords;
         }
-        return Point(x / 10000, y / 100000000);
+        // Calculate the difference in x and y coordinates
+        int256 deltaX = _endCoords.x - _startCoords.x;
+        int256 deltaY = _endCoords.y - _startCoords.y;
+
+        // Calculate the coordinates at the given ratio
+        int256 newX = _startCoords.x + (deltaX * int256(_ratio)) / 10000;
+        int256 newY = _startCoords.y + (deltaY * int256(_ratio)) / 10000;
+
+        return Point(newX, newY);
     }
 
     function eMultied(
@@ -136,49 +137,59 @@ library LibPlayer {
         return (_speedMulti, _attackPowerMulti);
     }
 
+    /**
+     * Returns the time spent on the player's current move, in seconds.
+     * @param _player The address of the player.
+     */
     function movingTime(address _player) public view returns (uint256) {
-        // If player is not moving, return 0
-        if (gs().info[_player].status != Status.Moving) {
+        Info memory _playerInfo = gs().info[_player];
+
+        // Return 0 if the player is not moving
+        if (_playerInfo.status != Status.Moving) {
             return 0;
         }
 
-        uint256 _realtimeSpend;
-        // if player stop moving already
-        if (gs().currentMoveInfo[_player].endTime != 0) {
-            _realtimeSpend =
-                gs().currentMoveInfo[_player].endTime -
-                gs().currentMoveInfo[_player].startTime;
+        Moving memory _moveInfo = gs().currentMoveInfo[_player];
+        uint256 elapsedTime;
+
+        // If the player has completed the movement
+        if (_moveInfo.endTime != 0) {
+            elapsedTime = _moveInfo.endTime - _moveInfo.startTime;
         } else {
-            _realtimeSpend =
-                block.timestamp -
-                gs().currentMoveInfo[_player].startTime;
+            elapsedTime = block.timestamp - _moveInfo.startTime;
         }
-        if (_realtimeSpend > gs().currentMoveInfo[_player].spendTime) {
-            _realtimeSpend = gs().currentMoveInfo[_player].spendTime;
+
+        // Cap elapsed time to the predefined maximum spend time
+        if (elapsedTime > _moveInfo.spendTime) {
+            elapsedTime = _moveInfo.spendTime;
         }
-        return _realtimeSpend;
+
+        return elapsedTime;
     }
 
     function currentLocation(
         address _player
     ) public view returns (Point memory, uint256, uint256) {
-        // calcuate current distance ratio based on player speed
-        uint256 speed = gs().currentMoveInfo[_player].speed;
-        uint256 realtimeSpend = movingTime(_player);
-        // scale to save percentage detail
-        realtimeSpend = realtimeSpend * 10000;
-        uint256 distRatio = ((realtimeSpend * speed)) /
-            gs().currentMoveInfo[_player].distance;
-        if (distRatio > 10000) {
-            distRatio = 10000;
+        // Retrieve player's current movement details
+        Moving memory playerMoveInfo = gs().currentMoveInfo[_player];
+
+        // Calculate the ratio of distance moved by the player
+        uint256 distanceMovedRatio = (movingTime(_player) *
+            playerMoveInfo.speed *
+            10000) / playerMoveInfo.distance;
+
+        // Cap movedRatio to 100% if it's close to completion
+        if (distanceMovedRatio >= 9990) {
+            distanceMovedRatio = 10000;
         }
 
-        Point memory _location = targetPoint(
+        // Calculate the current location based on the moved ratio
+        Point memory playerCurrentLocation = coordsAtRatio(
             gs().info[_player].location,
-            gs().currentMoveInfo[_player].target,
-            distRatio
+            playerMoveInfo.target,
+            distanceMovedRatio
         );
-        return (_location, distRatio, realtimeSpend / 10000);
+        return (playerCurrentLocation, distanceMovedRatio, movingTime(_player));
     }
 
     function moveInfo(

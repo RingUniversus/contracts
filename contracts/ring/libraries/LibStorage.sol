@@ -13,8 +13,8 @@ import {UnauthorizedOwner, UnauthorizedOwnerOrPlayer} from "../../shared/Errors.
 struct GameStorage {
     // Contract housekeeping
     address diamondAddress;
-    // Ring token ID
-    uint256 tokenId;
+    // Next ring ID
+    uint256 nextRingId;
     mapping(uint256 => Ring) rings;
 }
 

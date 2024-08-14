@@ -200,8 +200,9 @@ export async function deployAndCut(
 async function upgrade(args: object, hre: HardhatRuntimeEnvironment) {
   await hre.run("utils:assertChainId", { component: "player" });
 
-  const isDev =
-    hre.network.name === "localhost" || hre.network.name === "hardhat";
+  // const isDev =
+  //   hre.network.name === "localhost" || hre.network.name === "hardhat";
+  const isDev = true;
 
   // need to force a compile for tasks
   await hre.run("compile");

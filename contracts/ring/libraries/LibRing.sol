@@ -55,7 +55,7 @@ library LibRing {
             return (
                 Ring({
                     // TODO: townLimit Based on area
-                    townLimit: gs().rings[1].townLimit * mintingRatio,
+                    townLimit: gs().rings[0].townLimit * mintingRatio,
                     townCount: 0,
                     townMintingRatio: gameConstants().TOWN_MINTING_RATIO,
                     bountyMintingRatio: gameConstants().BOUNTY_MINTING_RATIO,
@@ -70,47 +70,37 @@ library LibRing {
     /**
      * Mint new ring or update exists.
      */
-    function _mintOrUpdate(
-        uint256 _ringId,
-        Ring memory _ring
-    ) internal returns (uint256) {
-        // init new ring or update info by given id
-        gs().rings[_ringId] = Ring({
-            townLimit: _ring.townLimit,
-            townCount: 0,
-            townMintingRatio: _ring.townMintingRatio,
-            bountyMintingRatio: _ring.bountyMintingRatio,
-            explorer: _ring.explorer,
-            exploredAt: _ring.exploredAt
-        });
-        // Sync ring token ID
-        if (!isMinted(_ringId)) {
-            gs().tokenId += 1;
-        }
-        return _ringId;
-    }
+    // function _mintOrUpdate(
+    //     uint256 _ringId,
+    //     Ring memory _ring
+    // ) internal returns (uint256) {
+    //     // init new ring or update info by given id
+    //     gs().rings[_ringId] = _ring;
+    //     // Sync ring token ID
+    //     if (!isMinted(_ringId)) {
+    //         gs().nextRingId = gs().nextRingId + 1;
+    //     }
+    //     return _ringId;
+    // }
 
     /**
      * Mint new ring.
      */
-    function mint(Ring memory _ring) public returns (uint256) {
-        return _mintOrUpdate(gs().tokenId + 1, _ring);
+    function _mint(Ring memory _ring) internal returns (uint256) {
+        gs().rings[gs().nextRingId] = _ring;
+        gs().nextRingId += 1;
+        return gs().nextRingId - 1;
     }
 
     /**
      * Mint new ring with default args by explorer.
      */
-    function mintByExplorer(
-        uint256 _ringId,
-        address _explorer
-    ) public returns (uint256) {
-        (Ring memory _ring, bool exists) = metadata(_ringId);
-        // Use assert because it's system logic error and should not happen
-        assert(exists == false);
+    function mintByExplorer(address _explorer) public returns (uint256) {
+        (Ring memory _ring, ) = metadata(gs().nextRingId);
         // update explorer info
         _ring.explorer = _explorer;
         _ring.exploredAt = block.timestamp;
-        return mint(_ring);
+        return _mint(_ring);
     }
 
     /**
@@ -120,6 +110,8 @@ library LibRing {
         uint256 _ringId,
         Ring memory _ring
     ) public returns (uint256) {
-        return _mintOrUpdate(_ringId, _ring);
+        assert(isMinted(_ringId) == true);
+        gs().rings[_ringId] = _ring;
+        return _ringId;
     }
 }

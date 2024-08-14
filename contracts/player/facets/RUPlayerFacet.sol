@@ -20,6 +20,25 @@ import {EquipmentNotOwned} from "../../shared/Errors.sol";
 contract RUPlayerFacet is Modifiers {
     using SafeCast for int256;
 
+    // Event to log player movement details
+    event PlayerMoved(
+        address indexed player,
+        Point target,
+        uint256 distance,
+        uint256 spendTime,
+        uint256 speed,
+        uint256 timestamp
+    );
+
+    // Event to log when a move is stopped
+    event MoveStopped(
+        address indexed player,
+        int256 targetX,
+        int256 targetY,
+        uint256 timestamp,
+        bool rewardsCalculated
+    );
+
     function _updatePlayerAttributes(address _player, uint256 _eId) internal {
         // calc player new attributes
         (uint256 speed, uint256 attackPower) = LibPlayer.slotMulti(_player);
@@ -147,33 +166,39 @@ contract RUPlayerFacet is Modifiers {
     )
         external
         onlyInitializedPlayer(msg.sender)
-        returns (uint256, uint256, uint256)
+        returns (uint256 distance, uint256 spendTime, uint256 speed)
     {
         address _player = msg.sender;
+        Info storage _playerInfo = gs().info[_player];
         require(
-            gs().info[_player].status == Status.Idle ||
-                gs().info[_player].status == Status.Moving,
+            _playerInfo.status == Status.Idle ||
+                _playerInfo.status == Status.Moving,
             "Player is busy."
         );
 
-        Point memory start;
-        if (gs().info[_player].status == Status.Moving) {
-            // if player is moving, start new
-            (start, , ) = LibPlayer.currentLocation(_player);
+        // Determine the start location based on the player's status
+        Point memory startLocation;
+        if (_playerInfo.status == Status.Moving) {
+            (startLocation, , ) = LibPlayer.currentLocation(_player);
         } else {
-            // if not, start from last location
-            start = gs().info[_player].location;
+            startLocation = _playerInfo.location;
         }
-        // reset moving info before move
-        _resetPlayerMoveInfo(_player, start, block.timestamp);
-        // change player status to moving status
-        gs().info[_player].status = Status.Moving;
 
-        (uint256 distance, uint256 spendTime, uint256 speed) = LibPlayer
-            .moveInfo(_player, start, _target);
+        // Reset player's move info and update status to Moving
+        _resetPlayerMoveInfo(_player, startLocation, block.timestamp);
+        _playerInfo.status = Status.Moving;
 
-        // check move time
+        // Calculate movement details
+        (distance, spendTime, speed) = LibPlayer.moveInfo(
+            _player,
+            startLocation,
+            _target
+        );
+
+        // Ensure the movement time is above the minimum required
         require(spendTime >= gameConstants().MIN_TRIP_TIME, "Target too near.");
+
+        // Update the player's current movement information
         gs().currentMoveInfo[_player] = Moving({
             target: _target,
             spendTime: spendTime,
@@ -188,33 +213,64 @@ contract RUPlayerFacet is Modifiers {
                 .SEGMENTATION_DISTANCE_PER_MOVE,
             randomWords: RandomWordsInfo(new uint256[](0), 0, 0)
         });
+
+        // Emit the PlayerMoved event
+        emit PlayerMoved(
+            _player,
+            _target,
+            distance,
+            spendTime,
+            speed,
+            block.timestamp
+        );
+
         return (distance, spendTime, speed);
     }
 
-    function stopAndRequestRandomWords()
+    function stopAndRequestRandomWords(
+        bool skipRewards
+    )
         external
         onlyInitializedPlayer(msg.sender)
         requiredStatus(Status.Moving)
+        returns (bool)
     {
         address _player = msg.sender;
+        Moving storage _moveInfo = gs().currentMoveInfo[_player];
+        uint256 moveDuration = block.timestamp - _moveInfo.startTime;
+        _moveInfo.endTime = block.timestamp;
+        (Point memory endLocation, , ) = LibPlayer.currentLocation(_player);
+
         // if move to near, pass rewards calculate process
         if (
-            gs().currentMoveInfo[_player].endTime -
-                gs().currentMoveInfo[_player].startTime <
-            gameConstants().MIN_TRIP_TIME
+            moveDuration < gameConstants().MIN_TRIP_TIME || skipRewards == true
         ) {
-            (Point memory end, , ) = LibPlayer.currentLocation(_player);
-            _resetPlayerMoveInfo(_player, end, block.timestamp);
+            _resetPlayerMoveInfo(_player, endLocation, block.timestamp);
 
-            return;
+            emit MoveStopped(
+                _player,
+                endLocation.x,
+                endLocation.y,
+                block.timestamp,
+                false
+            );
+            return false;
         }
-        // stop moving
+        // Stop the move and record the current timestamp
         gs().info[_player].lastMoveTime = block.timestamp;
-        gs().currentMoveInfo[_player].endTime = block.timestamp;
+
+        emit MoveStopped(
+            _player,
+            endLocation.x,
+            endLocation.y,
+            block.timestamp,
+            true
+        );
 
         // TODO
         // uint256 requestId = _vrfContract().requestRandomWords();
         // gs().vrfIdPlayer[requestId] = _player;
+        return true;
     }
 
     function fulfillRandomWords(
@@ -273,7 +329,7 @@ contract RUPlayerFacet is Modifiers {
 
         uint256[] memory towns = new uint256[](_calldata.maxTownToMint);
         for (uint256 i = 0; i < _calldata.maxTownToMint; i++) {
-            Point memory _townLocation = LibPlayer.targetPoint(
+            Point memory _townLocation = LibPlayer.coordsAtRatio(
                 _calldata.start,
                 _calldata.end,
                 _calldata.location[i]
@@ -303,7 +359,7 @@ contract RUPlayerFacet is Modifiers {
     function _discoveryNewBounty(
         NewBountyArgs memory _calldata
     ) internal returns (bool, uint256) {
-        Point memory _bountyLocation = LibPlayer.targetPoint(
+        Point memory _bountyLocation = LibPlayer.coordsAtRatio(
             _calldata.start,
             _calldata.end,
             _calldata.location % 10000
