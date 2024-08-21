@@ -5,10 +5,13 @@ pragma solidity ^0.8.0;
 import {Ring} from "../../shared/Types.sol";
 
 interface IRURingFacet {
+    function metadata(uint256 _ringId) external view returns (Ring memory);
+    function isMinted(uint256 _tokenId) external view returns (bool);
+
     function safeMint(
-        uint256 _tokenId,
-        address _explorer
-    ) external returns (Ring memory, bool);
+        address _explorer,
+        uint256 _ringId
+    ) external returns (uint256);
 
     function number(
         int256 _distanceX,

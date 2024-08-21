@@ -39,7 +39,7 @@ library LibUtil {
         return sqrt(sqr(distanceX) + sqr(distanceY));
     }
 
-    function caculateDistance(
+    function caculateDistanceUint(
         uint256 distanceX,
         uint256 distanceY
     ) public pure returns (uint256) {

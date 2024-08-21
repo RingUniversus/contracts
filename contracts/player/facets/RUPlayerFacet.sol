@@ -7,7 +7,7 @@ import {LibUtil} from "../../shared/libraries/LibUtil.sol";
 import {SafeCast} from "../../shared/libraries/LibSafeCast.sol";
 
 // Storage imports
-import {Modifiers} from "../libraries/LibStorage.sol";
+import {Modifiers, GameConstants} from "../libraries/LibStorage.sol";
 
 // Type imports
 import {Point, EMetadata, ETypes, Ring, BTYOwnType} from "../../shared/Types.sol";
@@ -158,7 +158,6 @@ contract RUPlayerFacet is Modifiers {
         gs().info[_player].status = Status.Idle;
         gs().info[_player].location = _end;
         gs().info[_player].lastMoveTime = _endTime;
-        delete gs().currentMoveInfo[_player];
     }
 
     function move(
@@ -201,6 +200,8 @@ contract RUPlayerFacet is Modifiers {
         // Update the player's current movement information
         gs().currentMoveInfo[_player] = Moving({
             target: _target,
+            start: startLocation,
+            end: Point(0, 0),
             spendTime: spendTime,
             speed: speed,
             distance: distance,
@@ -211,7 +212,8 @@ contract RUPlayerFacet is Modifiers {
             bountyMintRatio: gameConstants().BOUNTY_MINT_RATIO_PER_MOVE,
             segmentationDistance: gameConstants()
                 .SEGMENTATION_DISTANCE_PER_MOVE,
-            randomWords: RandomWordsInfo(new uint256[](0), 0, 0)
+            randomWords: RandomWordsInfo(new uint256[](0), 0, 0),
+            isClaimed: false
         });
 
         // Emit the PlayerMoved event
@@ -227,9 +229,18 @@ contract RUPlayerFacet is Modifiers {
         return (distance, spendTime, speed);
     }
 
-    function stopAndRequestRandomWords(
-        bool skipRewards
-    )
+    function _rewardClaimable(
+        uint256 moveDuration,
+        uint256 distance
+    ) internal view returns (bool) {
+        // TODO: add distance check?
+        if (moveDuration < gameConstants().MIN_TRIP_TIME) {
+            return false;
+        }
+        return true;
+    }
+
+    function stopAndRequestRandomWords()
         external
         onlyInitializedPlayer(msg.sender)
         requiredStatus(Status.Moving)
@@ -241,36 +252,23 @@ contract RUPlayerFacet is Modifiers {
         _moveInfo.endTime = block.timestamp;
         (Point memory endLocation, , ) = LibPlayer.currentLocation(_player);
 
-        // if move to near, pass rewards calculate process
-        if (
-            moveDuration < gameConstants().MIN_TRIP_TIME || skipRewards == true
-        ) {
-            _resetPlayerMoveInfo(_player, endLocation, block.timestamp);
-
-            emit MoveStopped(
-                _player,
-                endLocation.x,
-                endLocation.y,
-                block.timestamp,
-                false
-            );
-            return false;
-        }
-        // Stop the move and record the current timestamp
-        gs().info[_player].lastMoveTime = block.timestamp;
+        bool claimable = _rewardClaimable(moveDuration, 0);
+        // Stop the move and record the info
+        _resetPlayerMoveInfo(_player, endLocation, block.timestamp);
+        gs().currentMoveInfo[_player].end = endLocation;
 
         emit MoveStopped(
             _player,
             endLocation.x,
             endLocation.y,
             block.timestamp,
-            true
+            claimable
         );
 
         // TODO
         // uint256 requestId = _vrfContract().requestRandomWords();
         // gs().vrfIdPlayer[requestId] = _player;
-        return true;
+        return claimable;
     }
 
     function fulfillRandomWords(
@@ -291,108 +289,123 @@ contract RUPlayerFacet is Modifiers {
     }
 
     function _mintRing(
-        Point memory _location,
+        uint256[] memory _ringsToMint,
         address _player
-    ) internal returns (Ring memory, uint256) {
-        uint256 _ringId = LibPlayer.ringContract().number(
-            _location.x,
-            _location.y
-        );
+    ) internal {
+        // Mint ring
+        for (uint256 i = 0; i <= _ringsToMint.length; i++) {
+            if (_ringsToMint[i] == 0) {
+                continue;
+            }
+            if (!LibPlayer.ringContract().isMinted(_ringsToMint[i])) {
+                LibPlayer.ringContract().safeMint(_player, _ringsToMint[i]);
+            }
+        }
+    }
 
-        // Mint new ring or get exists ring info
-        (Ring memory _ring, ) = LibPlayer.ringContract().safeMint(
+    function _ringMetadata(
+        Point memory p
+    ) internal view returns (Ring memory, uint256, bool) {
+        uint256 _ringId = LibPlayer.ringContract().number(p.x, p.y);
+        return (
+            LibPlayer.ringContract().metadata(_ringId),
             _ringId,
-            _player
+            LibPlayer.ringContract().isMinted(_ringId)
         );
-        return (_ring, _ringId);
     }
 
     function _mintTown(
         address _player,
         Point memory p
     ) internal returns (uint256) {
-        uint256 townId = LibPlayer.townContract().create(
-            _player,
-            Point(p.x, p.y)
-        );
+        uint256 townId = LibPlayer.townContract().create(_player, p);
         return townId;
     }
 
     function _discoveryNewTown(
         NewTownArgs memory _calldata
-    ) internal returns (uint256[] memory) {
-        uint256[] memory mintBaseChance = LibPlayer.calculateChance(
-            _calldata.totalDistance,
-            _calldata.maxTownToMint,
-            _calldata.segmentationDistance
-        );
+    ) internal returns (uint256, uint256[] memory) {
+        uint256 _actualTownToMint = _calldata.totalDistance /
+            _calldata.segmentationDistance;
+        if (_actualTownToMint > _calldata.maxTownToMint) {
+            _actualTownToMint = _calldata.maxTownToMint;
+        }
 
-        uint256[] memory towns = new uint256[](_calldata.maxTownToMint);
-        for (uint256 i = 0; i < _calldata.maxTownToMint; i++) {
+        // TODO add this to constants, 10000 means 100%
+        uint256 baseRatio = 10000;
+        uint256 mintedTownCount = 0;
+        uint256[] memory ringsToMint = new uint256[](_actualTownToMint);
+        for (uint256 i = 0; i < _actualTownToMint; i++) {
             Point memory _townLocation = LibPlayer.coordsAtRatio(
                 _calldata.start,
                 _calldata.end,
                 _calldata.location[i]
             );
-            (Ring memory _ring, uint256 _ringId) = _mintRing(
-                _townLocation,
-                _calldata.player
+            (Ring memory _ring, uint256 _ringId, bool isMinted) = _ringMetadata(
+                _townLocation
             );
-            uint256 _currentChance = (_calldata.chance[i] *
-                mintBaseChance[i] *
+            if (!isMinted) {
+                ringsToMint[i] = _ringId;
+            }
+            // userRatio * baseRadio * ringRatio
+            // 10000(100%) * 10000(100%) * 10000(100%)
+            uint256 _currentChance = (_calldata.townMintRatio *
+                baseRatio *
                 _ring.townMintingRatio) / 100000000;
             // Skip 0 chance
             if (_currentChance == 0) {
                 continue;
             }
 
-            if (_currentChance >= _calldata.townMintRatio) {
-                towns[i] = _mintTown(_calldata.player, _townLocation);
+            // RNG chance chance (0.01% - 100%)
+            if (_currentChance > _calldata.chance[i] + 1) {
+                _mintTown(_calldata.player, _townLocation);
                 // Update circle info
-                LibPlayer.ringContract().increaseTownCount(_ringId, 1);
+                // LibPlayer.ringContract().increaseTownCount(_ringId, 1);
+                // mintedTownCount += 1;
             }
         }
 
-        return towns;
+        return (mintedTownCount, ringsToMint);
     }
 
-    function _discoveryNewBounty(
-        NewBountyArgs memory _calldata
-    ) internal returns (bool, uint256) {
-        Point memory _bountyLocation = LibPlayer.coordsAtRatio(
-            _calldata.start,
-            _calldata.end,
-            _calldata.location % 10000
-        );
-        (Ring memory _ring, uint256 _ringId) = _mintRing(
-            _bountyLocation,
-            _calldata.player
-        );
-        uint256 _bountyMintingRatio = _ring.bountyMintingRatio;
+    // function _discoveryNewBounty(
+    //     NewBountyArgs memory _calldata
+    // ) internal returns (bool, uint256) {
+    //     Point memory _bountyLocation = LibPlayer.coordsAtRatio(
+    //         _calldata.start,
+    //         _calldata.end,
+    //         _calldata.location % 10000
+    //     );
+    //     (Ring memory _ring, uint256 _ringId) = _mintRing(
+    //         _bountyLocation,
+    //         _calldata.player
+    //     );
+    //     uint256 _bountyMintingRatio = _ring.bountyMintingRatio;
 
-        uint256 _currentChance = (_calldata.chance * _bountyMintingRatio) /
-            1000000;
+    //     uint256 _currentChance = (_calldata.chance * _bountyMintingRatio) /
+    //         1000000;
 
-        // TODO
-        if (_currentChance >= _calldata.bountyMintRatio) {
-            uint256 bId = LibPlayer.bountyContract().newBounty(
-                _calldata.player,
-                _ringId,
-                _bountyLocation,
-                BTYOwnType.MINT
-            );
-            return (true, bId);
-        }
-        return (false, 0);
-    }
+    //     // TODO
+    //     if (_currentChance >= _calldata.bountyMintRatio) {
+    //         uint256 bId = LibPlayer.bountyContract().newBounty(
+    //             _calldata.player,
+    //             _ringId,
+    //             _bountyLocation,
+    //             BTYOwnType.MINT
+    //         );
+    //         return (true, bId);
+    //     }
+    //     return (false, 0);
+    // }
 
     /// @notice Claim rewards after get random words form RF
     /// @dev Change moving state after call function which require moving state
     function claim()
         external
         onlyInitializedPlayer(msg.sender)
-        requiredStatus(Status.Moving)
-        returns (uint256[] memory, uint256)
+        requiredStatus(Status.Idle)
+        returns (uint256, uint256)
     {
         address _player = msg.sender;
 
@@ -402,67 +415,157 @@ contract RUPlayerFacet is Modifiers {
             _moveInfo.randomWords.requestId != 0,
             "Request random words first."
         );
+        require(!_moveInfo.isClaimed, "Rewards already clamied.");
+
         // check account coin balance
         // need sender to pay
+        uint256 mintingCost = _moveInfo.maxTownToMint *
+            gameConstants().TOWN_MINT_FEE;
         require(
-            LibPlayer.coinContract().balanceOf(_player) >=
-                _moveInfo.maxTownToMint * gameConstants().TOWN_MINT_FEE,
+            LibPlayer.coinContract().balanceOf(_player) >= mintingCost,
             "Insufficient number of tokens."
         );
 
-        Point memory start = Point(
-            gs().info[_player].location.x,
-            gs().info[_player].location.y
-        );
-        (Point memory end, , ) = LibPlayer.currentLocation(_player);
+        Point memory startLocation = _moveInfo.start;
+        Point memory endLocation = _moveInfo.end;
 
-        // Change state
-        _resetPlayerMoveInfo(_player, end, _moveInfo.endTime);
+        // TODO: Change state
+        // gs().currentMoveInfo[_player].isClaimed = true;
 
         uint256[] memory randomWords = _moveInfo.randomWords.randomWords;
 
-        // calculate and mint new Town
-        int256 _distance = LibUtil.caculateDistance(
-            start.x - end.x,
-            start.y - end.y
-        );
-        uint256[] memory towns = _discoveryNewTown(
-            NewTownArgs({
-                player: _player,
-                totalDistance: _distance.toUint256(),
-                maxTownToMint: _moveInfo.maxTownToMint,
-                townMintRatio: _moveInfo.townMintRatio,
-                segmentationDistance: _moveInfo.segmentationDistance,
-                chance: LibPlayer.formatRandomWords(randomWords, 0, 3, 10000),
-                location: LibPlayer.formatRandomWords(randomWords, 3, 3, 10000),
-                start: start,
-                end: end
-            })
-        );
-        LibPlayer.coinContract().transferFrom(
-            _player,
-            gameConstants().FEE_ADDRESS,
-            towns.length * gameConstants().TOWN_MINT_FEE
-        );
+        // Calculate distance and mint new towns
+        uint256 travelDistance = LibUtil
+            .caculateDistance(
+                startLocation.x - endLocation.x,
+                startLocation.y - endLocation.y
+            )
+            .toUint256();
+
+        (
+            uint256 mintedTownCount,
+            uint256[] memory ringsToMint1
+        ) = _discoveryNewTown(
+                NewTownArgs({
+                    player: _player,
+                    totalDistance: travelDistance,
+                    maxTownToMint: _moveInfo.maxTownToMint,
+                    townMintRatio: _moveInfo.townMintRatio,
+                    segmentationDistance: _moveInfo.segmentationDistance,
+                    chance: LibPlayer.formatRandomWords(
+                        randomWords,
+                        0,
+                        3,
+                        10000
+                    ),
+                    location: LibPlayer.formatRandomWords(
+                        randomWords,
+                        3,
+                        3,
+                        10000
+                    ),
+                    start: startLocation,
+                    end: endLocation
+                })
+            );
+        if (mintedTownCount > 0) {
+            LibPlayer.coinContract().transferFrom(
+                _player,
+                gameConstants().FEE_ADDRESS,
+                mintedTownCount * gameConstants().TOWN_MINT_FEE
+            );
+        }
+
+        // if (ringsToMint1.length > 0) {
+        //     uint256[] memory ringsToMint = new uint256[](ringsToMint1.length);
+        //     for (uint256 index = 0; index < ringsToMint1.length; index++) {
+        //         ringsToMint[index] = ringsToMint1[index];
+        //     }
+
+        //     // Mint ring
+        //     _mintRing(ringsToMint, _player);
+        // }
 
         // Chance to discovery new bounty
-        uint256[] memory bountyInfo = LibPlayer.formatRandomWords(
-            randomWords,
-            6,
-            2,
-            1000000
+        // uint256[] memory bountyData = LibPlayer.formatRandomWords(
+        //     randomWords,
+        //     6,
+        //     2,
+        //     1000000
+        // );
+        // (, uint256 bountyId) = _discoveryNewBounty(
+        //     NewBountyArgs({
+        //         player: _player,
+        //         chance: bountyData[0],
+        //         location: bountyData[1],
+        //         bountyMintRatio: _moveInfo.bountyMintRatio,
+        //         start: startLocation,
+        //         end: endLocation
+        //     })
+        // );
+
+        return (mintedTownCount, 0);
+    }
+
+    function testDataCheck(
+        address _player
+    ) public view returns (uint256, uint256, uint256, uint256) {
+        Moving memory _moveInfo = gs().currentMoveInfo[_player];
+        // Only claim rewards after random words filled by VRF
+        require(
+            _moveInfo.randomWords.requestId != 0,
+            "Request random words first."
         );
-        (, uint256 bId) = _discoveryNewBounty(
-            NewBountyArgs({
-                player: _player,
-                chance: bountyInfo[0],
-                location: bountyInfo[1],
-                bountyMintRatio: _moveInfo.bountyMintRatio,
-                start: start,
-                end: end
-            })
+        require(!_moveInfo.isClaimed, "Rewards already clamied.");
+
+        // check account coin balance
+        // need sender to pay
+        uint256 mintingCost = _moveInfo.maxTownToMint *
+            gameConstants().TOWN_MINT_FEE;
+
+        Point memory startLocation = _moveInfo.start;
+        Point memory endLocation = _moveInfo.end;
+
+        // TODO: Change state
+        // gs().currentMoveInfo[_player].isClaimed = true;
+
+        uint256[] memory randomWords = _moveInfo.randomWords.randomWords;
+
+        uint256[] memory location = LibPlayer.formatRandomWords(
+            randomWords,
+            3,
+            3,
+            10000
         );
 
-        return (towns, bId);
+        Point memory _townLocation = LibPlayer.coordsAtRatio(
+            startLocation,
+            endLocation,
+            location[0]
+        );
+
+        (Ring memory _ring, uint256 _ringId, bool isMinted) = _ringMetadata(
+            _townLocation
+        );
+
+        // TODO add this to constants, 10000 means 100%
+        uint256 baseRatio = 10000;
+        uint256 _currentChance = (_moveInfo.townMintRatio *
+            baseRatio *
+            _ring.townMintingRatio) / 100000000;
+
+        return (
+            _currentChance,
+            _moveInfo.townMintRatio,
+            baseRatio,
+            _ring.townMintingRatio
+        );
+    }
+
+    /**
+     * Game Getter
+     */
+    function getGameConstants() public pure returns (GameConstants memory) {
+        return gameConstants();
     }
 }

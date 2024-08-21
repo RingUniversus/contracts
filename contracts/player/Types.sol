@@ -53,7 +53,9 @@ struct RandomWordsInfo {
 }
 
 struct Moving {
-    Point target; // target point
+    Point target; // target coords
+    Point start; // start coords
+    Point end; // end coords
     uint256 spendTime; // time will spend in this moving
     uint256 speed; // speed coefficient in this moving
     uint256 distance; // Whole move distance
@@ -66,6 +68,7 @@ struct Moving {
     uint256 segmentationDistance;
     // random words section
     RandomWordsInfo randomWords;
+    bool isClaimed;
 }
 
 // Function arguements

@@ -35,8 +35,8 @@ VALID_DELAY = 259200 # 3 days
 
 [player_initializers]
 FEE_ADDRESS = "0xfeEFEEfeefEeFeefEEFEEfEeFeefEEFeeFEEFEeF"
-BASE_MOVE_SPEED = 100                # 1.00
-BASE_ATTACK_POWER = 100              # 1.00
+BASE_MOVE_SPEED = 100                # 1.00/s
+BASE_ATTACK_POWER = 100              # 1.00/s
 MIN_TRIP_TIME = 1                    # 10 * 30, 300 secs
 TOWN_MINT_FEE = 200                  # 100 UNiC
 MAX_MINT_TOW_PER_MOVE = 3

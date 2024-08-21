@@ -29,10 +29,9 @@ library LibRing {
         int256 _distanceX,
         int256 _distanceY
     ) public view returns (uint256) {
-        uint256 dist = LibUtil.caculateDistance(
-            _distanceX.toUint256(),
-            _distanceY.toUint256()
-        );
+        uint256 dist = LibUtil
+            .caculateDistance(_distanceX, _distanceY)
+            .toUint256();
         return dist / gameConstants().DISTANCE;
     }
 

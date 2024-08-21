@@ -67,7 +67,7 @@ library LibPlayer {
         uint256 _ratio
     ) public pure returns (Point memory) {
         // _ratio must within 10000
-        // 9982 means 0.9982
+        // 9982 means 0.9982(99.82%)
         // if player moved over than 99.90%, set as completed
         if (_ratio >= 10000) {
             return _endCoords;
@@ -207,37 +207,12 @@ library LibPlayer {
         return (uintDistance, spendTime, speed);
     }
 
-    // Calculate base chance
-    function calculateChance(
-        uint256 _totalDistance,
-        uint256 _maxTownToMint,
-        uint256 _segmentationDistance
-    ) public pure returns (uint256[] memory) {
-        uint256[] memory _mintRatioArray = new uint256[](_maxTownToMint);
-        uint256 _actualTownToMint = _maxTownToMint;
-        if (_totalDistance / _segmentationDistance < _maxTownToMint) {
-            _actualTownToMint = _maxTownToMint / _segmentationDistance;
-        }
-        for (uint256 i = 0; i < _actualTownToMint; i++) {
-            _mintRatioArray[i] = 10000;
-        }
-        // If actual mint town count less than max
-        // increase mint ratio based on distance
-        if (_actualTownToMint < _maxTownToMint) {
-            _mintRatioArray[_actualTownToMint] =
-                ((_totalDistance - _actualTownToMint * _segmentationDistance) *
-                    10000) /
-                _segmentationDistance;
-        }
-        return _mintRatioArray;
-    }
-
     function formatRandomWordsWithPrecision(
         uint256[] memory randomWords,
         uint256 precision
     ) internal pure returns (uint256[] memory) {
         uint256[] memory formatedNumber = new uint256[](randomWords.length);
-        for (uint256 i; i < randomWords.length; i++) {
+        for (uint256 i = 0; i < randomWords.length; i++) {
             formatedNumber[i] = randomWords[i] % precision;
         }
         return formatedNumber;

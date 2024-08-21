@@ -8,7 +8,7 @@ import {SolidStateERC721} from "@solidstate/contracts/token/ERC721/SolidStateERC
 import {UintUtils} from "@solidstate/contracts/utils/UintUtils.sol";
 
 // Storage imports
-import {Modifiers, WithStorage} from "../libraries/LibStorage.sol";
+import {Modifiers, WithStorage, GameConstants} from "../libraries/LibStorage.sol";
 
 // Type imports
 import {Point} from "../../shared/Types.sol";
@@ -57,7 +57,7 @@ contract RUTownFacet is Modifiers, SolidStateERC721 {
     function create(
         address _owner,
         Point memory _location
-    ) public onlyOwner returns (uint256) {
+    ) public onlyOwnerOrPlayer returns (uint256) {
         uint256 tokenId = gs().townTokenId++;
 
         _mint(_owner, tokenId);
@@ -207,4 +207,15 @@ contract RUTownFacet is Modifiers, SolidStateERC721 {
     //     require(_ownerOf(_tokenId) == msg.sender, "Not owned.");
     //     _burn(_tokenId);
     // }
+
+    /**
+     * Game Getter
+     */
+    function getGameConstants() public pure returns (GameConstants memory) {
+        return gameConstants();
+    }
+
+    function testUpdateGameConstants(address pAddr) public onlyOwner {
+        gameConstants().PLAYER_ADDRESS = pAddr;
+    }
 }

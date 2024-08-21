@@ -30,19 +30,16 @@ contract RURingFacet is Modifiers {
      * Mint new Ring
      */
     function mint(address _explorer) public onlyOwner returns (uint256) {
-        LibRing.mintByExplorer(_explorer);
-        return gs().nextRingId;
+        return LibRing.mintByExplorer(_explorer);
     }
 
     function safeMint(
-        address _explorer
-    ) external onlyOwnerOrPlayer returns (Ring memory, bool) {
+        address _explorer,
+        uint256 _ringId
+    ) external onlyOwnerOrPlayer returns (uint256) {
         // if minted
-        if (LibRing.isMinted(gs().nextRingId) == true) {
-            return (gs().rings[gs().nextRingId], false);
-        }
-
-        return (gs().rings[LibRing.mintByExplorer(_explorer)], true);
+        require(!LibRing.isMinted(_ringId), "Ring already minted.");
+        return LibRing.mintByExplorer(_explorer);
     }
 
     /// @notice increase Ring's Town Count for given ring ID

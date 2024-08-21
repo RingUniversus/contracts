@@ -2,10 +2,11 @@
 pragma solidity ^0.8.0;
 
 // Storage imports
-import {Modifiers} from "../libraries/LibStorage.sol";
+import {LibStorage, Modifiers} from "../libraries/LibStorage.sol";
 
 // Type imports
-import {Status, Info} from "../Types.sol";
+import {Point, EMetadata, ETypes, Ring, BTYOwnType} from "../../shared/Types.sol";
+import {Status, Moving, Info, RandomWordsInfo} from "../Types.sol";
 
 // Functions used in tests/development for easily modifying game state
 contract RUPlayerDebugFacet is Modifiers {
@@ -13,12 +14,15 @@ contract RUPlayerDebugFacet is Modifiers {
 
     function testFillRandomWords(
         address _player,
-        uint256 _requestId
-    ) public requiredStatus(Status.Moving) onlyOwner {
-        gs().vrfIdPlayer[_requestId] = _player;
-        // stop moving
-        gs().currentMoveInfo[_player].endTime = block.timestamp;
-        gs().info[_player].lastMoveTime = block.timestamp;
+        uint256 _requestId,
+        uint256[] calldata _randomWords
+    ) public onlyOwner {
+        // Update current move random words info
+        gs().currentMoveInfo[_player].randomWords = RandomWordsInfo(
+            _randomWords,
+            block.timestamp,
+            _requestId
+        );
     }
 
     function testUpdatePlayerInfo(
@@ -40,5 +44,15 @@ contract RUPlayerDebugFacet is Modifiers {
 
     function testEventEmit() public onlyOwner {
         emit TestEvent(block.timestamp);
+    }
+
+    function testUpdateGameConstants(
+        address cAddr,
+        address rAddr,
+        address tAddr
+    ) public onlyOwner {
+        LibStorage.gameConstants().COIN_ADDRESS = cAddr;
+        LibStorage.gameConstants().RING_ADDRESS = rAddr;
+        LibStorage.gameConstants().TOWN_ADDRESS = tAddr;
     }
 }
