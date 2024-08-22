@@ -214,8 +214,4 @@ contract RUTownFacet is Modifiers, SolidStateERC721 {
     function getGameConstants() public pure returns (GameConstants memory) {
         return gameConstants();
     }
-
-    function testUpdateGameConstants(address pAddr) public onlyOwner {
-        gameConstants().PLAYER_ADDRESS = pAddr;
-    }
 }

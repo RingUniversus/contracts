@@ -33,8 +33,8 @@ contract RUPlayerFacet is Modifiers {
     // Event to log when a move is stopped
     event MoveStopped(
         address indexed player,
-        int256 targetX,
-        int256 targetY,
+        Point startCoords,
+        Point endCoords,
         uint256 timestamp,
         bool rewardsCalculated
     );
@@ -250,17 +250,17 @@ contract RUPlayerFacet is Modifiers {
         Moving storage _moveInfo = gs().currentMoveInfo[_player];
         uint256 moveDuration = block.timestamp - _moveInfo.startTime;
         _moveInfo.endTime = block.timestamp;
-        (Point memory endLocation, , ) = LibPlayer.currentLocation(_player);
+        (Point memory endCoords, , ) = LibPlayer.currentLocation(_player);
 
         bool claimable = _rewardClaimable(moveDuration, 0);
         // Stop the move and record the info
-        _resetPlayerMoveInfo(_player, endLocation, block.timestamp);
-        gs().currentMoveInfo[_player].end = endLocation;
+        _resetPlayerMoveInfo(_player, endCoords, block.timestamp);
+        gs().currentMoveInfo[_player].end = endCoords;
 
         emit MoveStopped(
             _player,
-            endLocation.x,
-            endLocation.y,
+            _moveInfo.start,
+            endCoords,
             block.timestamp,
             claimable
         );
@@ -332,8 +332,8 @@ contract RUPlayerFacet is Modifiers {
         }
 
         // TODO add this to constants, 10000 means 100%
-        uint256 baseRatio = 10000;
-        uint256 mintedTownCount = 0;
+        uint256 baseRatio = 1000000;
+        uint256 mintedTown = 0;
         uint256[] memory ringsToMint = new uint256[](_actualTownToMint);
         for (uint256 i = 0; i < _actualTownToMint; i++) {
             Point memory _townLocation = LibPlayer.coordsAtRatio(
@@ -362,11 +362,11 @@ contract RUPlayerFacet is Modifiers {
                 _mintTown(_calldata.player, _townLocation);
                 // Update circle info
                 // LibPlayer.ringContract().increaseTownCount(_ringId, 1);
-                // mintedTownCount += 1;
+                mintedTown = mintedTown + 1;
             }
         }
 
-        return (mintedTownCount, ringsToMint);
+        return (mintedTown, ringsToMint);
     }
 
     // function _discoveryNewBounty(
@@ -430,7 +430,7 @@ contract RUPlayerFacet is Modifiers {
         Point memory endLocation = _moveInfo.end;
 
         // TODO: Change state
-        // gs().currentMoveInfo[_player].isClaimed = true;
+        gs().currentMoveInfo[_player].isClaimed = true;
 
         uint256[] memory randomWords = _moveInfo.randomWords.randomWords;
 
@@ -509,7 +509,7 @@ contract RUPlayerFacet is Modifiers {
 
     function testDataCheck(
         address _player
-    ) public view returns (uint256, uint256, uint256, uint256) {
+    ) public view returns (Point memory, uint256) {
         Moving memory _moveInfo = gs().currentMoveInfo[_player];
         // Only claim rewards after random words filled by VRF
         require(
@@ -541,7 +541,7 @@ contract RUPlayerFacet is Modifiers {
         Point memory _townLocation = LibPlayer.coordsAtRatio(
             startLocation,
             endLocation,
-            location[0]
+            location[2]
         );
 
         (Ring memory _ring, uint256 _ringId, bool isMinted) = _ringMetadata(
@@ -554,12 +554,7 @@ contract RUPlayerFacet is Modifiers {
             baseRatio *
             _ring.townMintingRatio) / 100000000;
 
-        return (
-            _currentChance,
-            _moveInfo.townMintRatio,
-            baseRatio,
-            _ring.townMintingRatio
-        );
+        return (_townLocation, _ringId);
     }
 
     /**

@@ -140,10 +140,10 @@ export async function deployAndCut(
   ];
 
   if (isDev) {
-    // const debugFacet = await deployDebugFacet({}, libraries, hre);
-    // ringUniversusFacetCuts.push(
-    //   ...changes.getFacetCuts("RUTownDebugFacet", debugFacet)
-    // );
+    const debugFacet = await deployDebugFacet({}, libraries, hre);
+    ringUniversusTownFacetCuts.push(
+      ...(await changes.getFacetCuts("RUTownDebugFacet", debugFacet))
+    );
   }
 
   const toCut = [...diamondSpecFacetCuts, ...ringUniversusTownFacetCuts];
@@ -174,8 +174,9 @@ export async function deployAndCut(
 async function upgrade(args: object, hre: HardhatRuntimeEnvironment) {
   await hre.run("utils:assertChainId", { component: "town" });
 
-  const isDev =
-    hre.network.name === "localhost" || hre.network.name === "hardhat";
+  // const isDev =
+  //   hre.network.name === "localhost" || hre.network.name === "hardhat";
+  const isDev = true;
 
   // need to force a compile for tasks
   await hre.run("compile");
@@ -201,6 +202,13 @@ async function upgrade(args: object, hre: HardhatRuntimeEnvironment) {
     ...(await changes.getFacetCuts("RUTownFacet", townFacet)),
     ...(await changes.getFacetCuts("RUTownAdminFacet", adminFacet)),
   ];
+
+  if (isDev) {
+    const debugFacet = await deployDebugFacet({}, libraries, hre);
+    ringUniversusTownFacetCuts.push(
+      ...(await changes.getFacetCuts("RUTownDebugFacet", debugFacet))
+    );
+  }
 
   // The `cuts` to remove any old, unused functions
   const removeCuts = changes.getRemoveCuts(ringUniversusTownFacetCuts);
@@ -246,5 +254,17 @@ export async function deployTownFacet(
   const contract = await factory.deploy();
   await contract.deploymentTransaction()!.wait();
   console.log(`RUTownFacet deployed to: ${await contract.getAddress()}`);
+  return contract;
+}
+
+export async function deployDebugFacet(
+  args: object,
+  libraries: Libraries,
+  hre: HardhatRuntimeEnvironment
+) {
+  const factory = await hre.ethers.getContractFactory("RUTownDebugFacet");
+  const contract = await factory.deploy();
+  await contract.deploymentTransaction()!.wait();
+  console.log(`RUTownDebugFacet deployed to: ${await contract.getAddress()}`);
   return contract;
 }

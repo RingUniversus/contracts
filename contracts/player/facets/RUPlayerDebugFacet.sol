@@ -2,7 +2,7 @@
 pragma solidity ^0.8.0;
 
 // Storage imports
-import {LibStorage, Modifiers} from "../libraries/LibStorage.sol";
+import {Modifiers} from "../libraries/LibStorage.sol";
 
 // Type imports
 import {Point, EMetadata, ETypes, Ring, BTYOwnType} from "../../shared/Types.sol";
@@ -51,8 +51,8 @@ contract RUPlayerDebugFacet is Modifiers {
         address rAddr,
         address tAddr
     ) public onlyOwner {
-        LibStorage.gameConstants().COIN_ADDRESS = cAddr;
-        LibStorage.gameConstants().RING_ADDRESS = rAddr;
-        LibStorage.gameConstants().TOWN_ADDRESS = tAddr;
+        gameConstants().COIN_ADDRESS = cAddr;
+        gameConstants().RING_ADDRESS = rAddr;
+        gameConstants().TOWN_ADDRESS = tAddr;
     }
 }

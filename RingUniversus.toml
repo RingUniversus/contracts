@@ -13,7 +13,7 @@ MAX_EXPLORE_TIME = 604800       # 7 * 24 * 3600, 7 days
 MAX_EXPLORE_REWARDS = 4000      # max 4000 token rewards
 
 [ring_initializers]
-DISTANCE = 2000                # 20.00
+DISTANCE = 200000              # 2000 means 20.00
 TOWN_MINTING_RATIO = 1000      # 10.00%
 TOWN_OVER_MINTING_RATIO = 1000 # 10.00%
 TOWN_RATIO_BONUS = 100         # 1.00x
