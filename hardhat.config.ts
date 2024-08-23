@@ -35,6 +35,7 @@ import "./tasks/equipment";
 import "./tasks/player";
 import "./tasks/deploy";
 import "./tasks/utils";
+import "./tasks/updateAddress";
 // import "@solidstate/hardhat-4byte-uploader";
 
 dotEnvConfig();

@@ -11,8 +11,8 @@ import {UintUtils} from "@solidstate/contracts/utils/UintUtils.sol";
 import {Modifiers, WithStorage, GameConstants} from "../libraries/LibStorage.sol";
 
 // Type imports
-import {Point} from "../../shared/Types.sol";
-import {Town, Attribute} from "../Types.sol";
+import {Point, Town} from "../../shared/Types.sol";
+import {Attribute} from "../Types.sol";
 
 // Errors imports
 import {InsufficientExplorerSlot} from "../Errors.sol";

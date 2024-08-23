@@ -5,7 +5,8 @@ pragma solidity ^0.8.0;
 import {LibDiamond} from "../../vendor/libraries/LibDiamond.sol";
 
 // Type imports
-import {Town, Attribute} from "../Types.sol";
+import {Attribute} from "../Types.sol";
+import {Town} from "../../shared/Types.sol";
 
 // Error imports
 import {UnauthorizedOwner, UnauthorizedOwnerOrPlayer} from "../../shared/Errors.sol";

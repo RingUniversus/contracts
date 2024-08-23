@@ -11,6 +11,11 @@ enum Status {
     Attacking
 }
 
+enum TeleportType {
+    Town,
+    Bountry
+}
+
 struct Info {
     string nickname;
     Point location;

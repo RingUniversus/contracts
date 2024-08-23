@@ -2,9 +2,11 @@
 pragma solidity ^0.8.0;
 
 // Type imports
-import {Point} from "../../shared/Types.sol";
+import {Point, Town} from "../../shared/Types.sol";
 
 interface IRUTownFacet {
+    function metadata(uint256 _tokenId) external view returns (Town memory);
+
     function create(
         address _owner,
         Point memory _location

@@ -10,8 +10,8 @@ import {SafeCast} from "../../shared/libraries/LibSafeCast.sol";
 import {Modifiers, GameConstants} from "../libraries/LibStorage.sol";
 
 // Type imports
-import {Point, EMetadata, ETypes, Ring, BTYOwnType} from "../../shared/Types.sol";
-import {Info, EquipmentSlot, Status, Moving, RandomWordsInfo, NewTownArgs, NewBountyArgs} from "../Types.sol";
+import {Point, EMetadata, ETypes, Ring, BTYOwnType, Town} from "../../shared/Types.sol";
+import {Info, EquipmentSlot, Status, Moving, RandomWordsInfo, NewTownArgs, NewBountyArgs, TeleportType} from "../Types.sol";
 
 // Error imports
 import {NotVRFContract, InitializedPlayer} from "../Errors.sol";
@@ -248,6 +248,8 @@ contract RUPlayerFacet is Modifiers {
     {
         address _player = msg.sender;
         Moving storage _moveInfo = gs().currentMoveInfo[_player];
+        require(_moveInfo.endTime == 0, "Current move already stopped.");
+
         uint256 moveDuration = block.timestamp - _moveInfo.startTime;
         _moveInfo.endTime = block.timestamp;
         (Point memory endCoords, , ) = LibPlayer.currentLocation(_player);
@@ -361,12 +363,67 @@ contract RUPlayerFacet is Modifiers {
             if (_currentChance > _calldata.chance[i] + 1) {
                 _mintTown(_calldata.player, _townLocation);
                 // Update circle info
-                // LibPlayer.ringContract().increaseTownCount(_ringId, 1);
+                LibPlayer.ringContract().increaseTownCount(_ringId, 1);
                 mintedTown = mintedTown + 1;
             }
         }
 
         return (mintedTown, ringsToMint);
+    }
+
+    function teleport(
+        TeleportType _ttype,
+        uint256 _tid
+    ) external returns (Point memory, Point memory, uint256) {
+        address _player = msg.sender;
+        Info memory _playerInfo = gs().info[_player];
+        require(
+            _playerInfo.status == Status.Idle,
+            "Teleport need play stop moving first."
+        );
+        Point memory _playerCurrentCoords = _playerInfo.location;
+        uint256 _playerRingId = LibPlayer.ringContract().number(
+            _playerCurrentCoords.x,
+            _playerCurrentCoords.y
+        );
+
+        // TODO: Add to game constants
+        uint256 baseFee = 0;
+        uint256 passingRingFee = 0;
+        Point memory targetCoords;
+
+        // Teleport rto minted town
+        // if (_ttype == TeleportType.Town) {
+        Town memory town = LibPlayer.townContract().metadata(_tid);
+        require(town.createdAt != 0, "Target not exists!");
+        targetCoords = town.location;
+
+        baseFee += 10;
+        passingRingFee = 50;
+        // }
+
+        uint256 targetRingId = LibPlayer.ringContract().number(
+            targetCoords.x,
+            targetCoords.y
+        );
+
+        uint256 passingRingNo = 0;
+        if (_playerRingId > targetRingId) {
+            passingRingNo = _playerRingId - targetRingId;
+        } else {
+            passingRingNo = targetRingId - _playerRingId;
+        }
+
+        uint256 totalFee = (baseFee + passingRingFee * passingRingNo) * 1e18;
+        _resetPlayerMoveInfo(_player, targetCoords, block.timestamp);
+        if (totalFee > 0) {
+            LibPlayer.coinContract().transferFrom(
+                _player,
+                gameConstants().FEE_ADDRESS,
+                totalFee
+            );
+        }
+        return (_playerCurrentCoords, targetCoords, totalFee);
     }
 
     // function _discoveryNewBounty(
@@ -555,6 +612,10 @@ contract RUPlayerFacet is Modifiers {
             _ring.townMintingRatio) / 100000000;
 
         return (_townLocation, _ringId);
+    }
+
+    function test(uint256 _ringId) external {
+        LibPlayer.ringContract().increaseTownCount(_ringId, 1);
     }
 
     /**
