@@ -381,6 +381,11 @@ contract RUPlayerFacet is Modifiers {
             _playerInfo.status == Status.Idle,
             "Teleport need play stop moving first."
         );
+        require(
+            gs().currentMoveInfo[_player].isClaimed,
+            "Claim your rewards first."
+        );
+
         Point memory _playerCurrentCoords = _playerInfo.location;
         uint256 _playerRingId = LibPlayer.ringContract().number(
             _playerCurrentCoords.x,
