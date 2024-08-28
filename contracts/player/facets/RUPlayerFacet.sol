@@ -334,7 +334,7 @@ contract RUPlayerFacet is Modifiers {
         }
 
         // TODO add this to constants, 10000 means 100%
-        uint256 baseRatio = 1000000;
+        uint256 baseRatio = 10000;
         uint256 mintedTown = 0;
         uint256[] memory ringsToMint = new uint256[](_actualTownToMint);
         for (uint256 i = 0; i < _actualTownToMint; i++) {
