@@ -2,7 +2,7 @@ import * as path from "path";
 
 import toml from "@iarna/toml";
 import {
-  BountyInitializers,
+  OblivionInitializers,
   CoinInitializers,
   Contracts,
   EquipmentInitializers,
@@ -33,7 +33,7 @@ declare module "hardhat/types/runtime" {
     townInitializers: TownInitializers;
     ringInitializers: RingInitializers;
     coinInitializers: CoinInitializers;
-    bountyInitializers: BountyInitializers;
+    OblivionInitializers: OblivionInitializers;
     equipmentInitializers: EquipmentInitializers;
     playerInitializers: PlayerInitializers;
   }
@@ -42,7 +42,7 @@ declare module "hardhat/types/runtime" {
 // Util for parsing & validating schemas with pretty printing
 export function parse(
   verify: (externalData: unknown) => unknown,
-  externalData: unknown,
+  externalData: unknown
 ): ReturnType<any> {
   try {
     return verify(externalData);
@@ -62,7 +62,7 @@ export function parse(
 // immediately validated due to `lazyObject`.
 export function required<S extends { [key: string]: unknown }>(
   schema: S,
-  keys: Array<keyof S>,
+  keys: Array<keyof S>
 ) {
   const header = "Required keys/values:";
   const messages = keys.map((key, idx) => {
@@ -76,7 +76,7 @@ export function required<S extends { [key: string]: unknown }>(
 
   const longest = messages.reduce(
     (max, msg) => Math.max(msg.length, max),
-    header.length,
+    header.length
   );
   const stars = "*".repeat(longest);
 
@@ -152,7 +152,7 @@ export function load(network: string): { [key: string]: unknown } {
     return result.config;
   } else {
     console.warn(
-      chalk.yellow("Could not find `RingUniversus.toml` - using defaults."),
+      chalk.yellow("Could not find `RingUniversus.toml` - using defaults.")
     );
     return {};
   }

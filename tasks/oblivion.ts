@@ -13,10 +13,10 @@ import {
 import * as settings from "../settings";
 import { DiamondChanges } from "../utils/diamond";
 
-task("deployBounty", "deploy bounty's contracts").setAction(deploy);
+task("deployO", "deploy oblivion's contracts").setAction(deploy);
 task(
-  "upgradeBounty",
-  "upgrade bounty contracts and replace in the diamond"
+  "upgradeO",
+  "upgrade oblivion contracts and replace in the diamond"
 ).setAction(upgrade);
 
 async function deploy(args: object, hre: HardhatRuntimeEnvironment) {
@@ -24,7 +24,7 @@ async function deploy(args: object, hre: HardhatRuntimeEnvironment) {
     hre.network.name === "localhost" || hre.network.name === "hardhat";
 
   // Ensure we have required keys in our initializers
-  settings.required(hre.bountyInitializers, []);
+  settings.required(hre.oblivionInitializers, []);
 
   // need to force a compile for tasks
   await hre.run("compile");
@@ -49,13 +49,13 @@ async function deploy(args: object, hre: HardhatRuntimeEnvironment) {
   const [diamond, diamondInit, initReceipt] = await deployAndCut(
     {
       ownerAddress: deployer.address,
-      initializers: hre.bountyInitializers,
+      initializers: hre.oblivionInitializers,
     },
     hre
   );
 
   await saveDeploy(
-    "bounty",
+    "oblivion",
     {
       coreBlockNumber: initReceipt.blockNumber,
       diamondAddress: await diamond.getAddress(),
@@ -67,7 +67,7 @@ async function deploy(args: object, hre: HardhatRuntimeEnvironment) {
   // give all contract administration over to an admin adress if was provided
   if (hre.ADMIN_PUBLIC_ADDRESS) {
     const ownership = await hre.ethers.getContractAt(
-      "RingUniversusBounty",
+      "RingUniversusOblivion",
       await diamond.getAddress()
     );
     const tx = await ownership.transferOwnership(hre.ADMIN_PUBLIC_ADDRESS);
@@ -84,7 +84,7 @@ export async function deployAndCut(
     initializers,
   }: {
     ownerAddress: string;
-    initializers: HardhatRuntimeEnvironment["bountyInitializers"];
+    initializers: HardhatRuntimeEnvironment["oblivionInitializers"];
   },
   hre: HardhatRuntimeEnvironment
 ) {
@@ -123,33 +123,33 @@ export async function deployAndCut(
 
   const diamondInit = await deployDiamondInit(
     {
-      targetContract: "contracts/bounty/InitDiamond.sol:InitDiamond",
+      targetContract: "contracts/oblivion/InitDiamond.sol:InitDiamond",
     },
     libraries,
     hre
   );
 
   // Ring Universus facets
-  const bountyFacet = await deployBountyFacet({}, libraries, hre);
-  const adminFacet = await deployAdminFacet("RUBountyAdminFacet", {}, hre);
+  const oblivionFacet = await deployOblivionFacet({}, libraries, hre);
+  const adminFacet = await deployAdminFacet("RUOblivionAdminFacet", {}, hre);
 
   // The `cuts` to perform for Ring Universus facets
-  const ringUniversusBountyFacetCuts = [
-    ...(await changes.getFacetCuts("RUBountyFacet", bountyFacet)),
-    ...(await changes.getFacetCuts("RUBountyAdminFacet", adminFacet)),
+  const ringUniversusOblivionFacetCuts = [
+    ...(await changes.getFacetCuts("RUOblivionFacet", oblivionFacet)),
+    ...(await changes.getFacetCuts("RUOblivionAdminFacet", adminFacet)),
   ];
 
   if (isDev) {
     // const debugFacet = await deployDebugFacet({}, libraries, hre);
     // ringUniversusFacetCuts.push(
-    //   ...changes.getFacetCuts("RUBountyDebugFacet", debugFacet)
+    //   ...changes.getFacetCuts("RUoblivionDebugFacet", debugFacet)
     // );
   }
 
-  const toCut = [...diamondSpecFacetCuts, ...ringUniversusBountyFacetCuts];
+  const toCut = [...diamondSpecFacetCuts, ...ringUniversusOblivionFacetCuts];
 
   const diamondCut = await hre.ethers.getContractAt(
-    "RingUniversusBounty",
+    "RingUniversusOblivion",
     await diamond.getAddress()
   );
 
@@ -165,14 +165,14 @@ export async function deployAndCut(
   );
   const initReceipt = await initTx.wait();
   if (!initReceipt.status) {
-    throw Error(`Bounty's Diamond cut failed: ${initTx.hash}`);
+    throw Error(`Oblivion's Diamond cut failed: ${initTx.hash}`);
   }
-  console.log("Completed bounty's diamond cut");
+  console.log("Completed Oblivion's diamond cut");
   return [diamond, diamondInit, initReceipt] as const;
 }
 
 async function upgrade(args: object, hre: HardhatRuntimeEnvironment) {
-  await hre.run("utils:assertChainId", { component: "bounty" });
+  await hre.run("utils:assertChainId", { component: "oblivion" });
 
   // const isDev =
   //   hre.network.name === "localhost" || hre.network.name === "hardhat";
@@ -180,10 +180,13 @@ async function upgrade(args: object, hre: HardhatRuntimeEnvironment) {
   // need to force a compile for tasks
   await hre.run("compile");
 
-  console.log("Bounty Diamond address:", hre.contracts.bounty.CONTRACT_ADDRESS);
+  console.log(
+    "Oblivion Diamond address:",
+    hre.contracts.oblivion.CONTRACT_ADDRESS
+  );
   const diamond = await hre.ethers.getContractAt(
-    "RingUniversusBounty",
-    hre.contracts.bounty.CONTRACT_ADDRESS
+    "RingUniversusOblivion",
+    hre.contracts.oblivion.CONTRACT_ADDRESS
   );
 
   const previousFacets = await diamond.facets();
@@ -193,17 +196,17 @@ async function upgrade(args: object, hre: HardhatRuntimeEnvironment) {
   const libraries = {};
 
   // Ring Universus facets
-  const bountyFacet = await deployBountyFacet({}, libraries, hre);
-  const adminFacet = await deployAdminFacet("RUBountyAdminFacet", {}, hre);
+  const oblivionFacet = await deployOblivionFacet({}, libraries, hre);
+  const adminFacet = await deployAdminFacet("RUOblivionAdminFacet", {}, hre);
 
   // The `cuts` to perform for Ring Universus facets
-  const ringUniversusBountyFacetCuts = [
-    ...(await changes.getFacetCuts("RUBountyFacet", bountyFacet)),
-    ...(await changes.getFacetCuts("RUBountyAdminFacet", adminFacet)),
+  const ringUniversusOblivionFacetCuts = [
+    ...(await changes.getFacetCuts("RUOblivionFacet", oblivionFacet)),
+    ...(await changes.getFacetCuts("RUOblivionAdminFacet", adminFacet)),
   ];
 
   // The `cuts` to remove any old, unused functions
-  const removeCuts = changes.getRemoveCuts(ringUniversusBountyFacetCuts);
+  const removeCuts = changes.getRemoveCuts(ringUniversusOblivionFacetCuts);
 
   const shouldUpgrade = await changes.verify();
   if (!shouldUpgrade) {
@@ -211,7 +214,7 @@ async function upgrade(args: object, hre: HardhatRuntimeEnvironment) {
     return;
   }
 
-  const toCut = [...ringUniversusBountyFacetCuts, ...removeCuts];
+  const toCut = [...ringUniversusOblivionFacetCuts, ...removeCuts];
 
   // As mentioned in the `deploy` task, EIP-2535 specifies that the `diamondCut`
   // function takes two optional arguments: address _init and bytes calldata _calldata
@@ -235,16 +238,16 @@ async function upgrade(args: object, hre: HardhatRuntimeEnvironment) {
   console.log("Upgraded successfully. Godspeed cadet.");
 }
 
-export async function deployBountyFacet(
+export async function deployOblivionFacet(
   args: object,
   libraries: Libraries,
   hre: HardhatRuntimeEnvironment
 ) {
-  const factory = await hre.ethers.getContractFactory("RUBountyFacet", {
+  const factory = await hre.ethers.getContractFactory("RUOblivionFacet", {
     libraries: libraries,
   });
   const contract = await factory.deploy();
   await contract.deploymentTransaction()!.wait();
-  console.log(`RUBountyFacet deployed to: ${await contract.getAddress()}`);
+  console.log(`RUOblivionFacet deployed to: ${await contract.getAddress()}`);
   return contract;
 }

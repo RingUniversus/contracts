@@ -9,7 +9,7 @@ import "@nomicfoundation/hardhat-chai-matchers";
 import * as path from "path";
 
 import {
-  decodeBountyInitializers,
+  decodeOblivionInitializers,
   decodeCoinInitializers,
   decodeContracts,
   decodeEquipmentInitializers,
@@ -30,7 +30,7 @@ import "./tasks/settingIndex";
 import "./tasks/town";
 import "./tasks/ring";
 import "./tasks/coin";
-import "./tasks/bounty";
+import "./tasks/oblivion";
 import "./tasks/equipment";
 import "./tasks/player";
 import "./tasks/deploy";
@@ -82,9 +82,9 @@ extendEnvironment((env: HardhatRuntimeEnvironment) => {
     return settings.parse(decodeCoinInitializers, coin_initializers);
   });
 
-  env.bountyInitializers = lazyObject(() => {
-    const { bounty_initializers = {} } = settings.load(env.network.name);
-    return settings.parse(decodeBountyInitializers, bounty_initializers);
+  env.oblivionInitializers = lazyObject(() => {
+    const { oblivion_initializers = {} } = settings.load(env.network.name);
+    return settings.parse(decodeOblivionInitializers, oblivion_initializers);
   });
 
   env.equipmentInitializers = lazyObject(() => {

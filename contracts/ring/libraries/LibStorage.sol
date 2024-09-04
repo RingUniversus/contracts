@@ -29,10 +29,10 @@ struct GameConstants {
     uint256 TOWN_MINTING_RATIO;
     uint256 TOWN_OVER_MINTING_RATIO;
     uint256 TOWN_RATIO_BONUS;
-    // Mint bounty ratio
-    // 19900 means 1.99%
-    uint256 BOUNTY_MINTING_RATIO;
-    uint256 BOUNTY_RATIO_BONUS;
+    // Mint oblivion ratio
+    // 0199 means 1.99%
+    uint256 OBLIVION_MINTING_RATIO;
+    uint256 OBLIVION_RATIO_BONUS;
 }
 
 /**

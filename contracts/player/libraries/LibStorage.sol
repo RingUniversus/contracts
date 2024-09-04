@@ -34,7 +34,7 @@ struct GameConstants {
     address COIN_ADDRESS;
     address RING_ADDRESS;
     address TOWN_ADDRESS;
-    address BOUNTY_ADDRESS;
+    address OBLIVION_ADDRESS;
     address VRF_ADDRESS;
     // Args
     uint256 BASE_MOVE_SPEED;
@@ -43,7 +43,7 @@ struct GameConstants {
     uint256 TOWN_MINT_FEE;
     uint256 MAX_MINT_TOW_PER_MOVE;
     uint256 TOWN_MINT_RATIO_PER_MOVE;
-    uint256 BOUNTY_MINT_RATIO_PER_MOVE;
+    uint256 OBLIVION_MINT_RATIO_PER_MOVE;
     uint256 SEGMENTATION_DISTANCE_PER_MOVE;
 }
 

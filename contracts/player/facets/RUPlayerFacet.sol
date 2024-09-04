@@ -10,8 +10,8 @@ import {SafeCast} from "../../shared/libraries/LibSafeCast.sol";
 import {Modifiers, GameConstants} from "../libraries/LibStorage.sol";
 
 // Type imports
-import {Point, EMetadata, ETypes, Ring, BTYOwnType, Town} from "../../shared/Types.sol";
-import {Info, EquipmentSlot, Status, Moving, RandomWordsInfo, NewTownArgs, NewBountyArgs, TeleportType} from "../Types.sol";
+import {Point, EMetadata, ETypes, Ring, Town} from "../../shared/Types.sol";
+import {Info, EquipmentSlot, Status, Moving, RandomWordsInfo, NewTownArgs, NewOblivionArgs, TeleportType} from "../Types.sol";
 
 // Error imports
 import {NotVRFContract, InitializedPlayer} from "../Errors.sol";
@@ -209,7 +209,7 @@ contract RUPlayerFacet is Modifiers {
             endTime: 0,
             maxTownToMint: gameConstants().MAX_MINT_TOW_PER_MOVE,
             townMintRatio: gameConstants().TOWN_MINT_RATIO_PER_MOVE,
-            bountyMintRatio: gameConstants().BOUNTY_MINT_RATIO_PER_MOVE,
+            oblivionMintRatio: gameConstants().OBLIVION_MINT_RATIO_PER_MOVE,
             segmentationDistance: gameConstants()
                 .SEGMENTATION_DISTANCE_PER_MOVE,
             randomWords: RandomWordsInfo(new uint256[](0), 0, 0),
@@ -288,6 +288,66 @@ contract RUPlayerFacet is Modifiers {
         );
         // Remove useless random words
         gs().vrfIdPlayer[requestId] = address(0);
+    }
+
+    function teleport(
+        TeleportType _ttype,
+        uint256 _tid
+    ) external returns (Point memory, Point memory, uint256) {
+        address _player = msg.sender;
+        Info memory _playerInfo = gs().info[_player];
+        require(
+            _playerInfo.status == Status.Idle,
+            "Teleport need play stop moving first."
+        );
+        require(
+            gs().currentMoveInfo[_player].isClaimed,
+            "Claim your rewards first."
+        );
+
+        Point memory _playerCurrentCoords = _playerInfo.location;
+        uint256 _playerRingId = LibPlayer.ringContract().number(
+            _playerCurrentCoords.x,
+            _playerCurrentCoords.y
+        );
+
+        // TODO: Add to game constants
+        uint256 baseFee = 0;
+        uint256 passingRingFee = 0;
+        Point memory targetCoords;
+
+        // Teleport rto minted town
+        // if (_ttype == TeleportType.Town) {
+        Town memory town = LibPlayer.townContract().metadata(_tid);
+        require(town.createdAt != 0, "Target not exists!");
+        targetCoords = town.location;
+
+        baseFee += 10;
+        passingRingFee = 50;
+        // }
+
+        uint256 targetRingId = LibPlayer.ringContract().number(
+            targetCoords.x,
+            targetCoords.y
+        );
+
+        uint256 passingRingNo = 0;
+        if (_playerRingId > targetRingId) {
+            passingRingNo = _playerRingId - targetRingId;
+        } else {
+            passingRingNo = targetRingId - _playerRingId;
+        }
+
+        uint256 totalFee = (baseFee + passingRingFee * passingRingNo) * 1e18;
+        _resetPlayerMoveInfo(_player, targetCoords, block.timestamp);
+        if (totalFee > 0) {
+            LibPlayer.coinContract().transferFrom(
+                _player,
+                gameConstants().FEE_ADDRESS,
+                totalFee
+            );
+        }
+        return (_playerCurrentCoords, targetCoords, totalFee);
     }
 
     function _mintRing(
@@ -371,95 +431,40 @@ contract RUPlayerFacet is Modifiers {
         return (mintedTown, ringsToMint);
     }
 
-    function teleport(
-        TeleportType _ttype,
-        uint256 _tid
-    ) external returns (Point memory, Point memory, uint256) {
-        address _player = msg.sender;
-        Info memory _playerInfo = gs().info[_player];
-        require(
-            _playerInfo.status == Status.Idle,
-            "Teleport need play stop moving first."
+    function _discoveryNewOblivion(
+        NewOblivionArgs memory _calldata
+    ) internal returns (bool, uint256) {
+        Point memory _oblivionLocation = LibPlayer.coordsAtRatio(
+            _calldata.start,
+            _calldata.end,
+            _calldata.location
         );
-        require(
-            gs().currentMoveInfo[_player].isClaimed,
-            "Claim your rewards first."
+        (Ring memory _ring, uint256 _ringId, bool isMinted) = _ringMetadata(
+            _oblivionLocation
         );
-
-        Point memory _playerCurrentCoords = _playerInfo.location;
-        uint256 _playerRingId = LibPlayer.ringContract().number(
-            _playerCurrentCoords.x,
-            _playerCurrentCoords.y
-        );
-
-        // TODO: Add to game constants
-        uint256 baseFee = 0;
-        uint256 passingRingFee = 0;
-        Point memory targetCoords;
-
-        // Teleport rto minted town
-        // if (_ttype == TeleportType.Town) {
-        Town memory town = LibPlayer.townContract().metadata(_tid);
-        require(town.createdAt != 0, "Target not exists!");
-        targetCoords = town.location;
-
-        baseFee += 10;
-        passingRingFee = 50;
-        // }
-
-        uint256 targetRingId = LibPlayer.ringContract().number(
-            targetCoords.x,
-            targetCoords.y
-        );
-
-        uint256 passingRingNo = 0;
-        if (_playerRingId > targetRingId) {
-            passingRingNo = _playerRingId - targetRingId;
-        } else {
-            passingRingNo = targetRingId - _playerRingId;
+        if (!isMinted) {
+            // Todo: mint ring
         }
 
-        uint256 totalFee = (baseFee + passingRingFee * passingRingNo) * 1e18;
-        _resetPlayerMoveInfo(_player, targetCoords, block.timestamp);
-        if (totalFee > 0) {
-            LibPlayer.coinContract().transferFrom(
-                _player,
-                gameConstants().FEE_ADDRESS,
-                totalFee
+        // TODO add this to constants, 10000 means 100%
+        uint256 baseRatio = 10000;
+
+        uint256 _currentChance = (baseRatio *
+            _calldata.oblivionMintRatio *
+            _ring.oblivionMintingRatio) / 100000000;
+
+        // RNG chance chance (0.01% - 100%)
+        if (_currentChance >= _calldata.chance + 1) {
+            // TODO: Oblivion type
+            uint256 oId = LibPlayer.oblivionContract().mint(
+                _calldata.player,
+                _oblivionLocation,
+                0
             );
+            return (true, oId);
         }
-        return (_playerCurrentCoords, targetCoords, totalFee);
+        return (false, 0);
     }
-
-    // function _discoveryNewBounty(
-    //     NewBountyArgs memory _calldata
-    // ) internal returns (bool, uint256) {
-    //     Point memory _bountyLocation = LibPlayer.coordsAtRatio(
-    //         _calldata.start,
-    //         _calldata.end,
-    //         _calldata.location % 10000
-    //     );
-    //     (Ring memory _ring, uint256 _ringId) = _mintRing(
-    //         _bountyLocation,
-    //         _calldata.player
-    //     );
-    //     uint256 _bountyMintingRatio = _ring.bountyMintingRatio;
-
-    //     uint256 _currentChance = (_calldata.chance * _bountyMintingRatio) /
-    //         1000000;
-
-    //     // TODO
-    //     if (_currentChance >= _calldata.bountyMintRatio) {
-    //         uint256 bId = LibPlayer.bountyContract().newBounty(
-    //             _calldata.player,
-    //             _ringId,
-    //             _bountyLocation,
-    //             BTYOwnType.MINT
-    //         );
-    //         return (true, bId);
-    //     }
-    //     return (false, 0);
-    // }
 
     /// @notice Claim rewards after get random words form RF
     /// @dev Change moving state after call function which require moving state
@@ -548,79 +553,25 @@ contract RUPlayerFacet is Modifiers {
         //     _mintRing(ringsToMint, _player);
         // }
 
-        // Chance to discovery new bounty
-        // uint256[] memory bountyData = LibPlayer.formatRandomWords(
+        // Chance to discovery new oblivion
+        // uint256[] memory oblivionData = LibPlayer.formatRandomWords(
         //     randomWords,
         //     6,
         //     2,
-        //     1000000
+        //     10000
         // );
-        // (, uint256 bountyId) = _discoveryNewBounty(
-        //     NewBountyArgs({
+        // (, uint256 oblivionId) = _discoveryNewOblivion(
+        //     NewOblivionArgs({
         //         player: _player,
-        //         chance: bountyData[0],
-        //         location: bountyData[1],
-        //         bountyMintRatio: _moveInfo.bountyMintRatio,
+        //         chance: oblivionData[0],
+        //         location: oblivionData[1],
+        //         oblivionMintRatio: _moveInfo.oblivionMintRatio,
         //         start: startLocation,
         //         end: endLocation
         //     })
         // );
 
         return (mintedTownCount, 0);
-    }
-
-    function testDataCheck(
-        address _player
-    ) public view returns (Point memory, uint256) {
-        Moving memory _moveInfo = gs().currentMoveInfo[_player];
-        // Only claim rewards after random words filled by VRF
-        require(
-            _moveInfo.randomWords.requestId != 0,
-            "Request random words first."
-        );
-        require(!_moveInfo.isClaimed, "Rewards already clamied.");
-
-        // check account coin balance
-        // need sender to pay
-        uint256 mintingCost = _moveInfo.maxTownToMint *
-            gameConstants().TOWN_MINT_FEE;
-
-        Point memory startLocation = _moveInfo.start;
-        Point memory endLocation = _moveInfo.end;
-
-        // TODO: Change state
-        // gs().currentMoveInfo[_player].isClaimed = true;
-
-        uint256[] memory randomWords = _moveInfo.randomWords.randomWords;
-
-        uint256[] memory location = LibPlayer.formatRandomWords(
-            randomWords,
-            3,
-            3,
-            10000
-        );
-
-        Point memory _townLocation = LibPlayer.coordsAtRatio(
-            startLocation,
-            endLocation,
-            location[2]
-        );
-
-        (Ring memory _ring, uint256 _ringId, bool isMinted) = _ringMetadata(
-            _townLocation
-        );
-
-        // TODO add this to constants, 10000 means 100%
-        uint256 baseRatio = 10000;
-        uint256 _currentChance = (_moveInfo.townMintRatio *
-            baseRatio *
-            _ring.townMintingRatio) / 100000000;
-
-        return (_townLocation, _ringId);
-    }
-
-    function test(uint256 _ringId) external {
-        LibPlayer.ringContract().increaseTownCount(_ringId, 1);
     }
 
     /**

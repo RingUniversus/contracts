@@ -18,7 +18,7 @@ contract RUPlayerAdminFacet is Modifiers {
         gameConstants().COIN_ADDRESS = _addresses.coinAddress;
         gameConstants().RING_ADDRESS = _addresses.ringAddress;
         gameConstants().TOWN_ADDRESS = _addresses.townAddress;
-        gameConstants().BOUNTY_ADDRESS = _addresses.bountyAddress;
+        gameConstants().OBLIVION_ADDRESS = _addresses.oblivionAddress;
         gameConstants().VRF_ADDRESS = _addresses.vrfAddress;
     }
 }

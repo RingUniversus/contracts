@@ -11,7 +11,13 @@ subtask("utils:assertChainId", "Assert proper network is selectaed").setAction(
   assertChainId
 );
 
-type Components = "bounty" | "coin" | "equipment" | "player" | "ring" | "town";
+type Components =
+  | "oblivion"
+  | "coin"
+  | "equipment"
+  | "player"
+  | "ring"
+  | "town";
 
 async function assertChainId(
   { component }: { component: Components },

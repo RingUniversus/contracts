@@ -5,7 +5,7 @@ pragma solidity ^0.8.0;
 import {LibDiamond} from "../../vendor/libraries/LibDiamond.sol";
 
 // Type imports
-import {BTYMetadata, BTYInfo} from "../../shared/Types.sol";
+import {OblivionMetadata} from "../../shared/Types.sol";
 
 // Error imports
 import {UnauthorizedOwner, UnauthorizedOwnerOrPlayer} from "../../shared/Errors.sol";
@@ -14,9 +14,10 @@ struct GameStorage {
     // Contract housekeeping
     address diamondAddress;
     uint256 tokenId;
-    mapping(uint256 => BTYMetadata) metadata;
-    // ring's bounty info
-    mapping(uint256 => BTYInfo[]) ringBountyInfo;
+    mapping(uint256 => OblivionMetadata) metadata;
+    // Unbeated oblivions
+    uint256[] unbeatedIds;
+    mapping(uint256 => uint256) unbeatedIndex;
 }
 
 // Game config
@@ -72,11 +73,11 @@ struct GameConstants {
 library LibStorage {
     // Storage are structs where the data gets updated throughout the lifespan of the game
     bytes32 private constant GAME_STORAGE_POSITION =
-        keccak256("ringuniversus.bountry.storage.game");
+        keccak256("ringuniversus.oblivion.storage.game");
     // Constants are structs where the data gets configured on game initialization
     // and configured by Admin or Owner
     bytes32 private constant GAME_CONSTANTS_POSITION =
-        keccak256("ringuniversus.bountry.constants.game");
+        keccak256("ringuniversus.oblivion.constants.game");
 
     function gameStorage() internal pure returns (GameStorage storage gs) {
         bytes32 position = GAME_STORAGE_POSITION;

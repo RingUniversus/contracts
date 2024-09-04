@@ -9,7 +9,7 @@ import {IRUEquipmentFacet} from "../../equipment/interfaces/IRUEquipmentFacet.so
 import {IRUCoinFacet} from "../../coin/interfaces/IRUCoinFacet.sol";
 import {IRURingFacet} from "../../ring/interfaces/IRURingFacet.sol";
 import {IRUTownFacet} from "../../town/interfaces/IRUTownFacet.sol";
-import {IRUBountyFacet} from "../../bounty/interfaces/IRUBountyFacet.sol";
+import {IRUOblivionFacet} from "../../oblivion/interfaces/IRUOblivionFacet.sol";
 
 // Libraries imports
 import {SafeCast} from "../../shared/libraries/LibSafeCast.sol";
@@ -47,8 +47,8 @@ library LibPlayer {
         return IRUTownFacet(gameConstants().TOWN_ADDRESS);
     }
 
-    function bountyContract() public view returns (IRUBountyFacet) {
-        return IRUBountyFacet(gameConstants().BOUNTY_ADDRESS);
+    function oblivionContract() public view returns (IRUOblivionFacet) {
+        return IRUOblivionFacet(gameConstants().OBLIVION_ADDRESS);
     }
 
     function info(address _player) public view returns (Info memory) {

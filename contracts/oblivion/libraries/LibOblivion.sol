@@ -4,7 +4,7 @@ pragma solidity ^0.8.0;
 // Storage imports
 import {LibStorage, GameStorage, GameConstants} from "./LibStorage.sol";
 
-library LibBounty {
+library LibOblivion {
     function gs() internal pure returns (GameStorage storage) {
         return LibStorage.gameStorage();
     }

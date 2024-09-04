@@ -26,8 +26,8 @@ struct InitArgs {
     uint256 TOWN_MINTING_RATIO;
     uint256 TOWN_OVER_MINTING_RATIO;
     uint256 TOWN_RATIO_BONUS;
-    uint256 BOUNTY_MINTING_RATIO;
-    uint256 BOUNTY_RATIO_BONUS;
+    uint256 OBLIVION_MINTING_RATIO;
+    uint256 OBLIVION_RATIO_BONUS;
 }
 
 contract InitDiamond is WithStorage {
@@ -60,9 +60,10 @@ contract InitDiamond is WithStorage {
         gameConstants().TOWN_OVER_MINTING_RATIO = initArgs
             .TOWN_OVER_MINTING_RATIO;
         gameConstants().TOWN_RATIO_BONUS = initArgs.TOWN_RATIO_BONUS;
-        // Bounty
-        gameConstants().BOUNTY_MINTING_RATIO = initArgs.BOUNTY_MINTING_RATIO;
-        gameConstants().BOUNTY_RATIO_BONUS = initArgs.BOUNTY_RATIO_BONUS;
+        // Oblivion
+        gameConstants().OBLIVION_MINTING_RATIO = initArgs
+            .OBLIVION_MINTING_RATIO;
+        gameConstants().OBLIVION_RATIO_BONUS = initArgs.OBLIVION_RATIO_BONUS;
 
         initDefaults();
     }
@@ -73,7 +74,7 @@ contract InitDiamond is WithStorage {
             townLimit: 10,
             townCount: 0,
             townMintingRatio: gameConstants().TOWN_MINTING_RATIO,
-            bountyMintingRatio: gameConstants().BOUNTY_MINTING_RATIO,
+            oblivionMintingRatio: gameConstants().OBLIVION_MINTING_RATIO,
             explorer: msg.sender,
             exploredAt: block.timestamp
         });

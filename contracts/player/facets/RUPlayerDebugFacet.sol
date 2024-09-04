@@ -5,7 +5,7 @@ pragma solidity ^0.8.0;
 import {Modifiers} from "../libraries/LibStorage.sol";
 
 // Type imports
-import {Point, EMetadata, ETypes, Ring, BTYOwnType} from "../../shared/Types.sol";
+import {Point, EMetadata, ETypes, Ring} from "../../shared/Types.sol";
 import {Status, Moving, Info, RandomWordsInfo} from "../Types.sol";
 
 // Functions used in tests/development for easily modifying game state

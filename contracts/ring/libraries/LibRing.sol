@@ -57,7 +57,8 @@ library LibRing {
                     townLimit: gs().rings[0].townLimit * mintingRatio,
                     townCount: 0,
                     townMintingRatio: gameConstants().TOWN_MINTING_RATIO,
-                    bountyMintingRatio: gameConstants().BOUNTY_MINTING_RATIO,
+                    oblivionMintingRatio: gameConstants()
+                        .OBLIVION_MINTING_RATIO,
                     explorer: address(0),
                     exploredAt: 0
                 }),

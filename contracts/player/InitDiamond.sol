@@ -26,7 +26,7 @@ struct InitArgs {
     address COIN_ADDRESS;
     address RING_ADDRESS;
     address TOWN_ADDRESS;
-    address BOUNTY_ADDRESS;
+    address OBLIVION_ADDRESS;
     address VRF_ADDRESS;
     // Base config
     uint256 BASE_MOVE_SPEED;
@@ -35,7 +35,7 @@ struct InitArgs {
     uint256 TOWN_MINT_FEE;
     uint256 MAX_MINT_TOW_PER_MOVE;
     uint256 TOWN_MINT_RATIO_PER_MOVE;
-    uint256 BOUNTY_MINT_RATIO_PER_MOVE;
+    uint256 OBLIVION_MINT_RATIO_PER_MOVE;
     uint256 SEGMENTATION_DISTANCE_PER_MOVE;
 }
 
@@ -69,7 +69,7 @@ contract InitDiamond is WithStorage {
         gameConstants().COIN_ADDRESS = initArgs.COIN_ADDRESS;
         gameConstants().RING_ADDRESS = initArgs.RING_ADDRESS;
         gameConstants().TOWN_ADDRESS = initArgs.TOWN_ADDRESS;
-        gameConstants().BOUNTY_ADDRESS = initArgs.BOUNTY_ADDRESS;
+        gameConstants().OBLIVION_ADDRESS = initArgs.OBLIVION_ADDRESS;
         gameConstants().VRF_ADDRESS = initArgs.VRF_ADDRESS;
 
         gameConstants().BASE_MOVE_SPEED = initArgs.BASE_MOVE_SPEED;
@@ -79,8 +79,8 @@ contract InitDiamond is WithStorage {
         gameConstants().MAX_MINT_TOW_PER_MOVE = initArgs.MAX_MINT_TOW_PER_MOVE;
         gameConstants().TOWN_MINT_RATIO_PER_MOVE = initArgs
             .TOWN_MINT_RATIO_PER_MOVE;
-        gameConstants().BOUNTY_MINT_RATIO_PER_MOVE = initArgs
-            .BOUNTY_MINT_RATIO_PER_MOVE;
+        gameConstants().OBLIVION_MINT_RATIO_PER_MOVE = initArgs
+            .OBLIVION_MINT_RATIO_PER_MOVE;
         gameConstants().SEGMENTATION_DISTANCE_PER_MOVE = initArgs
             .SEGMENTATION_DISTANCE_PER_MOVE;
     }

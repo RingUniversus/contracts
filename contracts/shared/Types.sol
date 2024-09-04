@@ -12,8 +12,8 @@ struct Ring {
     uint256 townCount;
     // Minting Town chance, 9500 means 95.00%
     uint256 townMintingRatio;
-    // Bounty Info, 950000 means 95.00%
-    uint256 bountyMintingRatio;
+    // Oblivion Info, 9500 means 95.00%
+    uint256 oblivionMintingRatio;
     address explorer;
     uint256 exploredAt;
 }
@@ -70,38 +70,26 @@ struct EMetadata {
     uint256 equipedAt;
 }
 
-// For diffrent type with diffrent rewards
-enum BTYType {
-    // Biggest type
-    Uni,
-    // Monster rewards token
-    Monster,
-    //
-    Wanted
+// Oblivion type start
+// Diffrent type with diffrent rewards and Attacker
+enum OblivionType {
+    PlayerToken,
+    PlayerEquip,
+    PlayerBuff,
+    UniToken,
+    UniEquip,
+    UniBuff
 }
 
-enum BTYOwnType {
-    // own by mint
-    MINT,
-    // own by beat
-    BEAT
-}
-
-struct BTYMetadata {
+struct OblivionMetadata {
     address owner;
-    BTYOwnType otype;
+    Point coords;
+    OblivionType oblivionType;
     uint256 tokenId;
-    uint256 ringId;
-}
-
-struct BTYInfo {
-    Point location;
-    uint256 btype;
     uint256 discovererRewards;
     uint256 validAt;
     uint256 createdAt;
-    address discoverer;
-    uint256 claimedAt;
     uint256 beatedAt;
     address beatedBy;
 }
+// Oblivion End

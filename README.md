@@ -6,7 +6,7 @@
 2. Town
 3. Coin
 4. E (Equipment)
-5. Bounty
+5. Oblivion
 6. Player Logic (Core)
 7. ... (More Coming Soon)
 

@@ -13,7 +13,7 @@ enum Status {
 
 enum TeleportType {
     Town,
-    Bountry
+    Oblivion
 }
 
 struct Info {
@@ -69,7 +69,7 @@ struct Moving {
     // move configure
     uint256 maxTownToMint;
     uint256 townMintRatio;
-    uint256 bountyMintRatio;
+    uint256 oblivionMintRatio;
     uint256 segmentationDistance;
     // random words section
     RandomWordsInfo randomWords;
@@ -89,11 +89,11 @@ struct NewTownArgs {
     Point end;
 }
 
-struct NewBountyArgs {
+struct NewOblivionArgs {
     address player;
     uint256 chance;
     uint256 location;
-    uint256 bountyMintRatio;
+    uint256 oblivionMintRatio;
     Point start;
     Point end;
 }
@@ -105,6 +105,6 @@ struct UpdateRelatedAddressArgs {
     address coinAddress;
     address ringAddress;
     address townAddress;
-    address bountyAddress;
+    address oblivionAddress;
     address vrfAddress;
 }

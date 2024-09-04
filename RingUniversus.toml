@@ -17,8 +17,8 @@ DISTANCE = 200000              # 2000 means 20.00
 TOWN_MINTING_RATIO = 1000      # 10.00%
 TOWN_OVER_MINTING_RATIO = 1000 # 10.00%
 TOWN_RATIO_BONUS = 100         # 1.00x
-BOUNTY_MINTING_RATIO = 1000    # 10.00%
-BOUNTY_RATIO_BONUS = 100       # 1.00x
+OBLIVION_MINTING_RATIO = 1000  # 10.00%
+OBLIVION_RATIO_BONUS = 100     # 1.00x
 
 [coin_initializers]
 NAME = "Universus Coin"
@@ -30,7 +30,7 @@ TOTAL_SUPPLY = 1_000_000_000
 NAME = "Universus Equipment"
 SYMBOL = "UNiE"
 
-[bounty_initializers]
+[oblivion_initializers]
 VALID_DELAY = 259200 # 3 days
 
 [player_initializers]
@@ -40,7 +40,7 @@ MIN_TRIP_TIME = 1                                          # 10 * 30, 300 secs
 TOWN_MINT_FEE = 200                                        # 100 UNiC
 MAX_MINT_TOW_PER_MOVE = 3
 TOWN_MINT_RATIO_PER_MOVE = 30                              # 0.3 30%
-BOUNTY_MINT_RATIO_PER_MOVE = 30                            # 0.3 30%
+OBLIVION_MINT_RATIO_PER_MOVE = 30                          # 0.3 30%
 SEGMENTATION_DISTANCE_PER_MOVE = 200                       # split moving line with given distance
 FEE_ADDRESS = "0xfeEFEEfeefEeFeefEEFEEfEeFeefEEFeeFEEFEeF"
 VRF_ADDRESS = "0x3097403B64fe672467345bf159F4C9C5464bD89e"

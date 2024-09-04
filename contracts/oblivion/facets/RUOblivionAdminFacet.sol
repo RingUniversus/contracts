@@ -9,7 +9,7 @@ import {Modifiers} from "../libraries/LibStorage.sol";
 // Type imports
 import {UpdateRelatedAddressArgs} from "../Types.sol";
 
-contract RUBountyAdminFacet is Modifiers {
+contract RUOblivionAdminFacet is Modifiers {
     function updateRelatedAddress(
         UpdateRelatedAddressArgs calldata _addresses
     ) external onlyOwner {

@@ -46,11 +46,11 @@ contract InitDiamond is WithStorage {
 
         gs().diamondAddress = address(this);
 
-        // Bounty config
+        // Oblivion config
         ERC721MetadataStorage.Layout storage layout = ERC721MetadataStorage
             .layout();
-        layout.name = "Universus Bounty";
-        layout.symbol = "UNiBTY";
+        layout.name = "Universus Oblivion";
+        layout.symbol = "UNiO";
         // layout.baseURI = baseURI;
 
         gameConstants().VALID_DELAY = initArgs.VALID_DELAY;

@@ -30,10 +30,11 @@ async function deploy(args: object, hre: HardhatRuntimeEnvironment) {
   hre.playerInitializers.COIN_ADDRESS = hre.contracts.coin.CONTRACT_ADDRESS;
   hre.playerInitializers.RING_ADDRESS = hre.contracts.ring.CONTRACT_ADDRESS;
   hre.playerInitializers.TOWN_ADDRESS = hre.contracts.town.CONTRACT_ADDRESS;
-  hre.playerInitializers.BOUNTY_ADDRESS = hre.contracts.bounty.CONTRACT_ADDRESS;
-  // TODO:
-  hre.playerInitializers.VRF_ADDRESS = ZeroAddress;
-  settings.required(hre.playerInitializers, ["FEE_ADDRESS"]);
+  hre.playerInitializers.OBLIVION_ADDRESS =
+    hre.contracts.oblivion.CONTRACT_ADDRESS;
+  hre.playerInitializers.VRF_ADDRESS = hre.playerInitializers.VRF_ADDRESS;
+
+  settings.required(hre.playerInitializers, ["FEE_ADDRESS", "VRF_ADDRESS"]);
 
   // need to force a compile for tasks
   await hre.run("compile");

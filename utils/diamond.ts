@@ -52,8 +52,8 @@ export function toSignature(abiElement: unknown): string {
 const signaturesToIgnore = [
   // The SolidState contracts adds a `supportsInterface` function,
   // but we already provide that function through DiamondLoupeFacet
-  ["RUBountyFacet$", "supportsInterface(bytes4)"],
-  // ["RUBountyFacet$", "OwnershipTransferred(address,address)"],
+  ["RUOblivionFacet$", "supportsInterface(bytes4)"],
+  // ["RUOblivionFacet$", "OwnershipTransferred(address,address)"],
   ["RUCoinFacet$", "supportsInterface(bytes4)"],
   // ["RUCoinFacet$", "OwnershipTransferred(address,address)"],
   ["RUEquipmentFacet$", "supportsInterface(bytes4)"],

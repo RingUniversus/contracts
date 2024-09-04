@@ -8,7 +8,7 @@ async function deploy(args: object, hre: HardhatRuntimeEnvironment) {
   await hre.run("settingIndex");
   await hre.run("utils:assertChainId", { component: "player" });
 
-  await hre.run("deployBounty");
+  await hre.run("deployO");
   await hre.run("deployCoin");
   await hre.run("deployE");
   await hre.run("deployRing");
