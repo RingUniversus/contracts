@@ -33,7 +33,7 @@ declare module "hardhat/types/runtime" {
     townInitializers: TownInitializers;
     ringInitializers: RingInitializers;
     coinInitializers: CoinInitializers;
-    OblivionInitializers: OblivionInitializers;
+    oblivionInitializers: OblivionInitializers;
     equipmentInitializers: EquipmentInitializers;
     playerInitializers: PlayerInitializers;
   }
