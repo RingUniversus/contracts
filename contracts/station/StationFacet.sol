@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.30;
-import "lib/token/ERC721/ERC721/ERC721Mod.sol" as ERC721Mod;
+import "lib/token/ERC721/Mint/ERC721MintMod.sol" as ERC721MintMod;
 
 contract StationFacet {
     bytes32 constant STORAGE_POSITION = keccak256("ru.station.storage");
@@ -21,7 +21,7 @@ contract StationFacet {
 
     function mint(address player) external {
         uint256 _tokenId = _totalSupply();
-        ERC721Mod.mint(player, _tokenId);
+        ERC721MintMod.mintERC721(player, _tokenId);
         getStorage().totalSupply += 1;
     }
 }

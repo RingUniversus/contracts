@@ -3,7 +3,8 @@ pragma solidity >=0.8.30;
 
 import "lib/diamond/DiamondMod.sol" as DiamondMod;
 import "lib/access/Owner/OwnerMod.sol" as OwnerMod;
-import "lib/token/ERC20/ERC20/ERC20Mod.sol" as ERC20Mod;
+import "lib/token/ERC20/Metadata/ERC20MetadataMod.sol" as ERC20MetadataMod;
+import "lib/token/ERC20/Mint/ERC20MintMod.sol" as ERC20MintMod;
 import "lib/interfaceDetection/ERC165/ERC165Mod.sol" as ERC165Mod;
 import {IERC20} from "lib/interfaces/IERC20.sol";
 
@@ -39,12 +40,12 @@ contract FluxDiamond {
         /**
          * Setting ERC20 token details
          */
-        ERC20MetadataFacet.ERC20MetadataStorage storage s = ERC20MetadataFacet
-            .getStorage();
-        s.name = "Flux";
-        s.symbol = "FLUX";
-        s.decimals = 8;
-        ERC20Mod.mint(_diamondOwner, 100000000 * 1e8);
+        ERC20MetadataMod.setMetadata({
+            _name: "Flux",
+            _symbol: "FLUX",
+            _decimals: 8
+        });
+        ERC20MintMod.mintERC20(_diamondOwner, 100000000 * 1e8);
         /**
          * Registering ERC165 interfaces
          */

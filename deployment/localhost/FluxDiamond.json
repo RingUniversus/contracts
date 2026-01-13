@@ -1,0 +1,155 @@
+{
+  "diamond": "0x2279b7a0a67db372996a5fab50d91eaa73d2ebe6",
+  "functions": [
+    {
+      "selector": "0x8274760b",
+      "signature": "upgradeDiamond((address,bytes4[])[],(address,bytes4[])[],bytes4[],address,bytes,bytes32,bytes)",
+      "contract": "DiamondUpgradeFacet"
+    },
+    {
+      "selector": "0xcdffacc6",
+      "signature": "facetAddress(bytes4)",
+      "contract": "DiamondInspectFacet"
+    },
+    {
+      "selector": "0x60b5befb",
+      "signature": "functionFacetPairs()",
+      "contract": "DiamondInspectFacet"
+    },
+    {
+      "selector": "0x8da5cb5b",
+      "signature": "owner()",
+      "contract": "OwnerFacet"
+    },
+    {
+      "selector": "0x715018a6",
+      "signature": "renounceOwnership()",
+      "contract": "OwnerFacet"
+    },
+    {
+      "selector": "0xf2fde38b",
+      "signature": "transferOwnership(address)",
+      "contract": "OwnerFacet"
+    },
+    {
+      "selector": "0x01ffc9a7",
+      "signature": "supportsInterface(bytes4)",
+      "contract": "ERC165Facet"
+    },
+    {
+      "selector": "0xa9059cbb",
+      "signature": "transfer(address,uint256)",
+      "contract": "ERC20TransferFacet"
+    },
+    {
+      "selector": "0x23b872dd",
+      "signature": "transferFrom(address,address,uint256)",
+      "contract": "ERC20TransferFacet"
+    },
+    {
+      "selector": "0xdd62ed3e",
+      "signature": "allowance(address,address)",
+      "contract": "ERC20DataFacet"
+    },
+    {
+      "selector": "0x70a08231",
+      "signature": "balanceOf(address)",
+      "contract": "ERC20DataFacet"
+    },
+    {
+      "selector": "0x18160ddd",
+      "signature": "totalSupply()",
+      "contract": "ERC20DataFacet"
+    },
+    {
+      "selector": "0x313ce567",
+      "signature": "decimals()",
+      "contract": "ERC20MetadataFacet"
+    },
+    {
+      "selector": "0x06fdde03",
+      "signature": "name()",
+      "contract": "ERC20MetadataFacet"
+    },
+    {
+      "selector": "0x95d89b41",
+      "signature": "symbol()",
+      "contract": "ERC20MetadataFacet"
+    },
+    {
+      "selector": "0x095ea7b3",
+      "signature": "approve(address,uint256)",
+      "contract": "ERC20ApproveFacet"
+    }
+  ],
+  "owner": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+  "blockNumber": "9",
+  "blockHash": "0x8203bb043218ebfef7d3d2f4b076d8c696a410b34e694113549a72361ead36d6",
+  "facets": {
+    "DiamondUpgradeFacet": {
+      "address": "0x5fbdb2315678afecb367f032d93f642f64180aa3",
+      "blockNumber": "1",
+      "blockHash": "0x2e964a908bdc107df1d61d34b0a4ffc4392526b1afc1e75a0abf2c85863dc458",
+      "transactionHash": "0xbde2d18fb2fd1406d6d8487463f00a136e4476f07207df58eda172d85d4ab3a6",
+      "transactionIndex": 0,
+      "from": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266"
+    },
+    "DiamondInspectFacet": {
+      "address": "0xe7f1725e7734ce288f8367e1bb143e90bb3f0512",
+      "blockNumber": "2",
+      "blockHash": "0x12fb9c9c085bc6955de428856072e1860ac4860d29e80ee0f405b4fbfacb20b3",
+      "transactionHash": "0xec215a7ff84aa99388959f15601b8ad6949413ee8dbc1c6f0769f567075d7179",
+      "transactionIndex": 0,
+      "from": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266"
+    },
+    "OwnerFacet": {
+      "address": "0x9fe46736679d2d9a65f0992f2272de9f3c7fa6e0",
+      "blockNumber": "3",
+      "blockHash": "0x0bad179755529026020b90a3c7179a55831154e3f07eccb77bf40a2701caeea4",
+      "transactionHash": "0xbcd9564559e9238b5a5fcdb251e9d404e223ce820b6885d7cc206fd4b9fb59f0",
+      "transactionIndex": 0,
+      "from": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266"
+    },
+    "ERC165Facet": {
+      "address": "0xcf7ed3acca5a467e9e704c703e8d87f634fb0fc9",
+      "blockNumber": "4",
+      "blockHash": "0xd7b2272fa77001672b2e82d0f5d0299e3c96a0458fe8e51ef532c687fece17ad",
+      "transactionHash": "0x684376d15c784f5a73c29635da9b935901641364f51444ee57a95a969e92e740",
+      "transactionIndex": 0,
+      "from": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266"
+    },
+    "ERC20TransferFacet": {
+      "address": "0xdc64a140aa3e981100a9beca4e685f962f0cf6c9",
+      "blockNumber": "5",
+      "blockHash": "0x7d3433d96242f5f3cf66be9580a426a3b003618954ecd1e5c46d25eaae7dc6e8",
+      "transactionHash": "0x9f2141354ef5f90920cc4c296d9a350fa2fc9df7d313d8216d1bd0ee314df0d7",
+      "transactionIndex": 0,
+      "from": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266"
+    },
+    "ERC20DataFacet": {
+      "address": "0x5fc8d32690cc91d4c39d9d3abcbd16989f875707",
+      "blockNumber": "6",
+      "blockHash": "0xd6a7e452c0f46f09df394c44ace3e86ddd69dcfd852d4f7d77dd628155495ca0",
+      "transactionHash": "0x13055d19c63937b68d52c260a34093b0e2fe740d90df45eb58ee7f300121aae9",
+      "transactionIndex": 0,
+      "from": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266"
+    },
+    "ERC20MetadataFacet": {
+      "address": "0x0165878a594ca255338adfa4d48449f69242eb8f",
+      "blockNumber": "7",
+      "blockHash": "0x0a2ea48f1e5952838dd13f7218d86d65c7d239b0f987c224f2d532c612335602",
+      "transactionHash": "0x2555f585f5f201a651a396ba681443be10e4e870c08de2893e6534e45fa28586",
+      "transactionIndex": 0,
+      "from": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266"
+    },
+    "ERC20ApproveFacet": {
+      "address": "0xa513e6e4b8f2a923d98304ec87f64353c4d5c853",
+      "blockNumber": "8",
+      "blockHash": "0xcc761f81a99013766a881c62a75d486aa3a91e11699b55fe1924294355cc9610",
+      "transactionHash": "0xf75fefe4469ba8ea13738171ae34466dcf3c4b7cc063b8a8bd78d0c645b2832f",
+      "transactionIndex": 0,
+      "from": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266"
+    }
+  },
+  "upgradeHistory": []
+}
